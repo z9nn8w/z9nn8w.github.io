@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>CTF on w8nn9z Blog</title>
+    <link>https://z9nn8w.github.io/posts/ctf/</link>
+    <description>Recent content in CTF on w8nn9z Blog</description>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 23 Nov 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://z9nn8w.github.io/posts/ctf/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>第十六届极客大挑战 WEB Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/geekchallenge-16th-web-writeup/</link>
+      <pubDate>Wed, 05 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/geekchallenge-16th-web-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>羊城杯 2025 WEB Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/ycb-2025-web-writeup/</link>
+      <pubDate>Fri, 17 Oct 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/ycb-2025-web-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Sunshine CTF 2025 WEB Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/sunshine-ctf-2025-web-writeup/</link>
+      <pubDate>Mon, 29 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/sunshine-ctf-2025-web-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>WMCTF 2025 Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/wmctf-2025-writeup/</link>
+      <pubDate>Sat, 20 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/wmctf-2025-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>第三届陇剑杯 总决赛 WEB Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/ljb-3th-web-writeup/</link>
+      <pubDate>Fri, 19 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/ljb-3th-web-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>N1CTF Junior 2025 2/2 WEB Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>第五届长城杯 WEB Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/ccb-2025-web-writeup/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/ccb-2025-web-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>NSSCTF 4th WEB Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/nssctf-4th-web-writeup/</link>
+      <pubDate>Sun, 24 Aug 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/nssctf-4th-web-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>LilCTF 2025 WEB Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/lilctf-2025-web-writeup/</link>
+      <pubDate>Sun, 17 Aug 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/lilctf-2025-web-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>BUUCTF WEB page3</title>
+      <link>https://z9nn8w.github.io/posts/ctf/buuojpage3/</link>
+      <pubDate>Sun, 10 Aug 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/buuojpage3/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>BUUCTF WEB page2</title>
+      <link>https://z9nn8w.github.io/posts/ctf/buuojpage2/</link>
+      <pubDate>Tue, 22 Jul 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/buuojpage2/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>BUUCTF WEB page1</title>
+      <link>https://z9nn8w.github.io/posts/ctf/buuojpage1/</link>
+      <pubDate>Tue, 08 Jul 2025 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/buuojpage1/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>WMCTF 2024 Forensics Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/wmctf-2024-forensics-writeup/</link>
+      <pubDate>Wed, 11 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/wmctf-2024-forensics-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>第四届长城杯 MISC Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/ccb-2024-misc-writeup/</link>
+      <pubDate>Sun, 08 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/ccb-2024-misc-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>NepCTF 2024 MISC Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/nepctf-2024-misc-writeup/</link>
+      <pubDate>Mon, 26 Aug 2024 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/nepctf-2024-misc-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>巅峰极客 2024 MISC Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2-2024-misc-writeup/</link>
+      <pubDate>Wed, 21 Aug 2024 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A2-2024-misc-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>MoeCTF 2024 Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/moectf-2024-writeup/</link>
+      <pubDate>Sat, 10 Aug 2024 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/moectf-2024-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>DASCTF 2024暑期挑战赛 MISC Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/dasctf-2024-%E6%9A%91%E6%9C%9F%E6%8C%91%E6%88%98%E8%B5%9B-misc-writeup/</link>
+      <pubDate>Sun, 21 Jul 2024 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/dasctf-2024-%E6%9A%91%E6%9C%9F%E6%8C%91%E6%88%98%E8%B5%9B-misc-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>HGAME 2024 MISC Writeup</title>
+      <link>https://z9nn8w.github.io/posts/ctf/hgame-2024-misc-writeup/</link>
+      <pubDate>Fri, 01 Mar 2024 00:00:00 +0000</pubDate>
+      <guid>https://z9nn8w.github.io/posts/ctf/hgame-2024-misc-writeup/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>
