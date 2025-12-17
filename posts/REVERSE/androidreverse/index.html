@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>安卓逆向 | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="安卓逆向 - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/reverse/androidreverse/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="sha256-EqVinQvl&#43;IX9lG13JX5V90An7So1FEop4tsT&#43;PYrXzU=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/reverse/androidreverse/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      安卓逆向
+    </h1>
+    <div class="post-meta"><span title='2025-10-05 00:00:00 +0000 UTC'>October 5, 2025</span>
+
+</div>
+  </header> <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details >
+            <summary accesskey="c" title="(Alt + C)">
+                <span class="details">Table of Contents</span>
+            </summary>
+
+            <div class="inner"><ul>
+                    <li>
+                        <a href="#android%e7%b3%bb%e7%bb%9f%e5%9f%ba%e7%a1%80%e7%9f%a5%e8%af%86" aria-label="Android系统基础知识">Android系统基础知识</a><ul>
+                            
+                    <li>
+                        <a href="#android%e6%9e%b6%e6%9e%84" aria-label="Android架构">Android架构</a><ul>
+                            
+                    <li>
+                        <a href="#linux%e5%86%85%e6%a0%b8" aria-label="linux内核">linux内核</a></li>
+                    <li>
+                        <a href="#%e7%a1%ac%e4%bb%b6%e6%8a%bd%e8%b1%a1%e5%b1%82-hal" aria-label="硬件抽象层 (HAL)">硬件抽象层 (HAL)</a></li>
+                    <li>
+                        <a href="#android%e8%bf%90%e8%a1%8c%e6%97%b6-art" aria-label="Android运行时 (ART)">Android运行时 (ART)</a></li>
+                    <li>
+                        <a href="#%e5%8e%9f%e7%94%9f-cc-%e5%ba%93" aria-label="原生 C/C&#43;&#43; 库">原生 C/C++ 库</a></li>
+                    <li>
+                        <a href="#java-api-%e6%a1%86%e6%9e%b6" aria-label="Java API 框架">Java API 框架</a></li>
+                    <li>
+                        <a href="#%e7%b3%bb%e7%bb%9f%e5%ba%94%e7%94%a8" aria-label="系统应用">系统应用</a></li></ul>
+                    </li>
+                    <li>
+                        <a href="#android%e5%9b%9b%e5%a4%a7%e7%bb%84%e4%bb%b6" aria-label="Android四大组件">Android四大组件</a><ul>
+                            
+                    <li>
+                        <a href="#activity" aria-label="Activity">Activity</a></li>
+                    <li>
+                        <a href="#service" aria-label="Service">Service</a></li>
+                    <li>
+                        <a href="#content-provider" aria-label="Content Provider">Content Provider</a></li>
+                    <li>
+                        <a href="#broadcast-receiver" aria-label="Broadcast Receiver">Broadcast Receiver</a></li></ul>
+                    </li>
+                    <li>
+                        <a href="#apk%e6%96%87%e4%bb%b6%e7%bb%93%e6%9e%84" aria-label="APK文件结构">APK文件结构</a><ul>
+                            
+                    <li>
+                        <a href="#assets" aria-label="assets">assets</a></li>
+                    <li>
+                        <a href="#lib" aria-label="lib">lib</a></li>
+                    <li>
+                        <a href="#meta-inf" aria-label="META-INF">META-INF</a></li>
+                    <li>
+                        <a href="#res" aria-label="res">res</a></li>
+                    <li>
+                        <a href="#androidmanifestxml" aria-label="AndroidManifest.xml">AndroidManifest.xml</a></li>
+                    <li>
+                        <a href="#classesdex" aria-label="classes.dex">classes.dex</a></li>
+                    <li>
+                        <a href="#resourcesarsc" aria-label="resources.arsc">resources.arsc</a></li></ul>
+                    </li></ul>
+                    </li>
+                    <li>
+                        <a href="#%e6%a8%a1%e6%8b%9f%e5%99%a8" aria-label="模拟器">模拟器</a></li>
+                    <li>
+                        <a href="#%e5%9f%ba%e6%9c%ac%e5%88%a9%e7%94%a8" aria-label="基本利用">基本利用</a><ul>
+                            
+                    <li>
+                        <a href="#%e5%8f%8c%e5%bc%80" aria-label="双开">双开</a></li>
+                    <li>
+                        <a href="#%e6%b1%89%e5%8c%96" aria-label="汉化">汉化</a>
+                    </li>
+                </ul>
+                </li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    
+    document.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+    
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        if (elements.length > 0) {
+            
+            activeElement = elements[0];
+            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+        }
+    
+        
+        const topLink = document.getElementById('top-link');
+        if (topLink) {
+            topLink.addEventListener('click', (event) => {
+                
+                event.preventDefault();
+    
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }, false);
+    
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+    
+    window.addEventListener('scroll', () => {
+        
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+        
+        if (scrollPosition === 0) {
+            return;
+        }
+    
+        
+        if (elements && elements.length > 0) {
+            
+            activeElement = Array.from(elements).find((element) => {
+                if ((getOffsetTop(element) - scrollPosition) > 0 && 
+                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
+                    return element;
+                }
+            }) || activeElement;
+    
+            elements.forEach(element => {
+                const id = encodeURI(element.getAttribute('id')).toLowerCase();
+                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
+                if (element === activeElement){
+                    tocLink.classList.add('active');
+    
+                    
+                    const tocContainer = document.querySelector('.toc .inner');
+                    const linkOffsetTop = tocLink.offsetTop;
+                    const containerHeight = tocContainer.clientHeight;
+                    const linkHeight = tocLink.clientHeight;
+    
+                    
+                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
+                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                } else {
+                    tocLink.classList.remove('active');
+                }
+            });
+        }
+    }, false);
+    
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+    
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+    
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+    
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;   
+    }
+    
+</script>
+
+  <div class="post-content"><h2 id="android系统基础知识">Android系统基础知识<a hidden class="anchor" aria-hidden="true" href="#android系统基础知识">#</a></h2>
+<h3 id="android架构">Android架构<a hidden class="anchor" aria-hidden="true" href="#android架构">#</a></h3>
+<p><img alt="alt" loading="lazy" src="/images/AndroidReverse/1.png"></p>
+<h4 id="linux内核">linux内核<a hidden class="anchor" aria-hidden="true" href="#linux内核">#</a></h4>
+<p>linux内核，用于实现底层功能，如线程处理和低级内存管理，为显示屏、摄像头、键盘、无线网络（Wi-Fi、蓝牙）等各种硬件提供底层的驱动支持，使上层软件能够与硬件设备进行通信和交互，linux内核也是安卓架构的基础</p>
+<h4 id="硬件抽象层-hal">硬件抽象层 (HAL)<a hidden class="anchor" aria-hidden="true" href="#硬件抽象层-hal">#</a></h4>
+<p>硬件抽象层(HAL)，提供了用于向较高级别的 Java API 框架公开设备硬件功能的标准接口。HAL 由多个库模块组成，每个模块都为特定类型的硬件组件（例如相机或蓝牙模块）实现一个接口，当框架 API 发出调用以访问设备硬件时，Android 系统将为该硬件组件加载库模块</p>
+<h4 id="android运行时-art">Android运行时 (ART)<a hidden class="anchor" aria-hidden="true" href="#android运行时-art">#</a></h4>
+<p>Android运行时 (ART)，提供名为 Dalvik 虚拟机的关键组件，对于搭载 Android 5.0（API 级别 21）或更高版本的设备，每个应用都在其自己的进程中运行，并且有其自己的 Android运行时 (ART) 实例，ART 编写为通过执行 Dalvik 可执行文件格式 (DEX) 文件，在低内存设备上运行多个虚拟机。DEX 文件是一种专为 Android 设计的字节码格式，针对最小的内存占用量进行了优化</p>
+<h4 id="原生-cc-库">原生 C/C++ 库<a hidden class="anchor" aria-hidden="true" href="#原生-cc-库">#</a></h4>
+<p>许多核心 Android 系统组件和服务（如 ART 和 HAL）都是从需要用 C 和 C++ 编写的原生库的原生代码构建的，Android 平台提供 Java 框架 API，用于向应用提供其中一些原生库的功能</p>
+<h4 id="java-api-框架">Java API 框架<a hidden class="anchor" aria-hidden="true" href="#java-api-框架">#</a></h4>
+<p>这些 API 是创建 Android 应用所需的构建块的基础，可简化核心、模块系统组件和服务的重复使用，包括以下组件和服务：</p>
+<pre tabindex="0"><code>丰富且可扩展的视图系统，可用于构建应用界面，包括列表、网格、文本框、按钮，甚至可嵌入的网络浏览器
+资源管理器，用于访问非代码资源，例如本地化的字符串、图形和布局文件
+通知管理器，可让所有应用在状态栏中显示自定义提醒
+一个 activity 管理器，用于管理应用的生命周期，并提供常见的导航返回堆栈
+Content Provider，可让应用访问其他应用（例如通讯录应用）中的数据或共享自己的数据
+</code></pre><h4 id="系统应用">系统应用<a hidden class="anchor" aria-hidden="true" href="#系统应用">#</a></h4>
+<p>所有的 Android 应用程序，开发者写的应用程序也将被安装在这层，这些应用程序包括通讯录，浏览器，游戏等</p>
+<h3 id="android四大组件">Android四大组件<a hidden class="anchor" aria-hidden="true" href="#android四大组件">#</a></h3>
+<h4 id="activity">Activity<a hidden class="anchor" aria-hidden="true" href="#activity">#</a></h4>
+<p>一个Activity可以看作是一个页面，或者说是一个单独的屏幕，每一个 Activity 都必须要在 <code>AndroidManifest.xml</code> 配置文件中声明，否则系统将不识别也不执行该Activity，一个 Android 应用必须通过 Activity 来运行和启动，Activity 的生命周期交给系统统一管理</p>
+<h4 id="service">Service<a hidden class="anchor" aria-hidden="true" href="#service">#</a></h4>
+<p>Service通常用作在后台处理耗时的逻辑，与 Activity 一样，它存在自己的生命周期，也需要在 <code>AndroidManifest.xml</code> 配置相关信息，还可以用于提升进程的优先级，当内存不足时，系统会根据进程的优先级清理掉一部分进程占用的内存空间，具体优先级：</p>
+<pre tabindex="0"><code>前台进程：应用程序存在Activity正位于前台，可见并可控
+可见进程：应用程序存在Activity处于局部可见状态，即局部可见却不可控
+服务进程：应用程序存在正在运行的Service
+后台进程：应用程序的所有Activity均被置于后台，没有任何Activity可见
+空进程：已经退出的应用程序
+</code></pre><h4 id="content-provider">Content Provider<a hidden class="anchor" aria-hidden="true" href="#content-provider">#</a></h4>
+<p>Content Provider 将程序的内部的数据和外部进行共享，为数据提供外部访问接口，被访问的数据主要以数据库的形式存在，而且还可以选择共享哪一部分的数据，对于程序当中的隐私数据可以不共享，从而更加安全</p>
+<p>Content Provider 使用 URI 来唯一标识其数据集，这里的 URI 以 <code>content://</code> 作为前缀，表示该数据由 Content Provider 来管理</p>
+<h4 id="broadcast-receiver">Broadcast Receiver<a hidden class="anchor" aria-hidden="true" href="#broadcast-receiver">#</a></h4>
+<p>Broadcast Receiver 用来接收来自系统和应用中的广播，广播是一种一对多的通信方式，即存在1个发送方，若干个接收方，例如开机、网络状态变化、电池状态变化系统都会产生广播</p>
+<p>Broadcast Receiver 的注册有两种方法，分别是 <code>AndroidManifest.xml</code> 文件中进行静态注册和程序动态注册，静态注册的即使退出了页面也能接收广播，动态注册通常运用于更新UI</p>
+<p>Broadcast Receiver 注册时，<code>IntentFilter</code> 中的 <code>priority</code> 属性直接决定优先级，该属性值为 int 类型的数值，取值越大，则优先级越高，如果存在多个广播接收者配置的 <code>priority</code> 属性值相同，则动态注册的优先级高于静态注册。如果根据以上两条规则都无法确定优先级，则根据注册的先后顺序确定各 Broadcast Receiver 的优先级。</p>
+<h3 id="apk文件结构">APK文件结构<a hidden class="anchor" aria-hidden="true" href="#apk文件结构">#</a></h3>
+<h4 id="assets">assets<a hidden class="anchor" aria-hidden="true" href="#assets">#</a></h4>
+<p>静态资源文件夹，应用程序中的静态文件、配置文件、原始数据或者其他不常改变的文件放在 assets 文件夹中，如一些图片、js文件等</p>
+<h4 id="lib">lib<a hidden class="anchor" aria-hidden="true" href="#lib">#</a></h4>
+<p>lib文件夹下的每个目录都适用于不同的环境下，存放运行所需要的so文件，也就是动态链接库的二进制文件，armeabi-v7a目录基本通用所有android设备，arm64-v8a目录只适用于64位的android设备，x86目录常见用于android模拟器，x86-64目录适用于支持x86_64架构的Android设备(适用于支持通常称为“x86-64”的指令集的 CPU)</p>
+<h4 id="meta-inf">META-INF<a hidden class="anchor" aria-hidden="true" href="#meta-inf">#</a></h4>
+<p>存放数字签名相关文件的文件夹，<code>CERT.RSA</code>、<code>CERT.SF</code>和<code>MANIFEST.MF</code>，在APK安装时作为校验的凭据，用于保护APK不被恶意篡改，同时也是对APK著作权和所有权的声名，对安装包的任意文件最作修改，导致安卓系统检查计算后的签名信息与APK文件中存储的签名信息不一致，最终无法安装，会出现签名冲突的问题。</p>
+<h4 id="res">res<a hidden class="anchor" aria-hidden="true" href="#res">#</a></h4>
+<p>存放编译资源文件，与assets文件夹不同的是，这里是编译后的资源文件，直接打开可能显示乱码。</p>
+<p>每个子文件夹都用来存放特定类型的资源文件，主要的文件夹包括 <code>drawable</code> 文件夹、<code>layout</code> 文件夹和 <code>values</code> 文件夹：</p>
+<pre tabindex="0"><code>drawable 用来存放图片资源文件，包括位图文件（.png, .jpg, .gif 等）和矢量图文件（.svg）。
+layout 用来存放布局文件，布局文件用来描述应用程序的界面结构。
+values 用来存放值资源文件，值资源文件用来存放应用程序中使用的常量值和颜色信息。
+</code></pre><h4 id="androidmanifestxml">AndroidManifest.xml<a hidden class="anchor" aria-hidden="true" href="#androidmanifestxml">#</a></h4>
+<p>配置清单文件，用来描述应用程序的清单信息。包括包名、应用名、权限、安卓四大组件、版本等重要信息都在这里面声名</p>
+<h4 id="classesdex">classes.dex<a hidden class="anchor" aria-hidden="true" href="#classesdex">#</a></h4>
+<p>核心代码文件，Dalvik 可执行文件的缩写，反编译后的语言是smali语言，smali代码可转换为java代码</p>
+<h4 id="resourcesarsc">resources.arsc<a hidden class="anchor" aria-hidden="true" href="#resourcesarsc">#</a></h4>
+<p>存放应用程序的资源表，提供资源的索引和映射关系，它将资源文件名、类型、值等信息映射到一个唯一的整数ID上</p>
+<hr>
+<h2 id="模拟器">模拟器<a hidden class="anchor" aria-hidden="true" href="#模拟器">#</a></h2>
+<p>雷电模拟器+Magisk+MP管理器+NP管理器</p>
+<h2 id="基本利用">基本利用<a hidden class="anchor" aria-hidden="true" href="#基本利用">#</a></h2>
+<h3 id="双开">双开<a hidden class="anchor" aria-hidden="true" href="#双开">#</a></h3>
+<h3 id="汉化">汉化<a hidden class="anchor" aria-hidden="true" href="#汉化">#</a></h3>
+<p>参考资料：</p>
+<p><a href="https://cloud.tencent.com/developer/article/2173206">https://cloud.tencent.com/developer/article/2173206</a></p>
+<p><a href="https://developer.android.com/guide/platform?hl=zh-cn">https://developer.android.com/guide/platform?hl=zh-cn</a></p>
+<p><a href="https://cloud.tencent.com/developer/news/983912">https://cloud.tencent.com/developer/news/983912</a></p>
+<p><a href="https://bbs.kanxue.com/thread-278112.htm">https://bbs.kanxue.com/thread-278112.htm</a></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
