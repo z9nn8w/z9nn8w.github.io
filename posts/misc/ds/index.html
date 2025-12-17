@@ -1,12 +1,350 @@
-<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta http-equiv=Content-Security-Policy content="upgrade-insecure-requests"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>数据安全 | w8nn9z Blog</title><meta name=keywords content><meta name=description content="数据安全 - w8nn9z Blog"><meta name=author content><link rel=canonical href=https://z9nn8w.github.io/posts/misc/ds/><link crossorigin=anonymous href=/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css integrity rel="preload stylesheet" as=style><link rel=icon href=https://z9nn8w.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://z9nn8w.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://z9nn8w.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://z9nn8w.github.io/apple-touch-icon.png><link rel=mask-icon href=https://z9nn8w.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://z9nn8w.github.io/posts/misc/ds/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/misc/ds/"><meta property="og:site_name" content="w8nn9z Blog"><meta property="og:title" content="数据安全"><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-10-21T00:00:00+00:00"><meta property="article:modified_time" content="2025-10-22T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="数据安全"><meta name=twitter:description content><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://z9nn8w.github.io/posts/"},{"@type":"ListItem","position":2,"name":"MISC","item":"https://z9nn8w.github.io/posts/misc/"},{"@type":"ListItem","position":3,"name":"数据安全","item":"https://z9nn8w.github.io/posts/misc/ds/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"数据安全","name":"数据安全","description":"","keywords":[],"articleBody":"身份证 # 身份证号格式，可能会进⾏空格分隔或横线分隔\r794688197610150966\r794688 19761015 0966\r794688-19761015-0966\ridcard_pattern = r'\\d{17}[\\dXx]|\\d{6}-\\d{8}-[\\dXx]{4}|\\d{6} \\d{8} [\\dXx]{4}' 手机号 # ⼿机号格式，可能会进⾏空格分隔或横线分隔，可能会带有“+86 ”或“(+86)”前缀\r19930800372\r199 3080 0372\r199-3080-0372\r+86 19930800372\r+86 199 3080 0372\r+86 199-3080-0372\r(+86)19930800372\r(+86)199 3080 0372\r(+86)199-3080-0372\rphone_pattern = r'(?:\\(\\+86\\)|\\+86)?\\s*(\\d{3}(?:[\\s\\-]\\d{4}[\\s\\-]\\d{4}|\\d{8}))' 银行卡号 银⾏卡号为 16-19 位数字字符串，使⽤ Luhn 算法进⾏校验：\n# 银⾏卡格式，⽆变形\r6228480402564890018\rbankcard_pattern = r'(?\u003c!\\d)\\d{16,19}(?!\\d)' 校验算法：\ndef luhn_check(card_number): \"\"\"Luhn算法校验\"\"\" total = 0 # 从右到左遍历 for i, digit in enumerate(reversed(card_number)): num = int(digit) if i % 2 == 1: # 偶数位（从右往左数，索引从0开始） num *= 2 if num \u003e 9: num = num // 10 + num % 10 # 各位数字相加 total += num return total % 10 == 0 ip地址 ip地址开头之前和结尾之后不再出现数字：\n# IP 地址格式，⽆变形\r192.168.10.1\rip_pattern = r'(?\u003c!\\d)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?!\\d)' mac地址 mac地址格式比较固定，大小写mac地址：\n# MAC 地址格式，⽆变形\r00:a0:c9:14:c8:29\rmac_pattern = r'[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}' 常用脚本 合并xlsx：\nimport os import pandas as pd # 定义文件夹路径和输出文件名 folder_path = './' # 存放 .xlsx 文件的文件夹路径 output_file = 'merged.xlsx' # 合并后的输出文件名 # 创建一个空的 DataFrame 用于存储合并数据 merged_data = pd.DataFrame() # 遍历文件夹中的所有 .xlsx 文件 for file_name in os.listdir(folder_path): if file_name.endswith('.xlsx'): file_path = os.path.join(folder_path, file_name) # 读取每个 Excel 文件 data = pd.read_excel(file_path) # 将数据追加到合并的 DataFrame 中 merged_data = pd.concat([merged_data, data], ignore_index=True) # 将合并后的数据保存为新的 Excel 文件 merged_data.to_excel(output_file, index=False) print(f\"所有文件已成功合并并保存为 {output_file}\") 题目 2025 羊城杯 dataIdSort import re import csv def extract_and_save(filename): # 身份证模式 id_pattern = r'\\d{17}[\\dXx]|\\d{6}-\\d{8}-[\\dXx]{4}|\\d{6} \\d{8} [\\dXx]{4}' id_coefficients = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2] id_check_table = {0: '1', 1: '0', 2: 'X', 3: '9', 4: '8', 5: '7', 6: '6', 7: '5', 8: '4', 9: '3', 10: '2'} common_bankcard_prefixes = { '622848', '622700', '621700', '622262', '622188', '622200', '622568', '622609', '622908', '622518' } def is_valid_id(id_str): clean = id_str.replace('-', '').replace(' ', '') if len(clean) != 18: return False try: if clean[:6] in common_bankcard_prefixes: return False total = sum(int(clean[i]) * id_coefficients[i] for i in range(17)) remainder = total % 11 expected = id_check_table[remainder] return expected == clean[17].upper() except: return False phone_pattern = r'(?:\\(\\+86\\)|\\+86)?\\s*(\\d{3}(?:[\\s\\-]\\d{4}[\\s\\-]\\d{4}|\\d{8}))' valid_prefixes = { '134', '135', '136', '137', '138', '139', '147', '148', '150', '151', '152', '157', '158', '159', '172', '178', '182', '183', '184', '187', '188', '195', '198', '130', '131', '132', '140', '145', '146', '155', '156', '166', '167', '171', '175', '176', '185', '186', '196', '133', '149', '153', '173', '174', '177', '180', '181', '189', '190', '191', '193', '199' } def is_valid_phone(phone_str): clean = re.sub(r'[^\\d]', '', phone_str) if len(clean) != 11 and len(clean) != 13: return False if len(clean) == 11: return clean[:3] in valid_prefixes if len(clean) == 13: return clean[2:5] in valid_prefixes # 银行卡号模式 bankcard_pattern = r'(?\u003c!\\d)\\d{16,19}(?!\\d)' common_bankcard_prefixes = { '622848', '622700', '621700', '622262', '622188', '622200', '622568', '622609', '622908', '622518' } def luhn_check(card_number): \"\"\"Luhn算法校验\"\"\" total = 0 # 从右到左遍历 for i, digit in enumerate(reversed(card_number)): num = int(digit) if i % 2 == 1: # 偶数位（从右往左数，索引从0开始） num *= 2 if num \u003e 9: num = num // 10 + num % 10 # 各位数字相加 total += num return total % 10 == 0 def is_valid_bankcard(card_str): \"\"\"验证银行卡号\"\"\" # 检查长度 if len(card_str) \u003c 16 or len(card_str) \u003e 19: return False # 检查是否全为数字 if not card_str.isdigit(): return False # 检查常见前缀 has_common_prefix = any(card_str.startswith(prefix) for prefix in common_bankcard_prefixes) if not has_common_prefix: return False # Luhn算法校验 return luhn_check(card_str) # IP地址模式 ip_pattern = r'(?\u003c!\\d)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?!\\d)' def is_valid_ip(ip_str): parts = ip_str.split('.') if len(parts) != 4: return False for part in parts: if not 0 \u003c= int(part) \u003c= 255: return False return True # MAC地址模式 mac_pattern = r'[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}' def is_valid_mac(mac_str): return True results = [] with open(filename, 'r', encoding='utf-8') as f: content = f.read() check = [] # 用于排除手机号取身份证前11位的情况 # 身份证匹配 for match in re.findall(id_pattern, content): if is_valid_id(match): check.append(match[:11]) results.append(['idcard', match]) # 手机号匹配 for match in re.finditer(phone_pattern, content): full_match = match.group() if is_valid_phone(full_match): if full_match[0] == \" \": full_match = full_match[1:len(full_match)] if full_match not in check: results.append(['phone', full_match.strip() ]) # 银行卡号匹配 bankcard_matches = re.findall(bankcard_pattern, content) for match in bankcard_matches: if is_valid_bankcard(match): results.append(['bankcard', match]) # IP地址匹配 ip_matches = re.findall(ip_pattern, content) for match in ip_matches: if is_valid_ip(match): results.append(['ip', match]) # MAC地址匹配 mac_matches = re.findall(mac_pattern, content) for match in mac_matches: if is_valid_mac(match): results.append(['mac', match]) with open('output.csv', 'w', newline='', encoding='utf-8') as f: writer = csv.writer(f) writer.writerow(['category', 'value']) writer.writerows(results) extract_and_save('data.txt') 2025 能源网络安全大赛 数据脱敏 为了抵抗黑客攻击导致数据拖库等问题，需要将敏感数据识别并脱敏存储成⼀个表。给定脱敏算法逻辑，要求选⼿⽣成脱敏后的数据表数据（所有数据均为随机⽣成，与现实世界⽆任何联系）。为了防⽌⼀些隐私数据泄漏，现需要对该数据表进⾏脱敏操作，请按照指定要求对各字段进⾏脱敏处理，并按照先行后列拼接字符串（不包含标题行），对此字符串进行md5计算，得到答案。\n脱敏要求：\n编号：⽆需脱敏。\r姓名：⼆字姓名对最后⼀位字使⽤ * 进⾏替换，三字姓名对中间⼀位字使⽤ * 进⾏替换，四字姓名对中间两位字使⽤ * 进⾏替换。\r手机号：请对中间五位信息使⽤ * 进⾏替换。\r身份证号码：请对除了前6位信息使⽤ * 进⾏替换。\r银⾏卡：请对前四位和后十位信息使⽤ * 进⾏替换。\rEmail：请对字符 @ 前除 . 外的字符使⽤ * 进⾏替换。\r性别：替换成未知。\r微信号：请对为字符的信息使用 * 进行替换。 import pandas as pd import string import hashlib df_dict = pd.read_excel(\"data.xlsx\", sheet_name=[\"Sheet1\"], header=0) df_sheet1 = df_dict['Sheet1'] # 数据提取 id = df_sheet1['编号'] name = df_sheet1['姓名'] phone = df_sheet1['手机号'] idcard = df_sheet1['身份证号'] bankcard = df_sheet1['银行卡号'] email = df_sheet1['Email'] gender = df_sheet1['性别'] wechat = df_sheet1['微信号'] # 编号无需脱敏 # 姓名：⼆字姓名对最后⼀位字使⽤ * 进⾏替换，三字姓名对中间⼀位字使⽤ * 进⾏替换，四字姓名对中间两位字使⽤ * 进⾏替换。 def name_desensitization(current_name): n = len(current_name) if n == 2: desensitized_name = current_name[0] + '*' elif n == 3: desensitized_name = current_name[0] + '*' + current_name[2] elif n == 4: desensitized_name = current_name[0] + '**' + current_name[3] else: desensitized_name = current_name return desensitized_name # 手机号：请对中间五位信息使⽤ * 进⾏替换。 def phone_desensitization(current_phone): current_phone = str(current_phone) desensitized_phone = current_phone[0:3] + '*'*5 + current_phone[8:] return desensitized_phone # 身份证号码：请对除了前6位信息使⽤ * 进⾏替换。 def idcard_desensitization(current_idcard): current_idcard = str(current_idcard) desensitized_idcard = current_idcard[0:6] + '*'*12 return desensitized_idcard # 银⾏卡：请对前四位和后十位信息使⽤ * 进⾏替换。 def bankcard_desensitization(current_bankcard): current_bankcard = str(current_bankcard) desensitized_bankcard = current_bankcard[:4] + '*'*(len(current_bankcard)-14) + current_bankcard[-10:] return desensitized_bankcard # Email：请对字符 @ 前除 . 外的字符使⽤ * 进⾏替换。 def email_desensitization(current_email): desensitized_email = '' for i in range(len(current_email)): if current_email[i] == '@': desensitized_email += current_email[i:] return desensitized_email else: if current_email[i] != '.': desensitized_email += '*' else: desensitized_email += current_email[i] # 性别：替换成未知。 def gender_desensitization(current_gender): desensitized_gender = '未知' return desensitized_gender # 微信号：请对为字符的信息使用 * 进行替换。 chars = string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' def wechat_desensitization(current_wechat): desensitized_wechat = '' for i in range(len(current_wechat)): if current_wechat[i] in chars: desensitized_wechat += '*' else: desensitized_wechat += current_wechat[i] return desensitized_wechat # 数据脱敏 name_desensitized = name.apply(name_desensitization) phone_desensitized = phone.apply(phone_desensitization) idcard_desensitized = idcard.apply(idcard_desensitization) bankcard_desensitized = bankcard.apply(bankcard_desensitization) email_desensitized = email.apply(email_desensitization) gender_desensitized = gender.apply(gender_desensitization) wechat_desensitized = wechat.apply(wechat_desensitization) with open('output.txt', 'w') as f: for data_index in range(len(id)): f.write(name_desensitized[data_index]+phone_desensitized[data_index]+idcard_desensitized[data_index]+bankcard_desensitized[data_index]+email_desensitized[data_index]+gender_desensitized[data_index]+wechat_desensitized[data_index]) with open('output.txt', 'r') as ff: # 计算文件md5 md5 = hashlib.md5(ff.read().encode('UTF-8')).hexdigest() print(md5) 2025 红明谷杯 题目内容：某企业网络安全部门人员正在对企业网络资产受到的攻击行为进行溯源分析，该工作人员发现攻击者删除了一段时间内的访问日志数据，但是攻击者曾传输过已被删除的访问日志数据并且被流量监控设备捕获，工作人员对流量数据进行了初步过滤并提取出了相应数据包。已知该攻击者在开始时曾尝试低密度的攻击，发现未被相关安全人员及时发现后进行了连续多日的攻击，请协助企业排查并定位攻击者IP，flag格式为：flag{md5(IP)}\n先用tshark导出data.data字段的base64数据，默认输出的是hex的数据：\ntshark -r network_traffic.pcap -T fields -e data.data tcp \u003e 1.txt 先解hex，再解base64：\nimport base64 import json with open('1.txt', 'r', encoding='utf-8') as f, open('2.txt', 'w', encoding='utf-8') as ff: lines = f.readlines() for line in lines: line = line.strip() try: base64_data = bytes.fromhex(line).decode() data = base64.b64decode(base64_data).decode() json_data = json.loads(data) if 'msg' in json_data: base64_msg = json_data['msg'] log = base64.b64decode(base64_msg).decode() ff.write(log + '\\n') except: print(\"decode error\") 日志形式：\n90.97.242.28- - [08/Jan/2025:22:57:37 +0000] \"POST /main/search.php HTTP/1.1\" 200 2380 \"-\" \"Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.1)\" import re from collections import Counter pattern = r'\\d+\\.\\d+\\.\\d+\\.\\d+(?=-| )' with open('2.txt', 'r', encoding='latin') as f: ip = re.findall(pattern, f.read()) # 统计ip出现频率 ip_counts = Counter(ip) # 出现最多次数的ip badip, counts = ip_counts.most_common(1)[0] print(badip, counts) 输出结果：\n35.127.46.111 67 ","wordCount":"2565","inLanguage":"en","datePublished":"2025-10-21T00:00:00Z","dateModified":"2025-10-22T00:00:00Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://z9nn8w.github.io/posts/misc/ds/"},"publisher":{"@type":"Organization","name":"w8nn9z Blog","logo":{"@type":"ImageObject","url":"https://z9nn8w.github.io/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://z9nn8w.github.io/ accesskey=h title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
-<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://z9nn8w.github.io/search title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://z9nn8w.github.io/posts title=文章><span>文章</span></a></li><li><a href=https://z9nn8w.github.io/archives title=归档><span>归档</span></a></li><li><a href=https://z9nn8w.github.io/about title=关于><span>关于</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">数据安全</h1><div class=post-meta><span title='2025-10-21 00:00:00 +0000 UTC'>October 21, 2025</span></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#%e8%ba%ab%e4%bb%bd%e8%af%81 aria-label=身份证>身份证</a></li><li><a href=#%e6%89%8b%e6%9c%ba%e5%8f%b7 aria-label=手机号>手机号</a></li><li><a href=#%e9%93%b6%e8%a1%8c%e5%8d%a1%e5%8f%b7 aria-label=银行卡号>银行卡号</a></li><li><a href=#ip%e5%9c%b0%e5%9d%80 aria-label=ip地址>ip地址</a></li><li><a href=#mac%e5%9c%b0%e5%9d%80 aria-label=mac地址>mac地址</a></li><li><a href=#%e5%b8%b8%e7%94%a8%e8%84%9a%e6%9c%ac aria-label=常用脚本>常用脚本</a></li><li><a href=#%e9%a2%98%e7%9b%ae aria-label=题目>题目</a><ul><li><a href=#2025-%e7%be%8a%e5%9f%8e%e6%9d%af-dataidsort aria-label="2025 羊城杯 dataIdSort">2025 羊城杯 dataIdSort</a></li><li><a href=#2025-%e8%83%bd%e6%ba%90%e7%bd%91%e7%bb%9c%e5%ae%89%e5%85%a8%e5%a4%a7%e8%b5%9b-%e6%95%b0%e6%8d%ae%e8%84%b1%e6%95%8f aria-label="2025 能源网络安全大赛 数据脱敏">2025 能源网络安全大赛 数据脱敏</a></li><li><a href=#2025-%e7%ba%a2%e6%98%8e%e8%b0%b7%e6%9d%af aria-label="2025 红明谷杯">2025 红明谷杯</a></li></ul></li></ul></div></details></div></aside><script>let activeElement,elements;document.addEventListener("DOMContentLoaded",function(){if(checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),elements.length>0){activeElement=elements[0];const e=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${e}"]`).classList.add("active")}const t=document.getElementById("top-link");t&&t.addEventListener("click",e=>{e.preventDefault(),window.scrollTo({top:0,behavior:"smooth"})})},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{const e=window.pageYOffset||document.documentElement.scrollTop;if(e===0)return;elements&&elements.length>0&&(activeElement=Array.from(elements).find(t=>{if(getOffsetTop(t)-e>0&&getOffsetTop(t)-e<window.innerHeight/2)return t})||activeElement,elements.forEach(e=>{const n=encodeURI(e.getAttribute("id")).toLowerCase(),t=document.querySelector(`.inner ul li a[href="#${n}"]`);if(e===activeElement){t.classList.add("active");const e=document.querySelector(".toc .inner"),n=t.offsetTop,s=e.clientHeight,o=t.clientHeight,i=n-s/2+o/2;e.scrollTo({top:i,behavior:"smooth"})}else t.classList.remove("active")}))},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><h2 id=身份证>身份证<a hidden class=anchor aria-hidden=true href=#身份证>#</a></h2><pre tabindex=0><code># 身份证号格式，可能会进⾏空格分隔或横线分隔
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>数据安全 | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="数据安全 - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="https://z9nn8w.github.io/posts/misc/ds/">
+
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/misc/ds/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/misc/ds/">
+  <meta property="og:site_name" content="w8nn9z Blog">
+  <meta property="og:title" content="数据安全">
+  <meta property="og:locale" content="zh-cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-10-21T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-10-22T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据安全">
+<meta name="twitter:description" content="">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://z9nn8w.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "MISC",
+      "item": "https://z9nn8w.github.io/posts/misc/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "数据安全",
+      "item": "https://z9nn8w.github.io/posts/misc/ds/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "数据安全",
+  "name": "数据安全",
+  "description": "",
+  "keywords": [
+    
+  ],
+  "articleBody": "身份证 # 身份证号格式，可能会进⾏空格分隔或横线分隔\r794688197610150966\r794688 19761015 0966\r794688-19761015-0966\ridcard_pattern = r'\\d{17}[\\dXx]|\\d{6}-\\d{8}-[\\dXx]{4}|\\d{6} \\d{8} [\\dXx]{4}' 手机号 # ⼿机号格式，可能会进⾏空格分隔或横线分隔，可能会带有“+86 ”或“(+86)”前缀\r19930800372\r199 3080 0372\r199-3080-0372\r+86 19930800372\r+86 199 3080 0372\r+86 199-3080-0372\r(+86)19930800372\r(+86)199 3080 0372\r(+86)199-3080-0372\rphone_pattern = r'(?:\\(\\+86\\)|\\+86)?\\s*(\\d{3}(?:[\\s\\-]\\d{4}[\\s\\-]\\d{4}|\\d{8}))' 银行卡号 银⾏卡号为 16-19 位数字字符串，使⽤ Luhn 算法进⾏校验：\n# 银⾏卡格式，⽆变形\r6228480402564890018\rbankcard_pattern = r'(?\u003c!\\d)\\d{16,19}(?!\\d)' 校验算法：\ndef luhn_check(card_number): \"\"\"Luhn算法校验\"\"\" total = 0 # 从右到左遍历 for i, digit in enumerate(reversed(card_number)): num = int(digit) if i % 2 == 1: # 偶数位（从右往左数，索引从0开始） num *= 2 if num \u003e 9: num = num // 10 + num % 10 # 各位数字相加 total += num return total % 10 == 0 ip地址 ip地址开头之前和结尾之后不再出现数字：\n# IP 地址格式，⽆变形\r192.168.10.1\rip_pattern = r'(?\u003c!\\d)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?!\\d)' mac地址 mac地址格式比较固定，大小写mac地址：\n# MAC 地址格式，⽆变形\r00:a0:c9:14:c8:29\rmac_pattern = r'[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}' 常用脚本 合并xlsx：\nimport os import pandas as pd # 定义文件夹路径和输出文件名 folder_path = './' # 存放 .xlsx 文件的文件夹路径 output_file = 'merged.xlsx' # 合并后的输出文件名 # 创建一个空的 DataFrame 用于存储合并数据 merged_data = pd.DataFrame() # 遍历文件夹中的所有 .xlsx 文件 for file_name in os.listdir(folder_path): if file_name.endswith('.xlsx'): file_path = os.path.join(folder_path, file_name) # 读取每个 Excel 文件 data = pd.read_excel(file_path) # 将数据追加到合并的 DataFrame 中 merged_data = pd.concat([merged_data, data], ignore_index=True) # 将合并后的数据保存为新的 Excel 文件 merged_data.to_excel(output_file, index=False) print(f\"所有文件已成功合并并保存为 {output_file}\") 题目 2025 羊城杯 dataIdSort import re import csv def extract_and_save(filename): # 身份证模式 id_pattern = r'\\d{17}[\\dXx]|\\d{6}-\\d{8}-[\\dXx]{4}|\\d{6} \\d{8} [\\dXx]{4}' id_coefficients = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2] id_check_table = {0: '1', 1: '0', 2: 'X', 3: '9', 4: '8', 5: '7', 6: '6', 7: '5', 8: '4', 9: '3', 10: '2'} common_bankcard_prefixes = { '622848', '622700', '621700', '622262', '622188', '622200', '622568', '622609', '622908', '622518' } def is_valid_id(id_str): clean = id_str.replace('-', '').replace(' ', '') if len(clean) != 18: return False try: if clean[:6] in common_bankcard_prefixes: return False total = sum(int(clean[i]) * id_coefficients[i] for i in range(17)) remainder = total % 11 expected = id_check_table[remainder] return expected == clean[17].upper() except: return False phone_pattern = r'(?:\\(\\+86\\)|\\+86)?\\s*(\\d{3}(?:[\\s\\-]\\d{4}[\\s\\-]\\d{4}|\\d{8}))' valid_prefixes = { '134', '135', '136', '137', '138', '139', '147', '148', '150', '151', '152', '157', '158', '159', '172', '178', '182', '183', '184', '187', '188', '195', '198', '130', '131', '132', '140', '145', '146', '155', '156', '166', '167', '171', '175', '176', '185', '186', '196', '133', '149', '153', '173', '174', '177', '180', '181', '189', '190', '191', '193', '199' } def is_valid_phone(phone_str): clean = re.sub(r'[^\\d]', '', phone_str) if len(clean) != 11 and len(clean) != 13: return False if len(clean) == 11: return clean[:3] in valid_prefixes if len(clean) == 13: return clean[2:5] in valid_prefixes # 银行卡号模式 bankcard_pattern = r'(?\u003c!\\d)\\d{16,19}(?!\\d)' common_bankcard_prefixes = { '622848', '622700', '621700', '622262', '622188', '622200', '622568', '622609', '622908', '622518' } def luhn_check(card_number): \"\"\"Luhn算法校验\"\"\" total = 0 # 从右到左遍历 for i, digit in enumerate(reversed(card_number)): num = int(digit) if i % 2 == 1: # 偶数位（从右往左数，索引从0开始） num *= 2 if num \u003e 9: num = num // 10 + num % 10 # 各位数字相加 total += num return total % 10 == 0 def is_valid_bankcard(card_str): \"\"\"验证银行卡号\"\"\" # 检查长度 if len(card_str) \u003c 16 or len(card_str) \u003e 19: return False # 检查是否全为数字 if not card_str.isdigit(): return False # 检查常见前缀 has_common_prefix = any(card_str.startswith(prefix) for prefix in common_bankcard_prefixes) if not has_common_prefix: return False # Luhn算法校验 return luhn_check(card_str) # IP地址模式 ip_pattern = r'(?\u003c!\\d)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?!\\d)' def is_valid_ip(ip_str): parts = ip_str.split('.') if len(parts) != 4: return False for part in parts: if not 0 \u003c= int(part) \u003c= 255: return False return True # MAC地址模式 mac_pattern = r'[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}' def is_valid_mac(mac_str): return True results = [] with open(filename, 'r', encoding='utf-8') as f: content = f.read() check = [] # 用于排除手机号取身份证前11位的情况 # 身份证匹配 for match in re.findall(id_pattern, content): if is_valid_id(match): check.append(match[:11]) results.append(['idcard', match]) # 手机号匹配 for match in re.finditer(phone_pattern, content): full_match = match.group() if is_valid_phone(full_match): if full_match[0] == \" \": full_match = full_match[1:len(full_match)] if full_match not in check: results.append(['phone', full_match.strip() ]) # 银行卡号匹配 bankcard_matches = re.findall(bankcard_pattern, content) for match in bankcard_matches: if is_valid_bankcard(match): results.append(['bankcard', match]) # IP地址匹配 ip_matches = re.findall(ip_pattern, content) for match in ip_matches: if is_valid_ip(match): results.append(['ip', match]) # MAC地址匹配 mac_matches = re.findall(mac_pattern, content) for match in mac_matches: if is_valid_mac(match): results.append(['mac', match]) with open('output.csv', 'w', newline='', encoding='utf-8') as f: writer = csv.writer(f) writer.writerow(['category', 'value']) writer.writerows(results) extract_and_save('data.txt') 2025 能源网络安全大赛 数据脱敏 为了抵抗黑客攻击导致数据拖库等问题，需要将敏感数据识别并脱敏存储成⼀个表。给定脱敏算法逻辑，要求选⼿⽣成脱敏后的数据表数据（所有数据均为随机⽣成，与现实世界⽆任何联系）。为了防⽌⼀些隐私数据泄漏，现需要对该数据表进⾏脱敏操作，请按照指定要求对各字段进⾏脱敏处理，并按照先行后列拼接字符串（不包含标题行），对此字符串进行md5计算，得到答案。\n脱敏要求：\n编号：⽆需脱敏。\r姓名：⼆字姓名对最后⼀位字使⽤ * 进⾏替换，三字姓名对中间⼀位字使⽤ * 进⾏替换，四字姓名对中间两位字使⽤ * 进⾏替换。\r手机号：请对中间五位信息使⽤ * 进⾏替换。\r身份证号码：请对除了前6位信息使⽤ * 进⾏替换。\r银⾏卡：请对前四位和后十位信息使⽤ * 进⾏替换。\rEmail：请对字符 @ 前除 . 外的字符使⽤ * 进⾏替换。\r性别：替换成未知。\r微信号：请对为字符的信息使用 * 进行替换。 import pandas as pd import string import hashlib df_dict = pd.read_excel(\"data.xlsx\", sheet_name=[\"Sheet1\"], header=0) df_sheet1 = df_dict['Sheet1'] # 数据提取 id = df_sheet1['编号'] name = df_sheet1['姓名'] phone = df_sheet1['手机号'] idcard = df_sheet1['身份证号'] bankcard = df_sheet1['银行卡号'] email = df_sheet1['Email'] gender = df_sheet1['性别'] wechat = df_sheet1['微信号'] # 编号无需脱敏 # 姓名：⼆字姓名对最后⼀位字使⽤ * 进⾏替换，三字姓名对中间⼀位字使⽤ * 进⾏替换，四字姓名对中间两位字使⽤ * 进⾏替换。 def name_desensitization(current_name): n = len(current_name) if n == 2: desensitized_name = current_name[0] + '*' elif n == 3: desensitized_name = current_name[0] + '*' + current_name[2] elif n == 4: desensitized_name = current_name[0] + '**' + current_name[3] else: desensitized_name = current_name return desensitized_name # 手机号：请对中间五位信息使⽤ * 进⾏替换。 def phone_desensitization(current_phone): current_phone = str(current_phone) desensitized_phone = current_phone[0:3] + '*'*5 + current_phone[8:] return desensitized_phone # 身份证号码：请对除了前6位信息使⽤ * 进⾏替换。 def idcard_desensitization(current_idcard): current_idcard = str(current_idcard) desensitized_idcard = current_idcard[0:6] + '*'*12 return desensitized_idcard # 银⾏卡：请对前四位和后十位信息使⽤ * 进⾏替换。 def bankcard_desensitization(current_bankcard): current_bankcard = str(current_bankcard) desensitized_bankcard = current_bankcard[:4] + '*'*(len(current_bankcard)-14) + current_bankcard[-10:] return desensitized_bankcard # Email：请对字符 @ 前除 . 外的字符使⽤ * 进⾏替换。 def email_desensitization(current_email): desensitized_email = '' for i in range(len(current_email)): if current_email[i] == '@': desensitized_email += current_email[i:] return desensitized_email else: if current_email[i] != '.': desensitized_email += '*' else: desensitized_email += current_email[i] # 性别：替换成未知。 def gender_desensitization(current_gender): desensitized_gender = '未知' return desensitized_gender # 微信号：请对为字符的信息使用 * 进行替换。 chars = string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' def wechat_desensitization(current_wechat): desensitized_wechat = '' for i in range(len(current_wechat)): if current_wechat[i] in chars: desensitized_wechat += '*' else: desensitized_wechat += current_wechat[i] return desensitized_wechat # 数据脱敏 name_desensitized = name.apply(name_desensitization) phone_desensitized = phone.apply(phone_desensitization) idcard_desensitized = idcard.apply(idcard_desensitization) bankcard_desensitized = bankcard.apply(bankcard_desensitization) email_desensitized = email.apply(email_desensitization) gender_desensitized = gender.apply(gender_desensitization) wechat_desensitized = wechat.apply(wechat_desensitization) with open('output.txt', 'w') as f: for data_index in range(len(id)): f.write(name_desensitized[data_index]+phone_desensitized[data_index]+idcard_desensitized[data_index]+bankcard_desensitized[data_index]+email_desensitized[data_index]+gender_desensitized[data_index]+wechat_desensitized[data_index]) with open('output.txt', 'r') as ff: # 计算文件md5 md5 = hashlib.md5(ff.read().encode('UTF-8')).hexdigest() print(md5) 2025 红明谷杯 题目内容：某企业网络安全部门人员正在对企业网络资产受到的攻击行为进行溯源分析，该工作人员发现攻击者删除了一段时间内的访问日志数据，但是攻击者曾传输过已被删除的访问日志数据并且被流量监控设备捕获，工作人员对流量数据进行了初步过滤并提取出了相应数据包。已知该攻击者在开始时曾尝试低密度的攻击，发现未被相关安全人员及时发现后进行了连续多日的攻击，请协助企业排查并定位攻击者IP，flag格式为：flag{md5(IP)}\n先用tshark导出data.data字段的base64数据，默认输出的是hex的数据：\ntshark -r network_traffic.pcap -T fields -e data.data tcp \u003e 1.txt 先解hex，再解base64：\nimport base64 import json with open('1.txt', 'r', encoding='utf-8') as f, open('2.txt', 'w', encoding='utf-8') as ff: lines = f.readlines() for line in lines: line = line.strip() try: base64_data = bytes.fromhex(line).decode() data = base64.b64decode(base64_data).decode() json_data = json.loads(data) if 'msg' in json_data: base64_msg = json_data['msg'] log = base64.b64decode(base64_msg).decode() ff.write(log + '\\n') except: print(\"decode error\") 日志形式：\n90.97.242.28- - [08/Jan/2025:22:57:37 +0000] \"POST /main/search.php HTTP/1.1\" 200 2380 \"-\" \"Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.1)\" import re from collections import Counter pattern = r'\\d+\\.\\d+\\.\\d+\\.\\d+(?=-| )' with open('2.txt', 'r', encoding='latin') as f: ip = re.findall(pattern, f.read()) # 统计ip出现频率 ip_counts = Counter(ip) # 出现最多次数的ip badip, counts = ip_counts.most_common(1)[0] print(badip, counts) 输出结果：\n35.127.46.111 67 ",
+  "wordCount" : "2565",
+  "inLanguage": "en",
+  "datePublished": "2025-10-21T00:00:00Z",
+  "dateModified": "2025-10-22T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://z9nn8w.github.io/posts/misc/ds/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "w8nn9z Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://z9nn8w.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      数据安全
+    </h1>
+    <div class="post-meta"><span title='2025-10-21 00:00:00 +0000 UTC'>October 21, 2025</span>
+
+</div>
+  </header> <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details >
+            <summary accesskey="c" title="(Alt + C)">
+                <span class="details">Table of Contents</span>
+            </summary>
+
+            <div class="inner"><ul>
+                    <li>
+                        <a href="#%e8%ba%ab%e4%bb%bd%e8%af%81" aria-label="身份证">身份证</a></li>
+                    <li>
+                        <a href="#%e6%89%8b%e6%9c%ba%e5%8f%b7" aria-label="手机号">手机号</a></li>
+                    <li>
+                        <a href="#%e9%93%b6%e8%a1%8c%e5%8d%a1%e5%8f%b7" aria-label="银行卡号">银行卡号</a></li>
+                    <li>
+                        <a href="#ip%e5%9c%b0%e5%9d%80" aria-label="ip地址">ip地址</a></li>
+                    <li>
+                        <a href="#mac%e5%9c%b0%e5%9d%80" aria-label="mac地址">mac地址</a></li>
+                    <li>
+                        <a href="#%e5%b8%b8%e7%94%a8%e8%84%9a%e6%9c%ac" aria-label="常用脚本">常用脚本</a></li>
+                    <li>
+                        <a href="#%e9%a2%98%e7%9b%ae" aria-label="题目">题目</a><ul>
+                            
+                    <li>
+                        <a href="#2025-%e7%be%8a%e5%9f%8e%e6%9d%af-dataidsort" aria-label="2025 羊城杯 dataIdSort">2025 羊城杯 dataIdSort</a></li>
+                    <li>
+                        <a href="#2025-%e8%83%bd%e6%ba%90%e7%bd%91%e7%bb%9c%e5%ae%89%e5%85%a8%e5%a4%a7%e8%b5%9b-%e6%95%b0%e6%8d%ae%e8%84%b1%e6%95%8f" aria-label="2025 能源网络安全大赛 数据脱敏">2025 能源网络安全大赛 数据脱敏</a></li>
+                    <li>
+                        <a href="#2025-%e7%ba%a2%e6%98%8e%e8%b0%b7%e6%9d%af" aria-label="2025 红明谷杯">2025 红明谷杯</a>
+                    </li>
+                </ul>
+                </li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    
+    document.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+    
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        if (elements.length > 0) {
+            
+            activeElement = elements[0];
+            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+        }
+    
+        
+        const topLink = document.getElementById('top-link');
+        if (topLink) {
+            topLink.addEventListener('click', (event) => {
+                
+                event.preventDefault();
+    
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }, false);
+    
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+    
+    window.addEventListener('scroll', () => {
+        
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+        
+        if (scrollPosition === 0) {
+            return;
+        }
+    
+        
+        if (elements && elements.length > 0) {
+            
+            activeElement = Array.from(elements).find((element) => {
+                if ((getOffsetTop(element) - scrollPosition) > 0 && 
+                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
+                    return element;
+                }
+            }) || activeElement;
+    
+            elements.forEach(element => {
+                const id = encodeURI(element.getAttribute('id')).toLowerCase();
+                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
+                if (element === activeElement){
+                    tocLink.classList.add('active');
+    
+                    
+                    const tocContainer = document.querySelector('.toc .inner');
+                    const linkOffsetTop = tocLink.offsetTop;
+                    const containerHeight = tocContainer.clientHeight;
+                    const linkHeight = tocLink.clientHeight;
+    
+                    
+                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
+                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                } else {
+                    tocLink.classList.remove('active');
+                }
+            });
+        }
+    }, false);
+    
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+    
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+    
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+    
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;   
+    }
+    
+</script>
+
+  <div class="post-content"><h2 id="身份证">身份证<a hidden class="anchor" aria-hidden="true" href="#身份证">#</a></h2>
+<pre tabindex="0"><code># 身份证号格式，可能会进⾏空格分隔或横线分隔
 794688197610150966
 794688 19761015 0966
 794688-19761015-0966
 
 idcard_pattern = r&#39;\d{17}[\dXx]|\d{6}-\d{8}-[\dXx]{4}|\d{6} \d{8} [\dXx]{4}&#39;
-</code></pre><h2 id=手机号>手机号<a hidden class=anchor aria-hidden=true href=#手机号>#</a></h2><pre tabindex=0><code># ⼿机号格式，可能会进⾏空格分隔或横线分隔，可能会带有“+86 ”或“(+86)”前缀
+</code></pre><h2 id="手机号">手机号<a hidden class="anchor" aria-hidden="true" href="#手机号">#</a></h2>
+<pre tabindex="0"><code># ⼿机号格式，可能会进⾏空格分隔或横线分隔，可能会带有“+86 ”或“(+86)”前缀
 19930800372
 199 3080 0372
 199-3080-0372
@@ -18,206 +356,221 @@ idcard_pattern = r&#39;\d{17}[\dXx]|\d{6}-\d{8}-[\dXx]{4}|\d{6} \d{8} [\dXx]{4}&
 (+86)199-3080-0372
 
 phone_pattern = r&#39;(?:\(\+86\)|\+86)?\s*(\d{3}(?:[\s\-]\d{4}[\s\-]\d{4}|\d{8}))&#39;
-</code></pre><h2 id=银行卡号>银行卡号<a hidden class=anchor aria-hidden=true href=#银行卡号>#</a></h2><p>银⾏卡号为 16-19 位数字字符串，使⽤ Luhn 算法进⾏校验：</p><pre tabindex=0><code># 银⾏卡格式，⽆变形
+</code></pre><h2 id="银行卡号">银行卡号<a hidden class="anchor" aria-hidden="true" href="#银行卡号">#</a></h2>
+<p>银⾏卡号为 16-19 位数字字符串，使⽤ Luhn 算法进⾏校验：</p>
+<pre tabindex="0"><code># 银⾏卡格式，⽆变形
 6228480402564890018
 
 bankcard_pattern = r&#39;(?&lt;!\d)\d{16,19}(?!\d)&#39;
-</code></pre><p>校验算法：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-py data-lang=py><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>luhn_check</span>(card_number):
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;&#34;&#34;Luhn算法校验&#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        total <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e># 从右到左遍历</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> i, digit <span style=color:#f92672>in</span> enumerate(reversed(card_number)):
-</span></span><span style=display:flex><span>            num <span style=color:#f92672>=</span> int(digit)
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> i <span style=color:#f92672>%</span> <span style=color:#ae81ff>2</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>:  <span style=color:#75715e># 偶数位（从右往左数，索引从0开始）</span>
-</span></span><span style=display:flex><span>                num <span style=color:#f92672>*=</span> <span style=color:#ae81ff>2</span>
-</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> num <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>9</span>:
-</span></span><span style=display:flex><span>                    num <span style=color:#f92672>=</span> num <span style=color:#f92672>//</span> <span style=color:#ae81ff>10</span> <span style=color:#f92672>+</span> num <span style=color:#f92672>%</span> <span style=color:#ae81ff>10</span>  <span style=color:#75715e># 各位数字相加</span>
-</span></span><span style=display:flex><span>            total <span style=color:#f92672>+=</span> num
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> total <span style=color:#f92672>%</span> <span style=color:#ae81ff>10</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>
-</span></span></code></pre></div><h2 id=ip地址>ip地址<a hidden class=anchor aria-hidden=true href=#ip地址>#</a></h2><p>ip地址开头之前和结尾之后不再出现数字：</p><pre tabindex=0><code># IP 地址格式，⽆变形
+</code></pre><p>校验算法：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">luhn_check</span>(card_number):
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;Luhn算法校验&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        total <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 从右到左遍历</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i, digit <span style="color:#f92672">in</span> enumerate(reversed(card_number)):
+</span></span><span style="display:flex;"><span>            num <span style="color:#f92672">=</span> int(digit)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> i <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:  <span style="color:#75715e"># 偶数位（从右往左数，索引从0开始）</span>
+</span></span><span style="display:flex;"><span>                num <span style="color:#f92672">*=</span> <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> num <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">9</span>:
+</span></span><span style="display:flex;"><span>                    num <span style="color:#f92672">=</span> num <span style="color:#f92672">//</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">+</span> num <span style="color:#f92672">%</span> <span style="color:#ae81ff">10</span>  <span style="color:#75715e"># 各位数字相加</span>
+</span></span><span style="display:flex;"><span>            total <span style="color:#f92672">+=</span> num
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> total <span style="color:#f92672">%</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>
+</span></span></code></pre></div><h2 id="ip地址">ip地址<a hidden class="anchor" aria-hidden="true" href="#ip地址">#</a></h2>
+<p>ip地址开头之前和结尾之后不再出现数字：</p>
+<pre tabindex="0"><code># IP 地址格式，⽆变形
 192.168.10.1
 
 ip_pattern = r&#39;(?&lt;!\d)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?!\d)&#39;
-</code></pre><h2 id=mac地址>mac地址<a hidden class=anchor aria-hidden=true href=#mac地址>#</a></h2><p>mac地址格式比较固定，大小写mac地址：</p><pre tabindex=0><code># MAC 地址格式，⽆变形
+</code></pre><h2 id="mac地址">mac地址<a hidden class="anchor" aria-hidden="true" href="#mac地址">#</a></h2>
+<p>mac地址格式比较固定，大小写mac地址：</p>
+<pre tabindex="0"><code># MAC 地址格式，⽆变形
 00:a0:c9:14:c8:29
 
 mac_pattern = r&#39;[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}&#39;
-</code></pre><h2 id=常用脚本>常用脚本<a hidden class=anchor aria-hidden=true href=#常用脚本>#</a></h2><p>合并xlsx：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-py data-lang=py><span style=display:flex><span><span style=color:#f92672>import</span> os
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> pandas <span style=color:#66d9ef>as</span> pd
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 定义文件夹路径和输出文件名</span>
-</span></span><span style=display:flex><span>folder_path <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;./&#39;</span>  <span style=color:#75715e># 存放 .xlsx 文件的文件夹路径</span>
-</span></span><span style=display:flex><span>output_file <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;merged.xlsx&#39;</span>    <span style=color:#75715e># 合并后的输出文件名</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 创建一个空的 DataFrame 用于存储合并数据</span>
-</span></span><span style=display:flex><span>merged_data <span style=color:#f92672>=</span> pd<span style=color:#f92672>.</span>DataFrame()
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 遍历文件夹中的所有 .xlsx 文件</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> file_name <span style=color:#f92672>in</span> os<span style=color:#f92672>.</span>listdir(folder_path):
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> file_name<span style=color:#f92672>.</span>endswith(<span style=color:#e6db74>&#39;.xlsx&#39;</span>):
-</span></span><span style=display:flex><span>        file_path <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>join(folder_path, file_name)
-</span></span><span style=display:flex><span>        <span style=color:#75715e># 读取每个 Excel 文件</span>
-</span></span><span style=display:flex><span>        data <span style=color:#f92672>=</span> pd<span style=color:#f92672>.</span>read_excel(file_path)
-</span></span><span style=display:flex><span>        <span style=color:#75715e># 将数据追加到合并的 DataFrame 中</span>
-</span></span><span style=display:flex><span>        merged_data <span style=color:#f92672>=</span> pd<span style=color:#f92672>.</span>concat([merged_data, data], ignore_index<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 将合并后的数据保存为新的 Excel 文件</span>
-</span></span><span style=display:flex><span>merged_data<span style=color:#f92672>.</span>to_excel(output_file, index<span style=color:#f92672>=</span><span style=color:#66d9ef>False</span>)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;所有文件已成功合并并保存为 </span><span style=color:#e6db74>{</span>output_file<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
-</span></span></code></pre></div><h2 id=题目>题目<a hidden class=anchor aria-hidden=true href=#题目>#</a></h2><h3 id=2025-羊城杯-dataidsort>2025 羊城杯 dataIdSort<a hidden class=anchor aria-hidden=true href=#2025-羊城杯-dataidsort>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-py data-lang=py><span style=display:flex><span><span style=color:#f92672>import</span> re
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> csv
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>extract_and_save</span>(filename):
-</span></span><span style=display:flex><span>    <span style=color:#75715e># 身份证模式</span>
-</span></span><span style=display:flex><span>    id_pattern <span style=color:#f92672>=</span> <span style=color:#e6db74>r</span><span style=color:#e6db74>&#39;\d</span><span style=color:#e6db74>{17}</span><span style=color:#e6db74>[\dXx]|\d</span><span style=color:#e6db74>{6}</span><span style=color:#e6db74>-\d</span><span style=color:#e6db74>{8}</span><span style=color:#e6db74>-[\dXx]</span><span style=color:#e6db74>{4}</span><span style=color:#e6db74>|\d</span><span style=color:#e6db74>{6}</span><span style=color:#e6db74> \d</span><span style=color:#e6db74>{8}</span><span style=color:#e6db74> [\dXx]</span><span style=color:#e6db74>{4}</span><span style=color:#e6db74>&#39;</span>
-</span></span><span style=display:flex><span>    id_coefficients <span style=color:#f92672>=</span> [<span style=color:#ae81ff>7</span>, <span style=color:#ae81ff>9</span>, <span style=color:#ae81ff>10</span>, <span style=color:#ae81ff>5</span>, <span style=color:#ae81ff>8</span>, <span style=color:#ae81ff>4</span>, <span style=color:#ae81ff>2</span>, <span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>6</span>, <span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>7</span>, <span style=color:#ae81ff>9</span>, <span style=color:#ae81ff>10</span>, <span style=color:#ae81ff>5</span>, <span style=color:#ae81ff>8</span>, <span style=color:#ae81ff>4</span>, <span style=color:#ae81ff>2</span>]
-</span></span><span style=display:flex><span>    id_check_table <span style=color:#f92672>=</span> {<span style=color:#ae81ff>0</span>: <span style=color:#e6db74>&#39;1&#39;</span>, <span style=color:#ae81ff>1</span>: <span style=color:#e6db74>&#39;0&#39;</span>, <span style=color:#ae81ff>2</span>: <span style=color:#e6db74>&#39;X&#39;</span>, <span style=color:#ae81ff>3</span>: <span style=color:#e6db74>&#39;9&#39;</span>, <span style=color:#ae81ff>4</span>: <span style=color:#e6db74>&#39;8&#39;</span>, <span style=color:#ae81ff>5</span>: <span style=color:#e6db74>&#39;7&#39;</span>, <span style=color:#ae81ff>6</span>: <span style=color:#e6db74>&#39;6&#39;</span>, <span style=color:#ae81ff>7</span>: <span style=color:#e6db74>&#39;5&#39;</span>, <span style=color:#ae81ff>8</span>: <span style=color:#e6db74>&#39;4&#39;</span>, <span style=color:#ae81ff>9</span>: <span style=color:#e6db74>&#39;3&#39;</span>, <span style=color:#ae81ff>10</span>: <span style=color:#e6db74>&#39;2&#39;</span>}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    common_bankcard_prefixes <span style=color:#f92672>=</span> {
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;622848&#39;</span>, <span style=color:#e6db74>&#39;622700&#39;</span>, <span style=color:#e6db74>&#39;621700&#39;</span>, <span style=color:#e6db74>&#39;622262&#39;</span>, <span style=color:#e6db74>&#39;622188&#39;</span>, 
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;622200&#39;</span>, <span style=color:#e6db74>&#39;622568&#39;</span>, <span style=color:#e6db74>&#39;622609&#39;</span>, <span style=color:#e6db74>&#39;622908&#39;</span>, <span style=color:#e6db74>&#39;622518&#39;</span>
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>is_valid_id</span>(id_str):
-</span></span><span style=display:flex><span>        clean <span style=color:#f92672>=</span> id_str<span style=color:#f92672>.</span>replace(<span style=color:#e6db74>&#39;-&#39;</span>, <span style=color:#e6db74>&#39;&#39;</span>)<span style=color:#f92672>.</span>replace(<span style=color:#e6db74>&#39; &#39;</span>, <span style=color:#e6db74>&#39;&#39;</span>)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> len(clean) <span style=color:#f92672>!=</span> <span style=color:#ae81ff>18</span>:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>try</span>:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> clean[:<span style=color:#ae81ff>6</span>] <span style=color:#f92672>in</span> common_bankcard_prefixes:
-</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
-</span></span><span style=display:flex><span>            total <span style=color:#f92672>=</span> sum(int(clean[i]) <span style=color:#f92672>*</span> id_coefficients[i] <span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>17</span>))
-</span></span><span style=display:flex><span>            remainder <span style=color:#f92672>=</span> total <span style=color:#f92672>%</span> <span style=color:#ae81ff>11</span>
-</span></span><span style=display:flex><span>            expected <span style=color:#f92672>=</span> id_check_table[remainder]
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> expected <span style=color:#f92672>==</span> clean[<span style=color:#ae81ff>17</span>]<span style=color:#f92672>.</span>upper()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>except</span>:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    phone_pattern <span style=color:#f92672>=</span> <span style=color:#e6db74>r</span><span style=color:#e6db74>&#39;(?:\(\+86\)|\+86)?\s*(\d</span><span style=color:#e6db74>{3}</span><span style=color:#e6db74>(?:[\s\-]\d</span><span style=color:#e6db74>{4}</span><span style=color:#e6db74>[\s\-]\d</span><span style=color:#e6db74>{4}</span><span style=color:#e6db74>|\d</span><span style=color:#e6db74>{8}</span><span style=color:#e6db74>))&#39;</span>
-</span></span><span style=display:flex><span>    valid_prefixes <span style=color:#f92672>=</span> {
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;134&#39;</span>, <span style=color:#e6db74>&#39;135&#39;</span>, <span style=color:#e6db74>&#39;136&#39;</span>, <span style=color:#e6db74>&#39;137&#39;</span>, <span style=color:#e6db74>&#39;138&#39;</span>, <span style=color:#e6db74>&#39;139&#39;</span>, <span style=color:#e6db74>&#39;147&#39;</span>, <span style=color:#e6db74>&#39;148&#39;</span>, <span style=color:#e6db74>&#39;150&#39;</span>, <span style=color:#e6db74>&#39;151&#39;</span>, <span style=color:#e6db74>&#39;152&#39;</span>, <span style=color:#e6db74>&#39;157&#39;</span>, <span style=color:#e6db74>&#39;158&#39;</span>, <span style=color:#e6db74>&#39;159&#39;</span>, <span style=color:#e6db74>&#39;172&#39;</span>, <span style=color:#e6db74>&#39;178&#39;</span>,
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;182&#39;</span>, <span style=color:#e6db74>&#39;183&#39;</span>, <span style=color:#e6db74>&#39;184&#39;</span>, <span style=color:#e6db74>&#39;187&#39;</span>, <span style=color:#e6db74>&#39;188&#39;</span>, <span style=color:#e6db74>&#39;195&#39;</span>, <span style=color:#e6db74>&#39;198&#39;</span>, <span style=color:#e6db74>&#39;130&#39;</span>, <span style=color:#e6db74>&#39;131&#39;</span>, <span style=color:#e6db74>&#39;132&#39;</span>, <span style=color:#e6db74>&#39;140&#39;</span>, <span style=color:#e6db74>&#39;145&#39;</span>, <span style=color:#e6db74>&#39;146&#39;</span>, <span style=color:#e6db74>&#39;155&#39;</span>, <span style=color:#e6db74>&#39;156&#39;</span>, <span style=color:#e6db74>&#39;166&#39;</span>,
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;167&#39;</span>, <span style=color:#e6db74>&#39;171&#39;</span>, <span style=color:#e6db74>&#39;175&#39;</span>, <span style=color:#e6db74>&#39;176&#39;</span>, <span style=color:#e6db74>&#39;185&#39;</span>, <span style=color:#e6db74>&#39;186&#39;</span>, <span style=color:#e6db74>&#39;196&#39;</span>, <span style=color:#e6db74>&#39;133&#39;</span>, <span style=color:#e6db74>&#39;149&#39;</span>, <span style=color:#e6db74>&#39;153&#39;</span>, <span style=color:#e6db74>&#39;173&#39;</span>, <span style=color:#e6db74>&#39;174&#39;</span>, <span style=color:#e6db74>&#39;177&#39;</span>, <span style=color:#e6db74>&#39;180&#39;</span>, <span style=color:#e6db74>&#39;181&#39;</span>, <span style=color:#e6db74>&#39;189&#39;</span>,
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;190&#39;</span>, <span style=color:#e6db74>&#39;191&#39;</span>, <span style=color:#e6db74>&#39;193&#39;</span>, <span style=color:#e6db74>&#39;199&#39;</span>
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>is_valid_phone</span>(phone_str):
-</span></span><span style=display:flex><span>        clean <span style=color:#f92672>=</span> re<span style=color:#f92672>.</span>sub(<span style=color:#e6db74>r</span><span style=color:#e6db74>&#39;[^\d]&#39;</span>, <span style=color:#e6db74>&#39;&#39;</span>, phone_str)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> len(clean) <span style=color:#f92672>!=</span> <span style=color:#ae81ff>11</span> <span style=color:#f92672>and</span> len(clean) <span style=color:#f92672>!=</span> <span style=color:#ae81ff>13</span>:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> len(clean) <span style=color:#f92672>==</span> <span style=color:#ae81ff>11</span>:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> clean[:<span style=color:#ae81ff>3</span>] <span style=color:#f92672>in</span> valid_prefixes
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> len(clean) <span style=color:#f92672>==</span> <span style=color:#ae81ff>13</span>:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> clean[<span style=color:#ae81ff>2</span>:<span style=color:#ae81ff>5</span>] <span style=color:#f92672>in</span> valid_prefixes
-</span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#75715e># 银行卡号模式</span>
-</span></span><span style=display:flex><span>    bankcard_pattern <span style=color:#f92672>=</span> <span style=color:#e6db74>r</span><span style=color:#e6db74>&#39;(?&lt;!\d)\d{16,19}(?!\d)&#39;</span>
-</span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    common_bankcard_prefixes <span style=color:#f92672>=</span> {
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;622848&#39;</span>, <span style=color:#e6db74>&#39;622700&#39;</span>, <span style=color:#e6db74>&#39;621700&#39;</span>, <span style=color:#e6db74>&#39;622262&#39;</span>, <span style=color:#e6db74>&#39;622188&#39;</span>, 
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#39;622200&#39;</span>, <span style=color:#e6db74>&#39;622568&#39;</span>, <span style=color:#e6db74>&#39;622609&#39;</span>, <span style=color:#e6db74>&#39;622908&#39;</span>, <span style=color:#e6db74>&#39;622518&#39;</span>
-</span></span><span style=display:flex><span>    }
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>luhn_check</span>(card_number):
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;&#34;&#34;Luhn算法校验&#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        total <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e># 从右到左遍历</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> i, digit <span style=color:#f92672>in</span> enumerate(reversed(card_number)):
-</span></span><span style=display:flex><span>            num <span style=color:#f92672>=</span> int(digit)
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> i <span style=color:#f92672>%</span> <span style=color:#ae81ff>2</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>1</span>:  <span style=color:#75715e># 偶数位（从右往左数，索引从0开始）</span>
-</span></span><span style=display:flex><span>                num <span style=color:#f92672>*=</span> <span style=color:#ae81ff>2</span>
-</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> num <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>9</span>:
-</span></span><span style=display:flex><span>                    num <span style=color:#f92672>=</span> num <span style=color:#f92672>//</span> <span style=color:#ae81ff>10</span> <span style=color:#f92672>+</span> num <span style=color:#f92672>%</span> <span style=color:#ae81ff>10</span>  <span style=color:#75715e># 各位数字相加</span>
-</span></span><span style=display:flex><span>            total <span style=color:#f92672>+=</span> num
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> total <span style=color:#f92672>%</span> <span style=color:#ae81ff>10</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>is_valid_bankcard</span>(card_str):
-</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;&#34;&#34;验证银行卡号&#34;&#34;&#34;</span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e># 检查长度</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> len(card_str) <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>16</span> <span style=color:#f92672>or</span> len(card_str) <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>19</span>:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
-</span></span><span style=display:flex><span>        
-</span></span><span style=display:flex><span>        <span style=color:#75715e># 检查是否全为数字</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> card_str<span style=color:#f92672>.</span>isdigit():
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
-</span></span><span style=display:flex><span>        
-</span></span><span style=display:flex><span>        <span style=color:#75715e># 检查常见前缀</span>
-</span></span><span style=display:flex><span>        has_common_prefix <span style=color:#f92672>=</span> any(card_str<span style=color:#f92672>.</span>startswith(prefix) <span style=color:#66d9ef>for</span> prefix <span style=color:#f92672>in</span> common_bankcard_prefixes)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> has_common_prefix:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
-</span></span><span style=display:flex><span>        
-</span></span><span style=display:flex><span>        <span style=color:#75715e># Luhn算法校验</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> luhn_check(card_str)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e># IP地址模式</span>
-</span></span><span style=display:flex><span>    ip_pattern <span style=color:#f92672>=</span> <span style=color:#e6db74>r</span><span style=color:#e6db74>&#39;(?&lt;!\d)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?!\d)&#39;</span>
-</span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>is_valid_ip</span>(ip_str):
-</span></span><span style=display:flex><span>        parts <span style=color:#f92672>=</span> ip_str<span style=color:#f92672>.</span>split(<span style=color:#e6db74>&#39;.&#39;</span>)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> len(parts) <span style=color:#f92672>!=</span> <span style=color:#ae81ff>4</span>:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> part <span style=color:#f92672>in</span> parts:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>&lt;=</span> int(part) <span style=color:#f92672>&lt;=</span> <span style=color:#ae81ff>255</span>:
-</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>True</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e># MAC地址模式</span>
-</span></span><span style=display:flex><span>    mac_pattern <span style=color:#f92672>=</span> <span style=color:#e6db74>r</span><span style=color:#e6db74>&#39;[0-9A-Fa-f]</span><span style=color:#e6db74>{2}</span><span style=color:#e6db74>:[0-9A-Fa-f]</span><span style=color:#e6db74>{2}</span><span style=color:#e6db74>:[0-9A-Fa-f]</span><span style=color:#e6db74>{2}</span><span style=color:#e6db74>:[0-9A-Fa-f]</span><span style=color:#e6db74>{2}</span><span style=color:#e6db74>:[0-9A-Fa-f]</span><span style=color:#e6db74>{2}</span><span style=color:#e6db74>:[0-9A-Fa-f]</span><span style=color:#e6db74>{2}</span><span style=color:#e6db74>&#39;</span>
-</span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>is_valid_mac</span>(mac_str):
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>True</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    results <span style=color:#f92672>=</span> []
-</span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>with</span> open(filename, <span style=color:#e6db74>&#39;r&#39;</span>, encoding<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;utf-8&#39;</span>) <span style=color:#66d9ef>as</span> f:
-</span></span><span style=display:flex><span>        content <span style=color:#f92672>=</span> f<span style=color:#f92672>.</span>read()
-</span></span><span style=display:flex><span>        check <span style=color:#f92672>=</span> []  <span style=color:#75715e># 用于排除手机号取身份证前11位的情况</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e># 身份证匹配</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> <span style=color:#66d9ef>match</span> <span style=color:#f92672>in</span> re<span style=color:#f92672>.</span>findall(id_pattern, content):
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> is_valid_id(<span style=color:#66d9ef>match</span>):
-</span></span><span style=display:flex><span>                check<span style=color:#f92672>.</span>append(<span style=color:#66d9ef>match</span>[:<span style=color:#ae81ff>11</span>])
-</span></span><span style=display:flex><span>                results<span style=color:#f92672>.</span>append([<span style=color:#e6db74>&#39;idcard&#39;</span>, <span style=color:#66d9ef>match</span>])
-</span></span><span style=display:flex><span>            
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e># 手机号匹配</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> <span style=color:#66d9ef>match</span> <span style=color:#f92672>in</span> re<span style=color:#f92672>.</span>finditer(phone_pattern, content):
-</span></span><span style=display:flex><span>            full_match <span style=color:#f92672>=</span> <span style=color:#66d9ef>match</span><span style=color:#f92672>.</span>group()
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> is_valid_phone(full_match):
-</span></span><span style=display:flex><span>                
-</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> full_match[<span style=color:#ae81ff>0</span>] <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34; &#34;</span>:
-</span></span><span style=display:flex><span>                    full_match <span style=color:#f92672>=</span> full_match[<span style=color:#ae81ff>1</span>:len(full_match)]
-</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> full_match <span style=color:#f92672>not</span> <span style=color:#f92672>in</span> check:
-</span></span><span style=display:flex><span>                    results<span style=color:#f92672>.</span>append([<span style=color:#e6db74>&#39;phone&#39;</span>, full_match<span style=color:#f92672>.</span>strip() ])
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e># 银行卡号匹配</span>
-</span></span><span style=display:flex><span>        bankcard_matches <span style=color:#f92672>=</span> re<span style=color:#f92672>.</span>findall(bankcard_pattern, content)
-</span></span><span style=display:flex><span>        
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> <span style=color:#66d9ef>match</span> <span style=color:#f92672>in</span> bankcard_matches:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> is_valid_bankcard(<span style=color:#66d9ef>match</span>):
-</span></span><span style=display:flex><span>                results<span style=color:#f92672>.</span>append([<span style=color:#e6db74>&#39;bankcard&#39;</span>, <span style=color:#66d9ef>match</span>])
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e># IP地址匹配</span>
-</span></span><span style=display:flex><span>        ip_matches <span style=color:#f92672>=</span> re<span style=color:#f92672>.</span>findall(ip_pattern, content)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> <span style=color:#66d9ef>match</span> <span style=color:#f92672>in</span> ip_matches:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> is_valid_ip(<span style=color:#66d9ef>match</span>):
-</span></span><span style=display:flex><span>                results<span style=color:#f92672>.</span>append([<span style=color:#e6db74>&#39;ip&#39;</span>, <span style=color:#66d9ef>match</span>])
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>        <span style=color:#75715e># MAC地址匹配</span>
-</span></span><span style=display:flex><span>        mac_matches <span style=color:#f92672>=</span> re<span style=color:#f92672>.</span>findall(mac_pattern, content)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> <span style=color:#66d9ef>match</span> <span style=color:#f92672>in</span> mac_matches:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> is_valid_mac(<span style=color:#66d9ef>match</span>):
-</span></span><span style=display:flex><span>                results<span style=color:#f92672>.</span>append([<span style=color:#e6db74>&#39;mac&#39;</span>, <span style=color:#66d9ef>match</span>])
-</span></span><span style=display:flex><span>        
-</span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>with</span> open(<span style=color:#e6db74>&#39;output.csv&#39;</span>, <span style=color:#e6db74>&#39;w&#39;</span>, newline<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;&#39;</span>, encoding<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;utf-8&#39;</span>) <span style=color:#66d9ef>as</span> f:
-</span></span><span style=display:flex><span>        writer <span style=color:#f92672>=</span> csv<span style=color:#f92672>.</span>writer(f)
-</span></span><span style=display:flex><span>        writer<span style=color:#f92672>.</span>writerow([<span style=color:#e6db74>&#39;category&#39;</span>, <span style=color:#e6db74>&#39;value&#39;</span>])
-</span></span><span style=display:flex><span>        writer<span style=color:#f92672>.</span>writerows(results)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>extract_and_save(<span style=color:#e6db74>&#39;data.txt&#39;</span>)
-</span></span></code></pre></div><h3 id=2025-能源网络安全大赛-数据脱敏>2025 能源网络安全大赛 数据脱敏<a hidden class=anchor aria-hidden=true href=#2025-能源网络安全大赛-数据脱敏>#</a></h3><blockquote><p>为了抵抗黑客攻击导致数据拖库等问题，需要将敏感数据识别并脱敏存储成⼀个表。给定脱敏算法逻辑，要求选⼿⽣成脱敏后的数据表数据（所有数据均为随机⽣成，与现实世界⽆任何联系）。为了防⽌⼀些隐私数据泄漏，现需要对该数据表进⾏脱敏操作，请按照指定要求对各字段进⾏脱敏处理，并按照先行后列拼接字符串（不包含标题行），对此字符串进行md5计算，得到答案。</p></blockquote><p>脱敏要求：</p><pre tabindex=0><code>编号：⽆需脱敏。
+</code></pre><h2 id="常用脚本">常用脚本<a hidden class="anchor" aria-hidden="true" href="#常用脚本">#</a></h2>
+<p>合并xlsx：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#f92672">import</span> os
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> pandas <span style="color:#66d9ef">as</span> pd
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 定义文件夹路径和输出文件名</span>
+</span></span><span style="display:flex;"><span>folder_path <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;./&#39;</span>  <span style="color:#75715e"># 存放 .xlsx 文件的文件夹路径</span>
+</span></span><span style="display:flex;"><span>output_file <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;merged.xlsx&#39;</span>    <span style="color:#75715e"># 合并后的输出文件名</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 创建一个空的 DataFrame 用于存储合并数据</span>
+</span></span><span style="display:flex;"><span>merged_data <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>DataFrame()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 遍历文件夹中的所有 .xlsx 文件</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> file_name <span style="color:#f92672">in</span> os<span style="color:#f92672">.</span>listdir(folder_path):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> file_name<span style="color:#f92672">.</span>endswith(<span style="color:#e6db74">&#39;.xlsx&#39;</span>):
+</span></span><span style="display:flex;"><span>        file_path <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(folder_path, file_name)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 读取每个 Excel 文件</span>
+</span></span><span style="display:flex;"><span>        data <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>read_excel(file_path)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 将数据追加到合并的 DataFrame 中</span>
+</span></span><span style="display:flex;"><span>        merged_data <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>concat([merged_data, data], ignore_index<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 将合并后的数据保存为新的 Excel 文件</span>
+</span></span><span style="display:flex;"><span>merged_data<span style="color:#f92672">.</span>to_excel(output_file, index<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;所有文件已成功合并并保存为 </span><span style="color:#e6db74">{</span>output_file<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><h2 id="题目">题目<a hidden class="anchor" aria-hidden="true" href="#题目">#</a></h2>
+<h3 id="2025-羊城杯-dataidsort">2025 羊城杯 dataIdSort<a hidden class="anchor" aria-hidden="true" href="#2025-羊城杯-dataidsort">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#f92672">import</span> re
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> csv
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">extract_and_save</span>(filename):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 身份证模式</span>
+</span></span><span style="display:flex;"><span>    id_pattern <span style="color:#f92672">=</span> <span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;\d</span><span style="color:#e6db74">{17}</span><span style="color:#e6db74">[\dXx]|\d</span><span style="color:#e6db74">{6}</span><span style="color:#e6db74">-\d</span><span style="color:#e6db74">{8}</span><span style="color:#e6db74">-[\dXx]</span><span style="color:#e6db74">{4}</span><span style="color:#e6db74">|\d</span><span style="color:#e6db74">{6}</span><span style="color:#e6db74"> \d</span><span style="color:#e6db74">{8}</span><span style="color:#e6db74"> [\dXx]</span><span style="color:#e6db74">{4}</span><span style="color:#e6db74">&#39;</span>
+</span></span><span style="display:flex;"><span>    id_coefficients <span style="color:#f92672">=</span> [<span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">6</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">7</span>, <span style="color:#ae81ff">9</span>, <span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">5</span>, <span style="color:#ae81ff">8</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">2</span>]
+</span></span><span style="display:flex;"><span>    id_check_table <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0</span>: <span style="color:#e6db74">&#39;1&#39;</span>, <span style="color:#ae81ff">1</span>: <span style="color:#e6db74">&#39;0&#39;</span>, <span style="color:#ae81ff">2</span>: <span style="color:#e6db74">&#39;X&#39;</span>, <span style="color:#ae81ff">3</span>: <span style="color:#e6db74">&#39;9&#39;</span>, <span style="color:#ae81ff">4</span>: <span style="color:#e6db74">&#39;8&#39;</span>, <span style="color:#ae81ff">5</span>: <span style="color:#e6db74">&#39;7&#39;</span>, <span style="color:#ae81ff">6</span>: <span style="color:#e6db74">&#39;6&#39;</span>, <span style="color:#ae81ff">7</span>: <span style="color:#e6db74">&#39;5&#39;</span>, <span style="color:#ae81ff">8</span>: <span style="color:#e6db74">&#39;4&#39;</span>, <span style="color:#ae81ff">9</span>: <span style="color:#e6db74">&#39;3&#39;</span>, <span style="color:#ae81ff">10</span>: <span style="color:#e6db74">&#39;2&#39;</span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    common_bankcard_prefixes <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;622848&#39;</span>, <span style="color:#e6db74">&#39;622700&#39;</span>, <span style="color:#e6db74">&#39;621700&#39;</span>, <span style="color:#e6db74">&#39;622262&#39;</span>, <span style="color:#e6db74">&#39;622188&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;622200&#39;</span>, <span style="color:#e6db74">&#39;622568&#39;</span>, <span style="color:#e6db74">&#39;622609&#39;</span>, <span style="color:#e6db74">&#39;622908&#39;</span>, <span style="color:#e6db74">&#39;622518&#39;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">is_valid_id</span>(id_str):
+</span></span><span style="display:flex;"><span>        clean <span style="color:#f92672">=</span> id_str<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#39;-&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#39; &#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> len(clean) <span style="color:#f92672">!=</span> <span style="color:#ae81ff">18</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> clean[:<span style="color:#ae81ff">6</span>] <span style="color:#f92672">in</span> common_bankcard_prefixes:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>            total <span style="color:#f92672">=</span> sum(int(clean[i]) <span style="color:#f92672">*</span> id_coefficients[i] <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">17</span>))
+</span></span><span style="display:flex;"><span>            remainder <span style="color:#f92672">=</span> total <span style="color:#f92672">%</span> <span style="color:#ae81ff">11</span>
+</span></span><span style="display:flex;"><span>            expected <span style="color:#f92672">=</span> id_check_table[remainder]
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> expected <span style="color:#f92672">==</span> clean[<span style="color:#ae81ff">17</span>]<span style="color:#f92672">.</span>upper()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">except</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    phone_pattern <span style="color:#f92672">=</span> <span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;(?:\(\+86\)|\+86)?\s*(\d</span><span style="color:#e6db74">{3}</span><span style="color:#e6db74">(?:[\s\-]\d</span><span style="color:#e6db74">{4}</span><span style="color:#e6db74">[\s\-]\d</span><span style="color:#e6db74">{4}</span><span style="color:#e6db74">|\d</span><span style="color:#e6db74">{8}</span><span style="color:#e6db74">))&#39;</span>
+</span></span><span style="display:flex;"><span>    valid_prefixes <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;134&#39;</span>, <span style="color:#e6db74">&#39;135&#39;</span>, <span style="color:#e6db74">&#39;136&#39;</span>, <span style="color:#e6db74">&#39;137&#39;</span>, <span style="color:#e6db74">&#39;138&#39;</span>, <span style="color:#e6db74">&#39;139&#39;</span>, <span style="color:#e6db74">&#39;147&#39;</span>, <span style="color:#e6db74">&#39;148&#39;</span>, <span style="color:#e6db74">&#39;150&#39;</span>, <span style="color:#e6db74">&#39;151&#39;</span>, <span style="color:#e6db74">&#39;152&#39;</span>, <span style="color:#e6db74">&#39;157&#39;</span>, <span style="color:#e6db74">&#39;158&#39;</span>, <span style="color:#e6db74">&#39;159&#39;</span>, <span style="color:#e6db74">&#39;172&#39;</span>, <span style="color:#e6db74">&#39;178&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;182&#39;</span>, <span style="color:#e6db74">&#39;183&#39;</span>, <span style="color:#e6db74">&#39;184&#39;</span>, <span style="color:#e6db74">&#39;187&#39;</span>, <span style="color:#e6db74">&#39;188&#39;</span>, <span style="color:#e6db74">&#39;195&#39;</span>, <span style="color:#e6db74">&#39;198&#39;</span>, <span style="color:#e6db74">&#39;130&#39;</span>, <span style="color:#e6db74">&#39;131&#39;</span>, <span style="color:#e6db74">&#39;132&#39;</span>, <span style="color:#e6db74">&#39;140&#39;</span>, <span style="color:#e6db74">&#39;145&#39;</span>, <span style="color:#e6db74">&#39;146&#39;</span>, <span style="color:#e6db74">&#39;155&#39;</span>, <span style="color:#e6db74">&#39;156&#39;</span>, <span style="color:#e6db74">&#39;166&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;167&#39;</span>, <span style="color:#e6db74">&#39;171&#39;</span>, <span style="color:#e6db74">&#39;175&#39;</span>, <span style="color:#e6db74">&#39;176&#39;</span>, <span style="color:#e6db74">&#39;185&#39;</span>, <span style="color:#e6db74">&#39;186&#39;</span>, <span style="color:#e6db74">&#39;196&#39;</span>, <span style="color:#e6db74">&#39;133&#39;</span>, <span style="color:#e6db74">&#39;149&#39;</span>, <span style="color:#e6db74">&#39;153&#39;</span>, <span style="color:#e6db74">&#39;173&#39;</span>, <span style="color:#e6db74">&#39;174&#39;</span>, <span style="color:#e6db74">&#39;177&#39;</span>, <span style="color:#e6db74">&#39;180&#39;</span>, <span style="color:#e6db74">&#39;181&#39;</span>, <span style="color:#e6db74">&#39;189&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;190&#39;</span>, <span style="color:#e6db74">&#39;191&#39;</span>, <span style="color:#e6db74">&#39;193&#39;</span>, <span style="color:#e6db74">&#39;199&#39;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">is_valid_phone</span>(phone_str):
+</span></span><span style="display:flex;"><span>        clean <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>sub(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;[^\d]&#39;</span>, <span style="color:#e6db74">&#39;&#39;</span>, phone_str)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> len(clean) <span style="color:#f92672">!=</span> <span style="color:#ae81ff">11</span> <span style="color:#f92672">and</span> len(clean) <span style="color:#f92672">!=</span> <span style="color:#ae81ff">13</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> len(clean) <span style="color:#f92672">==</span> <span style="color:#ae81ff">11</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> clean[:<span style="color:#ae81ff">3</span>] <span style="color:#f92672">in</span> valid_prefixes
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> len(clean) <span style="color:#f92672">==</span> <span style="color:#ae81ff">13</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> clean[<span style="color:#ae81ff">2</span>:<span style="color:#ae81ff">5</span>] <span style="color:#f92672">in</span> valid_prefixes
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 银行卡号模式</span>
+</span></span><span style="display:flex;"><span>    bankcard_pattern <span style="color:#f92672">=</span> <span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;(?&lt;!\d)\d{16,19}(?!\d)&#39;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    common_bankcard_prefixes <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;622848&#39;</span>, <span style="color:#e6db74">&#39;622700&#39;</span>, <span style="color:#e6db74">&#39;621700&#39;</span>, <span style="color:#e6db74">&#39;622262&#39;</span>, <span style="color:#e6db74">&#39;622188&#39;</span>, 
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;622200&#39;</span>, <span style="color:#e6db74">&#39;622568&#39;</span>, <span style="color:#e6db74">&#39;622609&#39;</span>, <span style="color:#e6db74">&#39;622908&#39;</span>, <span style="color:#e6db74">&#39;622518&#39;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">luhn_check</span>(card_number):
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;Luhn算法校验&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        total <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 从右到左遍历</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> i, digit <span style="color:#f92672">in</span> enumerate(reversed(card_number)):
+</span></span><span style="display:flex;"><span>            num <span style="color:#f92672">=</span> int(digit)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> i <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:  <span style="color:#75715e"># 偶数位（从右往左数，索引从0开始）</span>
+</span></span><span style="display:flex;"><span>                num <span style="color:#f92672">*=</span> <span style="color:#ae81ff">2</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> num <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">9</span>:
+</span></span><span style="display:flex;"><span>                    num <span style="color:#f92672">=</span> num <span style="color:#f92672">//</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">+</span> num <span style="color:#f92672">%</span> <span style="color:#ae81ff">10</span>  <span style="color:#75715e"># 各位数字相加</span>
+</span></span><span style="display:flex;"><span>            total <span style="color:#f92672">+=</span> num
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> total <span style="color:#f92672">%</span> <span style="color:#ae81ff">10</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">is_valid_bankcard</span>(card_str):
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;&#34;&#34;验证银行卡号&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 检查长度</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> len(card_str) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">16</span> <span style="color:#f92672">or</span> len(card_str) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">19</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 检查是否全为数字</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> card_str<span style="color:#f92672">.</span>isdigit():
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 检查常见前缀</span>
+</span></span><span style="display:flex;"><span>        has_common_prefix <span style="color:#f92672">=</span> any(card_str<span style="color:#f92672">.</span>startswith(prefix) <span style="color:#66d9ef">for</span> prefix <span style="color:#f92672">in</span> common_bankcard_prefixes)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> has_common_prefix:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Luhn算法校验</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> luhn_check(card_str)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># IP地址模式</span>
+</span></span><span style="display:flex;"><span>    ip_pattern <span style="color:#f92672">=</span> <span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;(?&lt;!\d)(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?!\d)&#39;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">is_valid_ip</span>(ip_str):
+</span></span><span style="display:flex;"><span>        parts <span style="color:#f92672">=</span> ip_str<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;.&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> len(parts) <span style="color:#f92672">!=</span> <span style="color:#ae81ff">4</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> part <span style="color:#f92672">in</span> parts:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&lt;=</span> int(part) <span style="color:#f92672">&lt;=</span> <span style="color:#ae81ff">255</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># MAC地址模式</span>
+</span></span><span style="display:flex;"><span>    mac_pattern <span style="color:#f92672">=</span> <span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;[0-9A-Fa-f]</span><span style="color:#e6db74">{2}</span><span style="color:#e6db74">:[0-9A-Fa-f]</span><span style="color:#e6db74">{2}</span><span style="color:#e6db74">:[0-9A-Fa-f]</span><span style="color:#e6db74">{2}</span><span style="color:#e6db74">:[0-9A-Fa-f]</span><span style="color:#e6db74">{2}</span><span style="color:#e6db74">:[0-9A-Fa-f]</span><span style="color:#e6db74">{2}</span><span style="color:#e6db74">:[0-9A-Fa-f]</span><span style="color:#e6db74">{2}</span><span style="color:#e6db74">&#39;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">is_valid_mac</span>(mac_str):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    results <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(filename, <span style="color:#e6db74">&#39;r&#39;</span>, encoding<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;utf-8&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>        content <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>read()
+</span></span><span style="display:flex;"><span>        check <span style="color:#f92672">=</span> []  <span style="color:#75715e"># 用于排除手机号取身份证前11位的情况</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 身份证匹配</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">match</span> <span style="color:#f92672">in</span> re<span style="color:#f92672">.</span>findall(id_pattern, content):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> is_valid_id(<span style="color:#66d9ef">match</span>):
+</span></span><span style="display:flex;"><span>                check<span style="color:#f92672">.</span>append(<span style="color:#66d9ef">match</span>[:<span style="color:#ae81ff">11</span>])
+</span></span><span style="display:flex;"><span>                results<span style="color:#f92672">.</span>append([<span style="color:#e6db74">&#39;idcard&#39;</span>, <span style="color:#66d9ef">match</span>])
+</span></span><span style="display:flex;"><span>            
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 手机号匹配</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">match</span> <span style="color:#f92672">in</span> re<span style="color:#f92672">.</span>finditer(phone_pattern, content):
+</span></span><span style="display:flex;"><span>            full_match <span style="color:#f92672">=</span> <span style="color:#66d9ef">match</span><span style="color:#f92672">.</span>group()
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> is_valid_phone(full_match):
+</span></span><span style="display:flex;"><span>                
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> full_match[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34; &#34;</span>:
+</span></span><span style="display:flex;"><span>                    full_match <span style="color:#f92672">=</span> full_match[<span style="color:#ae81ff">1</span>:len(full_match)]
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> full_match <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> check:
+</span></span><span style="display:flex;"><span>                    results<span style="color:#f92672">.</span>append([<span style="color:#e6db74">&#39;phone&#39;</span>, full_match<span style="color:#f92672">.</span>strip() ])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># 银行卡号匹配</span>
+</span></span><span style="display:flex;"><span>        bankcard_matches <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>findall(bankcard_pattern, content)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">match</span> <span style="color:#f92672">in</span> bankcard_matches:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> is_valid_bankcard(<span style="color:#66d9ef">match</span>):
+</span></span><span style="display:flex;"><span>                results<span style="color:#f92672">.</span>append([<span style="color:#e6db74">&#39;bankcard&#39;</span>, <span style="color:#66d9ef">match</span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># IP地址匹配</span>
+</span></span><span style="display:flex;"><span>        ip_matches <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>findall(ip_pattern, content)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">match</span> <span style="color:#f92672">in</span> ip_matches:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> is_valid_ip(<span style="color:#66d9ef">match</span>):
+</span></span><span style="display:flex;"><span>                results<span style="color:#f92672">.</span>append([<span style="color:#e6db74">&#39;ip&#39;</span>, <span style="color:#66d9ef">match</span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># MAC地址匹配</span>
+</span></span><span style="display:flex;"><span>        mac_matches <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>findall(mac_pattern, content)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> <span style="color:#66d9ef">match</span> <span style="color:#f92672">in</span> mac_matches:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> is_valid_mac(<span style="color:#66d9ef">match</span>):
+</span></span><span style="display:flex;"><span>                results<span style="color:#f92672">.</span>append([<span style="color:#e6db74">&#39;mac&#39;</span>, <span style="color:#66d9ef">match</span>])
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#39;output.csv&#39;</span>, <span style="color:#e6db74">&#39;w&#39;</span>, newline<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;&#39;</span>, encoding<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;utf-8&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>        writer <span style="color:#f92672">=</span> csv<span style="color:#f92672">.</span>writer(f)
+</span></span><span style="display:flex;"><span>        writer<span style="color:#f92672">.</span>writerow([<span style="color:#e6db74">&#39;category&#39;</span>, <span style="color:#e6db74">&#39;value&#39;</span>])
+</span></span><span style="display:flex;"><span>        writer<span style="color:#f92672">.</span>writerows(results)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>extract_and_save(<span style="color:#e6db74">&#39;data.txt&#39;</span>)
+</span></span></code></pre></div><h3 id="2025-能源网络安全大赛-数据脱敏">2025 能源网络安全大赛 数据脱敏<a hidden class="anchor" aria-hidden="true" href="#2025-能源网络安全大赛-数据脱敏">#</a></h3>
+<blockquote>
+<p>为了抵抗黑客攻击导致数据拖库等问题，需要将敏感数据识别并脱敏存储成⼀个表。给定脱敏算法逻辑，要求选⼿⽣成脱敏后的数据表数据（所有数据均为随机⽣成，与现实世界⽆任何联系）。为了防⽌⼀些隐私数据泄漏，现需要对该数据表进⾏脱敏操作，请按照指定要求对各字段进⾏脱敏处理，并按照先行后列拼接字符串（不包含标题行），对此字符串进行md5计算，得到答案。</p></blockquote>
+<p>脱敏要求：</p>
+<pre tabindex="0"><code>编号：⽆需脱敏。
 姓名：⼆字姓名对最后⼀位字使⽤ * 进⾏替换，三字姓名对中间⼀位字使⽤ * 进⾏替换，四字姓名对中间两位字使⽤ * 进⾏替换。
 手机号：请对中间五位信息使⽤ * 进⾏替换。
 身份证号码：请对除了前6位信息使⽤ * 进⾏替换。
@@ -225,144 +578,228 @@ mac_pattern = r&#39;[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:[0-9A-Fa-f]{2}:
 Email：请对字符 @ 前除 . 外的字符使⽤ * 进⾏替换。
 性别：替换成未知。
 微信号：请对为字符的信息使用 * 进行替换。
-</code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-py data-lang=py><span style=display:flex><span><span style=color:#f92672>import</span> pandas <span style=color:#66d9ef>as</span> pd
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> string
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> hashlib
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>df_dict <span style=color:#f92672>=</span> pd<span style=color:#f92672>.</span>read_excel(<span style=color:#e6db74>&#34;data.xlsx&#34;</span>, sheet_name<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#34;Sheet1&#34;</span>], header<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>)
-</span></span><span style=display:flex><span>df_sheet1 <span style=color:#f92672>=</span> df_dict[<span style=color:#e6db74>&#39;Sheet1&#39;</span>]
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 数据提取</span>
-</span></span><span style=display:flex><span>id <span style=color:#f92672>=</span> df_sheet1[<span style=color:#e6db74>&#39;编号&#39;</span>]
-</span></span><span style=display:flex><span>name <span style=color:#f92672>=</span> df_sheet1[<span style=color:#e6db74>&#39;姓名&#39;</span>]
-</span></span><span style=display:flex><span>phone <span style=color:#f92672>=</span> df_sheet1[<span style=color:#e6db74>&#39;手机号&#39;</span>]
-</span></span><span style=display:flex><span>idcard <span style=color:#f92672>=</span> df_sheet1[<span style=color:#e6db74>&#39;身份证号&#39;</span>]
-</span></span><span style=display:flex><span>bankcard <span style=color:#f92672>=</span> df_sheet1[<span style=color:#e6db74>&#39;银行卡号&#39;</span>]
-</span></span><span style=display:flex><span>email <span style=color:#f92672>=</span> df_sheet1[<span style=color:#e6db74>&#39;Email&#39;</span>]
-</span></span><span style=display:flex><span>gender <span style=color:#f92672>=</span> df_sheet1[<span style=color:#e6db74>&#39;性别&#39;</span>]
-</span></span><span style=display:flex><span>wechat <span style=color:#f92672>=</span> df_sheet1[<span style=color:#e6db74>&#39;微信号&#39;</span>]
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 编号无需脱敏</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 姓名：⼆字姓名对最后⼀位字使⽤ * 进⾏替换，三字姓名对中间⼀位字使⽤ * 进⾏替换，四字姓名对中间两位字使⽤ * 进⾏替换。</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>name_desensitization</span>(current_name):
-</span></span><span style=display:flex><span>    n <span style=color:#f92672>=</span> len(current_name)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> n <span style=color:#f92672>==</span> <span style=color:#ae81ff>2</span>:
-</span></span><span style=display:flex><span>        desensitized_name <span style=color:#f92672>=</span> current_name[<span style=color:#ae81ff>0</span>] <span style=color:#f92672>+</span> <span style=color:#e6db74>&#39;*&#39;</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>elif</span> n <span style=color:#f92672>==</span> <span style=color:#ae81ff>3</span>:
-</span></span><span style=display:flex><span>        desensitized_name <span style=color:#f92672>=</span> current_name[<span style=color:#ae81ff>0</span>] <span style=color:#f92672>+</span> <span style=color:#e6db74>&#39;*&#39;</span> <span style=color:#f92672>+</span> current_name[<span style=color:#ae81ff>2</span>]
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>elif</span> n <span style=color:#f92672>==</span> <span style=color:#ae81ff>4</span>:
-</span></span><span style=display:flex><span>        desensitized_name <span style=color:#f92672>=</span> current_name[<span style=color:#ae81ff>0</span>] <span style=color:#f92672>+</span> <span style=color:#e6db74>&#39;**&#39;</span> <span style=color:#f92672>+</span> current_name[<span style=color:#ae81ff>3</span>]
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>else</span>:
-</span></span><span style=display:flex><span>        desensitized_name <span style=color:#f92672>=</span> current_name
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> desensitized_name
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 手机号：请对中间五位信息使⽤ * 进⾏替换。</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>phone_desensitization</span>(current_phone):
-</span></span><span style=display:flex><span>    current_phone <span style=color:#f92672>=</span> str(current_phone)
-</span></span><span style=display:flex><span>    desensitized_phone <span style=color:#f92672>=</span> current_phone[<span style=color:#ae81ff>0</span>:<span style=color:#ae81ff>3</span>] <span style=color:#f92672>+</span> <span style=color:#e6db74>&#39;*&#39;</span><span style=color:#f92672>*</span><span style=color:#ae81ff>5</span> <span style=color:#f92672>+</span> current_phone[<span style=color:#ae81ff>8</span>:]
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> desensitized_phone
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 身份证号码：请对除了前6位信息使⽤ * 进⾏替换。</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>idcard_desensitization</span>(current_idcard):
-</span></span><span style=display:flex><span>    current_idcard <span style=color:#f92672>=</span> str(current_idcard)
-</span></span><span style=display:flex><span>    desensitized_idcard <span style=color:#f92672>=</span> current_idcard[<span style=color:#ae81ff>0</span>:<span style=color:#ae81ff>6</span>] <span style=color:#f92672>+</span> <span style=color:#e6db74>&#39;*&#39;</span><span style=color:#f92672>*</span><span style=color:#ae81ff>12</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> desensitized_idcard
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 银⾏卡：请对前四位和后十位信息使⽤ * 进⾏替换。</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>bankcard_desensitization</span>(current_bankcard):
-</span></span><span style=display:flex><span>    current_bankcard <span style=color:#f92672>=</span> str(current_bankcard)
-</span></span><span style=display:flex><span>    desensitized_bankcard <span style=color:#f92672>=</span> current_bankcard[:<span style=color:#ae81ff>4</span>] <span style=color:#f92672>+</span> <span style=color:#e6db74>&#39;*&#39;</span><span style=color:#f92672>*</span>(len(current_bankcard)<span style=color:#f92672>-</span><span style=color:#ae81ff>14</span>) <span style=color:#f92672>+</span> current_bankcard[<span style=color:#f92672>-</span><span style=color:#ae81ff>10</span>:]
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> desensitized_bankcard
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># Email：请对字符 @ 前除 . 外的字符使⽤ * 进⾏替换。</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>email_desensitization</span>(current_email):
-</span></span><span style=display:flex><span>    desensitized_email <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&#39;</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> range(len(current_email)):
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> current_email[i] <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;@&#39;</span>:
-</span></span><span style=display:flex><span>            desensitized_email <span style=color:#f92672>+=</span> current_email[i:]
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> desensitized_email
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>else</span>:
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> current_email[i] <span style=color:#f92672>!=</span> <span style=color:#e6db74>&#39;.&#39;</span>:
-</span></span><span style=display:flex><span>                desensitized_email <span style=color:#f92672>+=</span> <span style=color:#e6db74>&#39;*&#39;</span>
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>else</span>:
-</span></span><span style=display:flex><span>                desensitized_email <span style=color:#f92672>+=</span> current_email[i]
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 性别：替换成未知。</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>gender_desensitization</span>(current_gender):
-</span></span><span style=display:flex><span>    desensitized_gender <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;未知&#39;</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> desensitized_gender
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 微信号：请对为字符的信息使用 * 进行替换。</span>
-</span></span><span style=display:flex><span>chars <span style=color:#f92672>=</span> string<span style=color:#f92672>.</span>ascii_lowercase <span style=color:#f92672>+</span> string<span style=color:#f92672>.</span>ascii_uppercase <span style=color:#f92672>+</span> string<span style=color:#f92672>.</span>digits <span style=color:#f92672>+</span> <span style=color:#e6db74>&#39;_&#39;</span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>wechat_desensitization</span>(current_wechat):
-</span></span><span style=display:flex><span>    desensitized_wechat <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;&#39;</span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> range(len(current_wechat)):
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> current_wechat[i] <span style=color:#f92672>in</span> chars:
-</span></span><span style=display:flex><span>            desensitized_wechat <span style=color:#f92672>+=</span> <span style=color:#e6db74>&#39;*&#39;</span>
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>else</span>:
-</span></span><span style=display:flex><span>            desensitized_wechat <span style=color:#f92672>+=</span> current_wechat[i]
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> desensitized_wechat
-</span></span><span style=display:flex><span>        
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># 数据脱敏</span>
-</span></span><span style=display:flex><span>name_desensitized <span style=color:#f92672>=</span> name<span style=color:#f92672>.</span>apply(name_desensitization)
-</span></span><span style=display:flex><span>phone_desensitized <span style=color:#f92672>=</span> phone<span style=color:#f92672>.</span>apply(phone_desensitization)
-</span></span><span style=display:flex><span>idcard_desensitized <span style=color:#f92672>=</span> idcard<span style=color:#f92672>.</span>apply(idcard_desensitization)
-</span></span><span style=display:flex><span>bankcard_desensitized <span style=color:#f92672>=</span> bankcard<span style=color:#f92672>.</span>apply(bankcard_desensitization)
-</span></span><span style=display:flex><span>email_desensitized <span style=color:#f92672>=</span> email<span style=color:#f92672>.</span>apply(email_desensitization)
-</span></span><span style=display:flex><span>gender_desensitized <span style=color:#f92672>=</span> gender<span style=color:#f92672>.</span>apply(gender_desensitization)
-</span></span><span style=display:flex><span>wechat_desensitized <span style=color:#f92672>=</span> wechat<span style=color:#f92672>.</span>apply(wechat_desensitization)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>with</span> open(<span style=color:#e6db74>&#39;output.txt&#39;</span>, <span style=color:#e6db74>&#39;w&#39;</span>) <span style=color:#66d9ef>as</span> f:
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> data_index <span style=color:#f92672>in</span> range(len(id)):
-</span></span><span style=display:flex><span>        f<span style=color:#f92672>.</span>write(name_desensitized[data_index]<span style=color:#f92672>+</span>phone_desensitized[data_index]<span style=color:#f92672>+</span>idcard_desensitized[data_index]<span style=color:#f92672>+</span>bankcard_desensitized[data_index]<span style=color:#f92672>+</span>email_desensitized[data_index]<span style=color:#f92672>+</span>gender_desensitized[data_index]<span style=color:#f92672>+</span>wechat_desensitized[data_index])
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>with</span> open(<span style=color:#e6db74>&#39;output.txt&#39;</span>, <span style=color:#e6db74>&#39;r&#39;</span>) <span style=color:#66d9ef>as</span> ff:
-</span></span><span style=display:flex><span>    <span style=color:#75715e># 计算文件md5    </span>
-</span></span><span style=display:flex><span>    md5 <span style=color:#f92672>=</span> hashlib<span style=color:#f92672>.</span>md5(ff<span style=color:#f92672>.</span>read()<span style=color:#f92672>.</span>encode(<span style=color:#e6db74>&#39;UTF-8&#39;</span>))<span style=color:#f92672>.</span>hexdigest()
-</span></span><span style=display:flex><span>    print(md5)
-</span></span></code></pre></div><h3 id=2025-红明谷杯>2025 红明谷杯<a hidden class=anchor aria-hidden=true href=#2025-红明谷杯>#</a></h3><p>题目内容：某企业网络安全部门人员正在对企业网络资产受到的攻击行为进行溯源分析，该工作人员发现攻击者删除了一段时间内的访问日志数据，但是攻击者曾传输过已被删除的访问日志数据并且被流量监控设备捕获，工作人员对流量数据进行了初步过滤并提取出了相应数据包。已知该攻击者在开始时曾尝试低密度的攻击，发现未被相关安全人员及时发现后进行了连续多日的攻击，请协助企业排查并定位攻击者IP，flag格式为：flag{md5(IP)}</p><p>先用tshark导出data.data字段的base64数据，默认输出的是hex的数据：</p><pre tabindex=0><code>tshark -r network_traffic.pcap -T fields -e data.data tcp &gt; 1.txt
-</code></pre><p>先解hex，再解base64：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-py data-lang=py><span style=display:flex><span><span style=color:#f92672>import</span> base64
-</span></span><span style=display:flex><span><span style=color:#f92672>import</span> json
-</span></span><span style=display:flex><span> 
-</span></span><span style=display:flex><span><span style=color:#66d9ef>with</span> open(<span style=color:#e6db74>&#39;1.txt&#39;</span>, <span style=color:#e6db74>&#39;r&#39;</span>, encoding<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;utf-8&#39;</span>) <span style=color:#66d9ef>as</span> f, open(<span style=color:#e6db74>&#39;2.txt&#39;</span>, <span style=color:#e6db74>&#39;w&#39;</span>, encoding<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;utf-8&#39;</span>) <span style=color:#66d9ef>as</span> ff:
-</span></span><span style=display:flex><span>    lines <span style=color:#f92672>=</span> f<span style=color:#f92672>.</span>readlines()
-</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> line <span style=color:#f92672>in</span> lines:
-</span></span><span style=display:flex><span>        line <span style=color:#f92672>=</span> line<span style=color:#f92672>.</span>strip()
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>try</span>:
-</span></span><span style=display:flex><span>            base64_data <span style=color:#f92672>=</span> bytes<span style=color:#f92672>.</span>fromhex(line)<span style=color:#f92672>.</span>decode()
-</span></span><span style=display:flex><span>            data <span style=color:#f92672>=</span> base64<span style=color:#f92672>.</span>b64decode(base64_data)<span style=color:#f92672>.</span>decode()
-</span></span><span style=display:flex><span>            json_data <span style=color:#f92672>=</span> json<span style=color:#f92672>.</span>loads(data)
-</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> <span style=color:#e6db74>&#39;msg&#39;</span> <span style=color:#f92672>in</span> json_data:
-</span></span><span style=display:flex><span>                base64_msg <span style=color:#f92672>=</span> json_data[<span style=color:#e6db74>&#39;msg&#39;</span>]
-</span></span><span style=display:flex><span>                log <span style=color:#f92672>=</span> base64<span style=color:#f92672>.</span>b64decode(base64_msg)<span style=color:#f92672>.</span>decode()
-</span></span><span style=display:flex><span>                ff<span style=color:#f92672>.</span>write(log <span style=color:#f92672>+</span> <span style=color:#e6db74>&#39;</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#39;</span>)
-</span></span><span style=display:flex><span>        <span style=color:#66d9ef>except</span>:
-</span></span><span style=display:flex><span>            print(<span style=color:#e6db74>&#34;decode error&#34;</span>)
-</span></span></code></pre></div><p>日志形式：</p><pre tabindex=0><code>90.97.242.28- - [08/Jan/2025:22:57:37 +0000] &#34;POST /main/search.php HTTP/1.1&#34; 200 2380 &#34;-&#34; &#34;Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.1)&#34;
-</code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-py data-lang=py><span style=display:flex><span><span style=color:#f92672>import</span> re
-</span></span><span style=display:flex><span><span style=color:#f92672>from</span> collections <span style=color:#f92672>import</span> Counter
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>pattern <span style=color:#f92672>=</span> <span style=color:#e6db74>r</span><span style=color:#e6db74>&#39;\d+\.\d+\.\d+\.\d+(?=-| )&#39;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#66d9ef>with</span> open(<span style=color:#e6db74>&#39;2.txt&#39;</span>, <span style=color:#e6db74>&#39;r&#39;</span>, encoding<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;latin&#39;</span>) <span style=color:#66d9ef>as</span> f:
-</span></span><span style=display:flex><span>    ip <span style=color:#f92672>=</span> re<span style=color:#f92672>.</span>findall(pattern, f<span style=color:#f92672>.</span>read())
-</span></span><span style=display:flex><span>    
-</span></span><span style=display:flex><span>    <span style=color:#75715e># 统计ip出现频率</span>
-</span></span><span style=display:flex><span>    ip_counts <span style=color:#f92672>=</span> Counter(ip)
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    <span style=color:#75715e># 出现最多次数的ip</span>
-</span></span><span style=display:flex><span>    badip, counts <span style=color:#f92672>=</span> ip_counts<span style=color:#f92672>.</span>most_common(<span style=color:#ae81ff>1</span>)[<span style=color:#ae81ff>0</span>]
-</span></span><span style=display:flex><span>    print(badip, counts)
-</span></span></code></pre></div><p>输出结果：</p><pre tabindex=0><code>35.127.46.111 67
-</code></pre></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>&copy; 2025 <a href=https://z9nn8w.github.io/>w8nn9z Blog</a></span> ·
-<span>Powered by
-<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
-<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
-</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#f92672">import</span> pandas <span style="color:#66d9ef">as</span> pd
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> string
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> hashlib
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>df_dict <span style="color:#f92672">=</span> pd<span style="color:#f92672">.</span>read_excel(<span style="color:#e6db74">&#34;data.xlsx&#34;</span>, sheet_name<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;Sheet1&#34;</span>], header<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>df_sheet1 <span style="color:#f92672">=</span> df_dict[<span style="color:#e6db74">&#39;Sheet1&#39;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 数据提取</span>
+</span></span><span style="display:flex;"><span>id <span style="color:#f92672">=</span> df_sheet1[<span style="color:#e6db74">&#39;编号&#39;</span>]
+</span></span><span style="display:flex;"><span>name <span style="color:#f92672">=</span> df_sheet1[<span style="color:#e6db74">&#39;姓名&#39;</span>]
+</span></span><span style="display:flex;"><span>phone <span style="color:#f92672">=</span> df_sheet1[<span style="color:#e6db74">&#39;手机号&#39;</span>]
+</span></span><span style="display:flex;"><span>idcard <span style="color:#f92672">=</span> df_sheet1[<span style="color:#e6db74">&#39;身份证号&#39;</span>]
+</span></span><span style="display:flex;"><span>bankcard <span style="color:#f92672">=</span> df_sheet1[<span style="color:#e6db74">&#39;银行卡号&#39;</span>]
+</span></span><span style="display:flex;"><span>email <span style="color:#f92672">=</span> df_sheet1[<span style="color:#e6db74">&#39;Email&#39;</span>]
+</span></span><span style="display:flex;"><span>gender <span style="color:#f92672">=</span> df_sheet1[<span style="color:#e6db74">&#39;性别&#39;</span>]
+</span></span><span style="display:flex;"><span>wechat <span style="color:#f92672">=</span> df_sheet1[<span style="color:#e6db74">&#39;微信号&#39;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 编号无需脱敏</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 姓名：⼆字姓名对最后⼀位字使⽤ * 进⾏替换，三字姓名对中间⼀位字使⽤ * 进⾏替换，四字姓名对中间两位字使⽤ * 进⾏替换。</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">name_desensitization</span>(current_name):
+</span></span><span style="display:flex;"><span>    n <span style="color:#f92672">=</span> len(current_name)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">2</span>:
+</span></span><span style="display:flex;"><span>        desensitized_name <span style="color:#f92672">=</span> current_name[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;*&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">3</span>:
+</span></span><span style="display:flex;"><span>        desensitized_name <span style="color:#f92672">=</span> current_name[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;*&#39;</span> <span style="color:#f92672">+</span> current_name[<span style="color:#ae81ff">2</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">elif</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">4</span>:
+</span></span><span style="display:flex;"><span>        desensitized_name <span style="color:#f92672">=</span> current_name[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;**&#39;</span> <span style="color:#f92672">+</span> current_name[<span style="color:#ae81ff">3</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        desensitized_name <span style="color:#f92672">=</span> current_name
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> desensitized_name
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 手机号：请对中间五位信息使⽤ * 进⾏替换。</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">phone_desensitization</span>(current_phone):
+</span></span><span style="display:flex;"><span>    current_phone <span style="color:#f92672">=</span> str(current_phone)
+</span></span><span style="display:flex;"><span>    desensitized_phone <span style="color:#f92672">=</span> current_phone[<span style="color:#ae81ff">0</span>:<span style="color:#ae81ff">3</span>] <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;*&#39;</span><span style="color:#f92672">*</span><span style="color:#ae81ff">5</span> <span style="color:#f92672">+</span> current_phone[<span style="color:#ae81ff">8</span>:]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> desensitized_phone
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 身份证号码：请对除了前6位信息使⽤ * 进⾏替换。</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">idcard_desensitization</span>(current_idcard):
+</span></span><span style="display:flex;"><span>    current_idcard <span style="color:#f92672">=</span> str(current_idcard)
+</span></span><span style="display:flex;"><span>    desensitized_idcard <span style="color:#f92672">=</span> current_idcard[<span style="color:#ae81ff">0</span>:<span style="color:#ae81ff">6</span>] <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;*&#39;</span><span style="color:#f92672">*</span><span style="color:#ae81ff">12</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> desensitized_idcard
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 银⾏卡：请对前四位和后十位信息使⽤ * 进⾏替换。</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">bankcard_desensitization</span>(current_bankcard):
+</span></span><span style="display:flex;"><span>    current_bankcard <span style="color:#f92672">=</span> str(current_bankcard)
+</span></span><span style="display:flex;"><span>    desensitized_bankcard <span style="color:#f92672">=</span> current_bankcard[:<span style="color:#ae81ff">4</span>] <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;*&#39;</span><span style="color:#f92672">*</span>(len(current_bankcard)<span style="color:#f92672">-</span><span style="color:#ae81ff">14</span>) <span style="color:#f92672">+</span> current_bankcard[<span style="color:#f92672">-</span><span style="color:#ae81ff">10</span>:]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> desensitized_bankcard
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Email：请对字符 @ 前除 . 外的字符使⽤ * 进⾏替换。</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">email_desensitization</span>(current_email):
+</span></span><span style="display:flex;"><span>    desensitized_email <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(current_email)):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> current_email[i] <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;@&#39;</span>:
+</span></span><span style="display:flex;"><span>            desensitized_email <span style="color:#f92672">+=</span> current_email[i:]
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> desensitized_email
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> current_email[i] <span style="color:#f92672">!=</span> <span style="color:#e6db74">&#39;.&#39;</span>:
+</span></span><span style="display:flex;"><span>                desensitized_email <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#39;*&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                desensitized_email <span style="color:#f92672">+=</span> current_email[i]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 性别：替换成未知。</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">gender_desensitization</span>(current_gender):
+</span></span><span style="display:flex;"><span>    desensitized_gender <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;未知&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> desensitized_gender
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 微信号：请对为字符的信息使用 * 进行替换。</span>
+</span></span><span style="display:flex;"><span>chars <span style="color:#f92672">=</span> string<span style="color:#f92672">.</span>ascii_lowercase <span style="color:#f92672">+</span> string<span style="color:#f92672">.</span>ascii_uppercase <span style="color:#f92672">+</span> string<span style="color:#f92672">.</span>digits <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;_&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">wechat_desensitization</span>(current_wechat):
+</span></span><span style="display:flex;"><span>    desensitized_wechat <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(current_wechat)):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> current_wechat[i] <span style="color:#f92672">in</span> chars:
+</span></span><span style="display:flex;"><span>            desensitized_wechat <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#39;*&#39;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            desensitized_wechat <span style="color:#f92672">+=</span> current_wechat[i]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> desensitized_wechat
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 数据脱敏</span>
+</span></span><span style="display:flex;"><span>name_desensitized <span style="color:#f92672">=</span> name<span style="color:#f92672">.</span>apply(name_desensitization)
+</span></span><span style="display:flex;"><span>phone_desensitized <span style="color:#f92672">=</span> phone<span style="color:#f92672">.</span>apply(phone_desensitization)
+</span></span><span style="display:flex;"><span>idcard_desensitized <span style="color:#f92672">=</span> idcard<span style="color:#f92672">.</span>apply(idcard_desensitization)
+</span></span><span style="display:flex;"><span>bankcard_desensitized <span style="color:#f92672">=</span> bankcard<span style="color:#f92672">.</span>apply(bankcard_desensitization)
+</span></span><span style="display:flex;"><span>email_desensitized <span style="color:#f92672">=</span> email<span style="color:#f92672">.</span>apply(email_desensitization)
+</span></span><span style="display:flex;"><span>gender_desensitized <span style="color:#f92672">=</span> gender<span style="color:#f92672">.</span>apply(gender_desensitization)
+</span></span><span style="display:flex;"><span>wechat_desensitized <span style="color:#f92672">=</span> wechat<span style="color:#f92672">.</span>apply(wechat_desensitization)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#39;output.txt&#39;</span>, <span style="color:#e6db74">&#39;w&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> data_index <span style="color:#f92672">in</span> range(len(id)):
+</span></span><span style="display:flex;"><span>        f<span style="color:#f92672">.</span>write(name_desensitized[data_index]<span style="color:#f92672">+</span>phone_desensitized[data_index]<span style="color:#f92672">+</span>idcard_desensitized[data_index]<span style="color:#f92672">+</span>bankcard_desensitized[data_index]<span style="color:#f92672">+</span>email_desensitized[data_index]<span style="color:#f92672">+</span>gender_desensitized[data_index]<span style="color:#f92672">+</span>wechat_desensitized[data_index])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#39;output.txt&#39;</span>, <span style="color:#e6db74">&#39;r&#39;</span>) <span style="color:#66d9ef">as</span> ff:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 计算文件md5    </span>
+</span></span><span style="display:flex;"><span>    md5 <span style="color:#f92672">=</span> hashlib<span style="color:#f92672">.</span>md5(ff<span style="color:#f92672">.</span>read()<span style="color:#f92672">.</span>encode(<span style="color:#e6db74">&#39;UTF-8&#39;</span>))<span style="color:#f92672">.</span>hexdigest()
+</span></span><span style="display:flex;"><span>    print(md5)
+</span></span></code></pre></div><h3 id="2025-红明谷杯">2025 红明谷杯<a hidden class="anchor" aria-hidden="true" href="#2025-红明谷杯">#</a></h3>
+<p>题目内容：某企业网络安全部门人员正在对企业网络资产受到的攻击行为进行溯源分析，该工作人员发现攻击者删除了一段时间内的访问日志数据，但是攻击者曾传输过已被删除的访问日志数据并且被流量监控设备捕获，工作人员对流量数据进行了初步过滤并提取出了相应数据包。已知该攻击者在开始时曾尝试低密度的攻击，发现未被相关安全人员及时发现后进行了连续多日的攻击，请协助企业排查并定位攻击者IP，flag格式为：flag{md5(IP)}</p>
+<p>先用tshark导出data.data字段的base64数据，默认输出的是hex的数据：</p>
+<pre tabindex="0"><code>tshark -r network_traffic.pcap -T fields -e data.data tcp &gt; 1.txt
+</code></pre><p>先解hex，再解base64：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#f92672">import</span> base64
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> json
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#39;1.txt&#39;</span>, <span style="color:#e6db74">&#39;r&#39;</span>, encoding<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;utf-8&#39;</span>) <span style="color:#66d9ef">as</span> f, open(<span style="color:#e6db74">&#39;2.txt&#39;</span>, <span style="color:#e6db74">&#39;w&#39;</span>, encoding<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;utf-8&#39;</span>) <span style="color:#66d9ef">as</span> ff:
+</span></span><span style="display:flex;"><span>    lines <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>readlines()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> line <span style="color:#f92672">in</span> lines:
+</span></span><span style="display:flex;"><span>        line <span style="color:#f92672">=</span> line<span style="color:#f92672">.</span>strip()
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span>:
+</span></span><span style="display:flex;"><span>            base64_data <span style="color:#f92672">=</span> bytes<span style="color:#f92672">.</span>fromhex(line)<span style="color:#f92672">.</span>decode()
+</span></span><span style="display:flex;"><span>            data <span style="color:#f92672">=</span> base64<span style="color:#f92672">.</span>b64decode(base64_data)<span style="color:#f92672">.</span>decode()
+</span></span><span style="display:flex;"><span>            json_data <span style="color:#f92672">=</span> json<span style="color:#f92672">.</span>loads(data)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;msg&#39;</span> <span style="color:#f92672">in</span> json_data:
+</span></span><span style="display:flex;"><span>                base64_msg <span style="color:#f92672">=</span> json_data[<span style="color:#e6db74">&#39;msg&#39;</span>]
+</span></span><span style="display:flex;"><span>                log <span style="color:#f92672">=</span> base64<span style="color:#f92672">.</span>b64decode(base64_msg)<span style="color:#f92672">.</span>decode()
+</span></span><span style="display:flex;"><span>                ff<span style="color:#f92672">.</span>write(log <span style="color:#f92672">+</span> <span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">except</span>:
+</span></span><span style="display:flex;"><span>            print(<span style="color:#e6db74">&#34;decode error&#34;</span>)
+</span></span></code></pre></div><p>日志形式：</p>
+<pre tabindex="0"><code>90.97.242.28- - [08/Jan/2025:22:57:37 +0000] &#34;POST /main/search.php HTTP/1.1&#34; 200 2380 &#34;-&#34; &#34;Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.1)&#34;
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#f92672">import</span> re
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> collections <span style="color:#f92672">import</span> Counter
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>pattern <span style="color:#f92672">=</span> <span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;\d+\.\d+\.\d+\.\d+(?=-| )&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#39;2.txt&#39;</span>, <span style="color:#e6db74">&#39;r&#39;</span>, encoding<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;latin&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>    ip <span style="color:#f92672">=</span> re<span style="color:#f92672">.</span>findall(pattern, f<span style="color:#f92672">.</span>read())
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 统计ip出现频率</span>
+</span></span><span style="display:flex;"><span>    ip_counts <span style="color:#f92672">=</span> Counter(ip)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 出现最多次数的ip</span>
+</span></span><span style="display:flex;"><span>    badip, counts <span style="color:#f92672">=</span> ip_counts<span style="color:#f92672">.</span>most_common(<span style="color:#ae81ff">1</span>)[<span style="color:#ae81ff">0</span>]
+</span></span><span style="display:flex;"><span>    print(badip, counts)
+</span></span></code></pre></div><p>输出结果：</p>
+<pre tabindex="0"><code>35.127.46.111 67
+</code></pre>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

