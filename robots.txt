@@ -1,3 +1,3 @@
 User-agent: *
 Disallow:
-Sitemap: https://z9nn8w.github.io/sitemap.xml
+Sitemap: https://blog.w8nn9z.top/sitemap.xml

