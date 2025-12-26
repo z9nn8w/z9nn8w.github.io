@@ -6,13 +6,34 @@
     <description>Recent content in CTF on w8nn9z Blog</description>
     <generator>Hugo -- 0.148.2</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 23 Nov 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 21 Dec 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://blog.w8nn9z.top/posts/ctf/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>鹏城杯 2025 Writeup</title>
+      <link>https://blog.w8nn9z.top/posts/ctf/pcb-2025-writeup/</link>
+      <pubDate>Sat, 13 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>https://blog.w8nn9z.top/posts/ctf/pcb-2025-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Original Chicken CTF WEB Writeup</title>
+      <link>https://blog.w8nn9z.top/posts/ctf/original-chicken-ctf-writeup/</link>
+      <pubDate>Thu, 20 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>https://blog.w8nn9z.top/posts/ctf/original-chicken-ctf-writeup/</guid>
+      <description></description>
+    </item>
     <item>
       <title>第十六届极客大挑战 WEB Writeup</title>
       <link>https://blog.w8nn9z.top/posts/ctf/geekchallenge-16th-web-writeup/</link>
       <pubDate>Wed, 05 Nov 2025 00:00:00 +0000</pubDate>
       <guid>https://blog.w8nn9z.top/posts/ctf/geekchallenge-16th-web-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>强网杯 2025 WEB Writeup</title>
+      <link>https://blog.w8nn9z.top/posts/ctf/qwb-2025-web-writeup/</link>
+      <pubDate>Wed, 22 Oct 2025 00:00:00 +0000</pubDate>
+      <guid>https://blog.w8nn9z.top/posts/ctf/qwb-2025-web-writeup/</guid>
       <description></description>
     </item>
     <item>

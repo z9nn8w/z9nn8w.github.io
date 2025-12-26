@@ -2,14 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://blog.w8nn9z.top/posts/ctf/</loc>
+    <lastmod>2025-12-21T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://blog.w8nn9z.top/posts/ctf/pcb-2025-writeup/</loc>
+    <lastmod>2025-12-13T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://blog.w8nn9z.top/posts/misc/</loc>
     <lastmod>2025-11-29T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://blog.w8nn9z.top/posts/web/</loc>
-    <lastmod>2025-11-18T00:00:00+00:00</lastmod>
+    <loc>https://blog.w8nn9z.top/posts/ctf/original-chicken-ctf-writeup/</loc>
+    <lastmod>2025-12-20T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://blog.w8nn9z.top/posts/ctf/</loc>
-    <lastmod>2025-11-23T00:00:00+00:00</lastmod>
+    <loc>https://blog.w8nn9z.top/posts/web/</loc>
+    <lastmod>2025-11-20T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://blog.w8nn9z.top/posts/ctf/geekchallenge-16th-web-writeup/</loc>
     <lastmod>2025-11-23T00:00:00+00:00</lastmod>
@@ -19,6 +25,9 @@
   </url><url>
     <loc>https://blog.w8nn9z.top/posts/pentest/</loc>
     <lastmod>2025-12-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://blog.w8nn9z.top/posts/ctf/qwb-2025-web-writeup/</loc>
+    <lastmod>2025-12-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://blog.w8nn9z.top/posts/ctf/ycb-2025-web-writeup/</loc>
     <lastmod>2025-10-20T00:00:00+00:00</lastmod>
@@ -77,11 +86,17 @@
     <loc>https://blog.w8nn9z.top/posts/misc/badusb/</loc>
     <lastmod>2025-11-29T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://blog.w8nn9z.top/posts/web/pickle/</loc>
+    <lastmod>2025-08-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://blog.w8nn9z.top/posts/web/ssti/</loc>
+    <lastmod>2025-11-20T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://blog.w8nn9z.top/posts/</loc>
-    <lastmod>2025-12-09T00:00:00+00:00</lastmod>
+    <lastmod>2025-12-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://blog.w8nn9z.top/</loc>
-    <lastmod>2025-12-09T00:00:00+00:00</lastmod>
+    <lastmod>2025-12-21T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://blog.w8nn9z.top/posts/web/jdbc/</loc>
     <lastmod>2025-11-18T00:00:00+00:00</lastmod>
